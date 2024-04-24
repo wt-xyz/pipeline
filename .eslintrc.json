@@ -1,3 +1,43 @@
 {
-  "extends": "next/core-web-vitals"
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "warnOnUnsupportedTypeScriptVersion": false,
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/stylistic",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
+    "plugin:storybook/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-plugin-react"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": ["**/node_modules/**"],
+  "rules": {
+    "no-unused-expressions": "off",
+    "react/no-unescaped-entities": "off",
+    "@typescript-eslint/consistent-type-definitions": ["error","type"],
+    "@typescript-eslint/no-unused-expressions": ["error", { "allowTernary": true }],
+    "@typescript-eslint/no-unused-vars": "warn",
+    "prettier/prettier": [
+      "error",
+      {
+        "semi": true,
+        "singleQuote": false,
+        "useTabs": false,
+        "tabWidth": 2
+      }
+    ],
+    "react/react-in-jsx-scope": "off"
+  }
 }

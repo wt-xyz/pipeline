@@ -1,17 +1,28 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## About
+This is the WT Consulting template repo to get started quickly using our usual front end stack. 
 
-First, run the development server:
+At a top level we use React, NextJs and Typescript. <br> <br>
+We also use: <br> 
+eslint for linting. <br>
+prettier for formatting. <br>
+Husky for commit rules and pre-commit linting and formatting. <br>
+Storybook for rapid prototyping and some testing.  <br>
+Mantine for themeing and for Components library when it is faster than using component. <br>
+Yarn V4 for package management.
+
+When using this repository, do not make commits to it directly. This is a template which means that we use this as a starting ground to start new repositories. Considder downloading it as a zip and adding it to a new repository. 
+
+## Getting Started
+First, run a yarn install: 
 
 ```bash
-npm run dev
-# or
+yarn install
+```
+Then, run the development server:
+```bash
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
