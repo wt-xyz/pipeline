@@ -1,0 +1,6 @@
+[project]
+authors = ["Wishart Torgersrud Consulting"]
+entry = "main.sw"
+license = "MIT"
+name = "script-gasless-stream-withdrawal"
+description = "Script used to debug gasless predicates"

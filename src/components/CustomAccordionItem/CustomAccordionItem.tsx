@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import {
   Box,
   Collapse,
@@ -29,10 +29,10 @@ export const CustomAccordionItem = ({
   toggle,
   children,
   style,
-  backgroundColor = "gray",
+  backgroundColor = "cardBackground",
   borderRadius = "xl",
   padding = "lg",
-  accentColor = "white",
+  accentColor = "darkGray",
 }: CustomAccordionItemProps) => {
   const theme = useMantineTheme();
 
@@ -56,7 +56,7 @@ export const CustomAccordionItem = ({
         style={{
           cursor: "pointer",
           display: "flex",
-          color: "gray",
+          color: theme.colors.darkGray[0],
           justifyItems: "space-between",
           alignItems: "center",
           width: "100%",
@@ -70,7 +70,7 @@ export const CustomAccordionItem = ({
             height: "40px",
             width: "40px",
             padding: theme.spacing.sm,
-            border: `1px solid gray`, // Square border
+            border: `1px solid ${theme.colors.darkGray[0]}`, // Square border
             borderRadius: theme.radius.lg, // Rounded corners
           }}
         >

@@ -1,0 +1,12 @@
+[project]
+authors = ["Wishart Torgersrud Consulting"]
+entry = "main.sw"
+license = "MIT"
+name = "token-streaming"
+
+[dependencies]
+src20 = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.3.3" }
+src3 = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.3.3" }
+src7 = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.3.3" }
+src6 = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.3.3" }
+

@@ -1,0 +1,39 @@
+[[package]]
+name = "core"
+source = "path+from-root-566CA1D5F8BEAFBF"
+
+[[package]]
+name = "src20"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.3.3#4198b4b07449ad16104cc8a0501f3013670fdcfd"
+dependencies = ["std"]
+
+[[package]]
+name = "src3"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.3.3#4198b4b07449ad16104cc8a0501f3013670fdcfd"
+dependencies = ["std"]
+
+[[package]]
+name = "src6"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.3.3#4198b4b07449ad16104cc8a0501f3013670fdcfd"
+dependencies = ["std"]
+
+[[package]]
+name = "src7"
+source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.3.3#4198b4b07449ad16104cc8a0501f3013670fdcfd"
+dependencies = ["std"]
+
+[[package]]
+name = "std"
+source = "git+https://github.com/fuellabs/sway?tag=v0.49.3#0dc6570377ee9c4a6359ade597fa27351e02a728"
+dependencies = ["core"]
+
+[[package]]
+name = "token-streaming"
+source = "member"
+dependencies = [
+    "src20",
+    "src3",
+    "src6",
+    "src7",
+    "std",
+]

@@ -1,4 +1,5 @@
 import { Card, CardProps, Flex, Text, useMantineTheme } from "@mantine/core";
+import { TextSm } from "components/TextVariants";
 import classes from "./FieldCard.module.scss";
 
 type FieldCardProps = {
@@ -12,28 +13,27 @@ export const FieldCard = ({
   value,
   label,
   ...cardProps
-}: FieldCardProps) => (
-  <>
-    <Card
-      bg={"gray.9"}
-      radius={"lg"}
-      className={classes.FieldCard}
-      {...cardProps}
-    >
-      <Flex gap={"sm"} className={classes.TextContainer}>
-        <Text fz={"sm"} fw="400">
-          {" "}
-          {label}
-        </Text>
-        <Text
-          size={"lg"}
-          fw="600"
-          c={valueTextColor}
-          className={classes.ValueText}
-        >
-          {value}
-        </Text>
-      </Flex>
-    </Card>
-  </>
-);
+}: FieldCardProps) => {
+  return (
+    <>
+      <Card
+        bg={"gray.9"}
+        radius={"lg"}
+        className={classes.FieldCard}
+        {...cardProps}
+      >
+        <Flex gap={"sm"} className={classes.TextContainer}>
+          <TextSm fw="400">{label}</TextSm>
+          <Text
+            size={"lg"}
+            fw="600"
+            c={valueTextColor}
+            className={classes.ValueText}
+          >
+            {value}
+          </Text>
+        </Flex>
+      </Card>
+    </>
+  );
+};

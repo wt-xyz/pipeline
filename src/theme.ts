@@ -1,8 +1,11 @@
-import { createTheme, colorsTuple } from "@mantine/core";
+import {
+  createTheme,
+  // MANTINE: colorsTuple, // should be used but mantine issue prevents it.
+  MantineColorsTuple,
+} from "@mantine/core";
 
 export const theme = createTheme({
   colors: {
-    // https://mantine.dev/colors-generator/
     green: [
       "#e1fff4",
       "#cdfeea",
@@ -15,6 +18,13 @@ export const theme = createTheme({
       "#00c373",
       "#00a861",
     ],
+    // darkGray: colorsTuple("#313131"),
+    // background: colorsTuple("#090A0A"),
+    // cardBackground: colorsTuple("#1C1C1C"),
+    darkGray: Array(10).fill("#313131") as unknown as MantineColorsTuple,
+    background: Array(10).fill("#090A0A") as unknown as MantineColorsTuple,
+    cardBackground: Array(10).fill("#1C1C1C") as unknown as MantineColorsTuple,
+    primaryBackdrop: Array(10).fill("#1a362b") as unknown as MantineColorsTuple,
     gray: [
       "#f5f5f5",
       "#e7e7e7",
@@ -27,7 +37,38 @@ export const theme = createTheme({
       "#656565",
       "#575757",
     ],
+    red: [
+      "#ffe8f2",
+      "#ffcfdf",
+      "#fc9ebb",
+      "#f96b95",
+      "#f63f75",
+      "#f52461",
+      "#f51357",
+      "#db0347",
+      "#c4003e",
+      "#ad0035",
+    ],
+    dark: [
+      "#E8E8E8",
+      "#B4B4B4",
+      "#9E9E9E",
+      "#8F8F8F",
+      "#313131",
+      "#757575",
+      "#1C1C1C",
+      "#090A0A",
+      "#050505",
+      "#010000",
+    ],
+    body: Array(10).fill("#090A0A") as unknown as MantineColorsTuple,
   },
+  autoContrast: true,
+  primaryColor: "green",
+  primaryShade: 6,
+  fontFamily: "IBM Plex Sans",
+  fontFamilyMonospace: "IBM Plex Mono",
+  defaultRadius: "lg",
   radius: {
     xs: "2px",
     sm: "4px",
@@ -40,13 +81,33 @@ export const theme = createTheme({
     sm: "12px",
     md: "14px",
     lg: "16px",
-    xl: "24px",
+    xl: "18px",
+    xxl: "24px",
   },
   lineHeights: {
-    xs: "1.4",
+    xs: "1.33333",
     sm: "1.45",
     md: "1.5",
     lg: "1.6",
     xl: "1.65",
+  },
+  spacing: {
+    xxs: "2px",
+    xs: "4px",
+    sm: "8px",
+    md: "12px",
+    lg: "16px",
+    xl: "20px",
+    xxl: "24px",
+    sxl: "48px",
+  },
+  components: {
+    Button: {
+      styles: {
+        root: {
+          fontFamily: "IBM Plex Sans",
+        },
+      },
+    },
   },
 });

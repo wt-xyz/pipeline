@@ -1,0 +1,17 @@
+[workspace]
+members = ["token-streaming"]
+resolver = "2"
+
+[workspace.package]
+authors = ["Wishart Torgersrud (WT) Consulting"]
+license = "Apache-2.0"
+repository = "https://github.com/wt-xyz/token-streaming"
+edition = "2021"
+rust-version = "1.76"
+
+[workspace.dependencies]
+fuels = { version = "0.53.0", features = ["fuel-core-lib"] }
+fuels-core = "0.53.0"
+tokio = { version = "1.12", features = ["rt", "macros"] }
+rstest = "0.18.2"
+anyhow = "1.0.81"

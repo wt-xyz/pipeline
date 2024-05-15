@@ -1,0 +1,16 @@
+.FieldCardContainer {
+    padding-top: var(--mantine-spacing-lg);
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 36em) {
+    .FieldCardContainer {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+}
+

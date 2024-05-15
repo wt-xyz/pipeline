@@ -1,0 +1,24 @@
+.SendingOrReceivingButton {
+  padding-right: 0;
+  padding-left: 0;
+  border-radius: 0;
+  padding-bottom: var(--mantine-spacing-lg);
+  height: 48px;
+
+  @media(max-width: 36em) {
+    padding-bottom: var(--mantine-spacing-sm);
+    height: 32px;
+  }
+
+  .TextDisplay {
+    font-family: var(--mantine-font-family-monospace);
+    font-size: var(--mantine-font-size-xxl);
+    line-height: var(--mantine-line-height-xs);
+
+
+    @media(max-width: 36em) {
+        font-size: var(--mantine-font-size-xl);
+    }
+  }
+}
+

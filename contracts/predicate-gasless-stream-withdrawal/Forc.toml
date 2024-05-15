@@ -1,0 +1,5 @@
+[project]
+authors = ["Wishart Torgersrud Consulting"]
+entry = "main.sw"
+license = "MIT"
+name = "gasless-stream-withdrawal"

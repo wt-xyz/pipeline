@@ -25,6 +25,9 @@ export const Primary = () => {
       value="0xEadkaekLVKDJ239829WADJl"
       isOpen={isOpen}
       toggle={() => setIsOpen(!isOpen)}
+      style={{
+        backgroundColor: theme.colors.cardBackground[0],
+      }}
     />
   );
 };

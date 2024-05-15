@@ -17,16 +17,28 @@ const meta = {
 export default meta;
 
 export const Primary = () => {
+  const items = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   return (
     <CustomAccordion>
       <CustomAccordionItem
+        key={"first"}
         value="0xEadkaekLVKDJ239829WADJl"
         label="First item"
       />
       <CustomAccordionItem
+        key={"second"}
         value={"0xAKELKJGDdkeo39294"}
-        label={"seccond Item"}
+        label={"second Item"}
       />
+      <>
+        {items.map((item, index) => (
+          <CustomAccordionItem
+            key={index}
+            value={`sm${index}`}
+            label={"another thing"}
+          />
+        ))}
+      </>
     </CustomAccordion>
   );
 };

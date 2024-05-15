@@ -1,0 +1,23 @@
+[package]
+name = "gasless-predicate"
+description = "Predicate for claiming streamed tokens gaslessly"
+version = "0.1.0"
+authors = ["Wishart Torgersrud Consulting"]
+edition = "2021"
+entry = "main.sw"
+license = "Apache-2.0"
+
+
+[[test]]
+harness = true
+name = "integration_tests"
+path = "tests/harness.rs"
+
+[dependencies]
+chrono = "0.4.34"
+tai64 = "=4.0.0"
+
+[dev-dependencies]
+fuels.workspace = true
+rstest.workspace = true
+tokio.workspace = true
