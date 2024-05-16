@@ -1,10 +1,10 @@
 import { createConfig } from "fuels";
 
 export default createConfig({
-  workspace: "./contracts",
+  contracts: ["contracts"],
   output: "./types",
+  snapshotDir: "./chain",
   useBuiltinForc: false,
-  chainConfig: "./chainConfig.json",
 });
 
 /**

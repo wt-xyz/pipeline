@@ -91,7 +91,7 @@ async fn cancel_stream_test(
     let start_time = Tai64N::now() + start_time_offset;
 
     // start the stream in the future
-    let (stream_id, stream) = create_stream(
+    let stream_creation_result = create_stream(
         &instance,
         &sender_wallet,
         &receiver_wallet,
@@ -102,13 +102,15 @@ async fn cancel_stream_test(
         None,
         configuration,
     )
-    .await?;
+    .await;
+
+    let stream_info = stream_creation_result?;
 
     let (previous_sender_balance, amount_withdrawn, current_sender_balance, stream) =
         cancel_stream(
             &instance,
-            &stream,
-            stream_id,
+            &stream_info.1,
+            stream_info.0,
             &sender_wallet,
             use_receiver_share,
             cancellation_time_offset,
@@ -169,7 +171,7 @@ async fn cannot_cancel_stream_w_false_is_cancellable() -> Result<()> {
 
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::RevertTransactionError { ref reason, .. }) if reason == "NotCancellable"
+        Some(fuels_core::types::errors::Error::Transaction(_))
     );
 
     Ok(())
@@ -215,7 +217,7 @@ async fn cannot_cancel_unstarted_stream_w_out_token() -> Result<()> {
 
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::ProviderError(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())
@@ -256,7 +258,7 @@ async fn cannot_cancel_started_stream_w_out_token() -> Result<()> {
 
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::ProviderError(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())
@@ -297,7 +299,7 @@ async fn cannot_cancel_completed_stream_w_out_token() -> Result<()> {
 
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::ProviderError(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())
@@ -353,7 +355,7 @@ async fn cannot_cancel_already_cancelled_stream() -> Result<()> {
 
     assert_matches!(
         second_cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::ProviderError(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())

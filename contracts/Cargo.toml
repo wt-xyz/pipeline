@@ -10,8 +10,8 @@ edition = "2021"
 rust-version = "1.76"
 
 [workspace.dependencies]
-fuels = { version = "0.53.0", features = ["fuel-core-lib"] }
-fuels-core = "0.53.0"
+fuels = { version = "0.61.0", features = ["fuel-core-lib"] }
+fuels-core = "0.61.0"
 tokio = { version = "1.12", features = ["rt", "macros"] }
 rstest = "0.18.2"
 anyhow = "1.0.81"

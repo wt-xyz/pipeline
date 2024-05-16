@@ -26,7 +26,8 @@
     "@tabler/icons-react": "^3.2.0",
     "@tanstack/react-query": "5.28.9",
     "dayjs": "^1.11.10",
-    "fuels": "0.82.0",
+    "eslint-plugin-react": "^7.34.1",
+    "fuels": "0.86.0",
     "next": "14.2.1",
     "react": "^18",
     "react-dom": "^18",
@@ -62,7 +63,7 @@
     "sass-loader": "^14.2.1",
     "storybook": "^8.0.9",
     "style-loader": "^4.0.0",
-    "typescript": "^5"
+    "typescript": "5.4.5"
   },
   "lint-staged": {
     "*.{ts,js,tsx,jsx}": [
