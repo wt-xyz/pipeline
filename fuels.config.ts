@@ -1,10 +1,10 @@
-import { createConfig } from 'fuels';
+import { createConfig } from "fuels";
 
 export default createConfig({
-  contracts: [
-        'contracts',
-  ],
-  output: './types',
+  workspace: "./contracts",
+  output: "./types",
+  useBuiltinForc: false,
+  chainConfig: "./chainConfig.json",
 });
 
 /**
