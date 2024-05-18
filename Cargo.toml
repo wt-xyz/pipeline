@@ -1,5 +1,5 @@
 [workspace]
-members = ["token-streaming"]
+members = ["contracts/token-streaming"]
 resolver = "2"
 
 [workspace.package]
