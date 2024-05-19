@@ -31,6 +31,10 @@ export function stringAddressesToIdentityInputs(arr: string[]) {
   }));
 }
 
+export const parseDecimalsBN = (val: BN, decimals = 9): BN => {
+  return val.div(10 ** decimals);
+};
+
 export const parseDecimals = (val: number | string, decimals = 9): BN => {
   const valDecimal = new Decimal(val);
 

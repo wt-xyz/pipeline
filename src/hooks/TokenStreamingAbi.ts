@@ -196,7 +196,7 @@ export const useMaxWithdrawable = (
   useEffect(() => {
     tokenContract?.functions
       .get_vault_info(stream.receiver_asset)
-      .simulate()
+      .get()
       .then((vaultInfo: InvocationCallResult<VaultInfoOutput>) => {
         setVaultSubId(vaultInfo.value.vault_sub_id);
       });
@@ -204,7 +204,7 @@ export const useMaxWithdrawable = (
     if (vaultSubId) {
       tokenContract?.functions
         .max_withdrawable({ value: stream.underlying_asset.value }, vaultSubId)
-        .simulate()
+        .get()
         .then((response) => {
           setMaxWithdrawable(response?.value);
         });

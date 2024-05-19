@@ -1,14 +1,11 @@
 import { MantineColor } from "@mantine/core";
-import {
-  formatAddress,
-  formatDecimals,
-  parseDecimals,
-} from "utils/formatUtils";
+import { formatAddress, parseDecimalsBN } from "utils/formatUtils";
 import {
   daysAwayFromTaiTimeBN,
   getDaysBetweenTaiTimes,
 } from "utils/dateTimeUtils";
 import { BN } from "fuels";
+import Decimal from "decimal.js";
 import { Stream } from "hooks/Streams";
 
 export const buildFieldArray = (
@@ -63,7 +60,11 @@ export const buildFieldArray = (
     },
     {
       label: "Rate per Second",
-      value: formatDecimals(stream.rate_per_second_e_10).div(1e10).toString(),
+      value: new Decimal(
+        parseDecimalsBN(stream.rate_per_second_e_10).toString(),
+      )
+        .div(10 ** 10)
+        .toString(),
       color: "white",
     },
     {
