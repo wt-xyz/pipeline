@@ -7,7 +7,10 @@ import { useEffect } from "react";
 import { compact } from "lodash";
 import { useCoins } from "hooks/useCoins";
 import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
-import { AssetIdInput } from "../../types/contracts/TokenStreamingAbi";
+import {
+  AssetIdInput,
+  StreamOutput,
+} from "../../types/contracts/TokenStreamingAbi";
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,
