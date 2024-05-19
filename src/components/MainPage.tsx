@@ -39,7 +39,7 @@ export const MainPage = ({
   const isMobile = useIsMobile();
 
   return (
-    <Container px={0}>
+    <Container pt={isMobile ? "xxl" : "sxl"} px={0}>
       <Flex hiddenFrom={"sm"} py={"xxl"} justify={"center"} w={"100%"}>
         <CreateOrManageButtonGroupWithDivider
           hiddenFrom={"sm"}
@@ -49,7 +49,7 @@ export const MainPage = ({
       </Flex>
       {createOrManage === "create" ? (
         <>
-          <TextXxl fw={600} pt={isMobile ? "xxl" : "sxl"} pb={"xxl"}>
+          <TextXxl fw={600} pb={"xxl"}>
             Pipeline
           </TextXxl>
           <CreateStreamForm />
@@ -58,8 +58,10 @@ export const MainPage = ({
         <>
           {streams ? (
             <>
-              <SendingAndReceiving />
-              <CustomAccordion>
+              <Container pb={"xxl"}>
+                <SendingAndReceiving />
+              </Container>
+              <CustomAccordion py={"xxl"}>
                 {
                   (isSending ? sendingStreams : receiverStreams)?.map(
                     (stream: Stream) => {

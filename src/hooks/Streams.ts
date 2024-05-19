@@ -17,8 +17,8 @@ const getStream = async (
   try {
     const response = await tokenContract?.functions
       .get_stream_by_vault_share_id({ value: shareToken })
-      .addContracts([tokenContract])
-      .simulate();
+      // .addContracts([tokenContract])
+      .get();
     console.log("response", response);
     return response;
   } catch (e) {
