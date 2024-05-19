@@ -16,6 +16,7 @@ import {
   StreamOutput,
   VaultInfoOutput,
 } from "../../types/contracts/TokenStreamingAbi";
+import stream from "stream";
 
 // TODO: change readonly interactions to simulate instead of call
 export const useTokenStreamingAbi = (
@@ -189,6 +190,7 @@ export const useMaxWithdrawable = (
   stream: StreamOutput,
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): BN | undefined => {
+  console.log("in useMaxWithdrawable ", { stream, contractId });
   const tokenContract = useTokenStreamingAbi(contractId);
   const [vaultSubId, setVaultSubId] = useState<string>();
   const [maxWithdrawable, setMaxWithdrawable] = useState<BN | undefined>();
@@ -198,7 +200,11 @@ export const useMaxWithdrawable = (
       .get_vault_info(stream.receiver_asset)
       .get()
       .then((vaultInfo: InvocationCallResult<VaultInfoOutput>) => {
+        console.log("valutInfo", vaultInfo);
         setVaultSubId(vaultInfo.value.vault_sub_id);
+      })
+      .catch((e) => {
+        console.error(e);
       });
 
     if (vaultSubId) {
@@ -206,7 +212,14 @@ export const useMaxWithdrawable = (
         .max_withdrawable({ value: stream.underlying_asset.value }, vaultSubId)
         .get()
         .then((response) => {
+          console.log(
+            "should get max withdrawable here",
+            response.value?.toString(),
+          );
           setMaxWithdrawable(response?.value);
+        })
+        .catch((e) => {
+          console.error(e);
         });
     }
   }, [vaultSubId, stream.receiver_asset, tokenContract]);

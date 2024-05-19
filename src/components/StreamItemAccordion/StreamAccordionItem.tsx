@@ -15,6 +15,8 @@ import { useAccount } from "@fuels/react";
 import { useCallback } from "react";
 import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BN } from "fuels";
+import { type } from "os";
+import { on } from "events";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -23,14 +25,19 @@ type StreamAccordionItemProps = {
   streamId: string;
   isOpen?: boolean;
   toggle?: (value: string) => void;
-  onCancel?: () => void;
-  isCancelling?: boolean;
+};
+
+type StreamAccordionItemViewProps = StreamAccordionItemProps & {
+  onCancel: () => void;
+  isCancelling: boolean;
+  maxWithdrawable: BN;
 };
 
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const { withdraw, loading } = useFullWithdrawFromStream();
   const { account } = useAccount();
   const { stream } = props;
+  const maxWithdrawable = useMaxWithdrawable(stream);
 
   const handleWithdraw = useCallback(() => {
     if (!account) return;
@@ -40,11 +47,13 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
 
     withdraw(account, stream.underlying_asset.value, share_asset.value);
   }, [account, props.isUserSender, stream, withdraw]);
+
   return (
     <StreamAccordionItemView
       {...props}
       onCancel={handleWithdraw}
       isCancelling={loading}
+      maxWithdrawable={maxWithdrawable ?? new BN("0")}
     />
   );
 };
@@ -59,7 +68,8 @@ export const StreamAccordionItemView = ({
   toggle,
   onCancel,
   isCancelling,
-}: StreamAccordionItemProps) => {
+  maxWithdrawable,
+}: StreamAccordionItemViewProps) => {
   // Assert that isOpen and toggle are not undefined when needed
   if (typeof isOpen === "undefined" || typeof toggle === "undefined") {
     throw new Error(
@@ -69,96 +79,15 @@ export const StreamAccordionItemView = ({
 
   const theme = useMantineTheme();
 
-  const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
-    return (
-      <Flex direction={"column"}>
-        <Flex gap="xs">
-          {/* TODO: get decimals from our hook: useCoinInfo */}
-          <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
-          {/* TODO: change to symbol */}
-          <TextXxl c={"gray.7"}>
-            {formatAddress(stream.underlying_asset.value)}
-          </TextXxl>
-        </Flex>
-        <TextMd c={"gray.7"}>Total Amount</TextMd>
-      </Flex>
-    );
-  };
-
-  const LabelComponent = ({ stream }: { stream: Stream }) => {
-    return (
-      <Spread align={"center"}>
-        <TotalAmountComponent stream={stream} />
-        <Flex gap={"md"} px={"md"}>
-          <Button
-            visibleFrom="xs"
-            variant="subtle"
-            color="red"
-            disabled={isCancelling}
-            onClick={(event) => {
-              event.stopPropagation();
-              onCancel(streamId);
-            }}
-          >
-            {isCancelling ? "Cancelling..." : "Cancel"}
-          </Button>
-          {stream.configuration.is_undercollateralized && (
-            <Button
-              variant="light"
-              leftSection={<IconArrowBarToDown size={20} />}
-            >
-              Top Up
-            </Button>
-          )}
-        </Flex>
-      </Spread>
-    );
-  };
-
-  const ContentComponent = ({
-    stream,
-    isUserSender,
-  }: {
-    stream: Stream;
-    isUserSender: boolean;
-  }) => {
-    const maxWithdrawable = useMaxWithdrawable(stream);
-    const fieldsArray = buildFieldArray(
-      stream,
-      isUserSender,
-      maxWithdrawable ?? new BN("0"),
-    );
-
-    return (
-      <Flex direction={"column"} gap={"lg"} align={"center"} justify={"center"}>
-        {/* Render Cards for attribute display*/}
-        <Flex gap={"md"} className={classes.FieldCardContainer}>
-          {fieldsArray.map(({ label, color, value }, index) => (
-            <FieldCard
-              key={`${label}-${index}`}
-              valueTextColor={color}
-              value={value}
-              label={label}
-            />
-          ))}
-        </Flex>
-
-        <Divider w="100%" color="darkGray.1" />
-        {/* ProgressBar   */}
-        <StreamProgressBar
-          endDate={convertTaiTimeBNToDate(stream.stop_time)}
-          startDate={convertTaiTimeBNToDate(stream.start_time)}
-        />
-        <Button variant={"light"} hiddenFrom={"xs"} color="red" w={"100%"}>
-          Cancel Stream
-        </Button>
-      </Flex>
-    );
-  };
-
   return (
     <CustomAccordionItem
-      label={<LabelComponent stream={stream} />}
+      label={
+        <LabelComponent
+          stream={stream}
+          isCancelling={isCancelling}
+          onCancel={onCancel}
+        />
+      }
       value={stream.sender_asset.value}
       isOpen={isOpen}
       toggle={toggle}
@@ -167,7 +96,103 @@ export const StreamAccordionItemView = ({
         borderRadius: theme.radius.xl,
       }}
     >
-      <ContentComponent stream={stream} isUserSender={isUserSender} />
+      <ContentComponent
+        stream={stream}
+        isUserSender={isUserSender}
+        maxWithdrawable={maxWithdrawable}
+      />
     </CustomAccordionItem>
+  );
+};
+
+const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
+  return (
+    <Flex direction={"column"}>
+      <Flex gap="xs">
+        {/* TODO: get decimals from our hook: useCoinInfo */}
+        <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
+        {/* TODO: change to symbol */}
+        <TextXxl c={"gray.7"}>
+          {formatAddress(stream.underlying_asset.value)}
+        </TextXxl>
+      </Flex>
+      <TextMd c={"gray.7"}>Total Amount</TextMd>
+    </Flex>
+  );
+};
+
+const LabelComponent = ({
+  stream,
+  isCancelling,
+  onCancel,
+}: {
+  stream: Stream;
+  isCancelling: boolean;
+  onCancel: () => void;
+}) => {
+  return (
+    <Spread align={"center"}>
+      <TotalAmountComponent stream={stream} />
+      <Flex gap={"md"} px={"md"}>
+        <Button
+          visibleFrom="xs"
+          variant="subtle"
+          color="red"
+          disabled={isCancelling}
+          onClick={(event) => {
+            event.stopPropagation();
+            onCancel();
+          }}
+        >
+          {isCancelling ? "Cancelling..." : "Cancel"}
+        </Button>
+        {stream.configuration.is_undercollateralized && (
+          <Button
+            variant="light"
+            leftSection={<IconArrowBarToDown size={20} />}
+          >
+            Top Up
+          </Button>
+        )}
+      </Flex>
+    </Spread>
+  );
+};
+
+const ContentComponent = ({
+  stream,
+  isUserSender,
+  maxWithdrawable,
+}: {
+  stream: Stream;
+  isUserSender: boolean;
+  maxWithdrawable: BN;
+}) => {
+  const fieldsArray = buildFieldArray(stream, isUserSender, maxWithdrawable);
+
+  return (
+    <Flex direction={"column"} gap={"lg"} align={"center"} justify={"center"}>
+      {/* Render Cards for attribute display*/}
+      <Flex gap={"md"} className={classes.FieldCardContainer}>
+        {fieldsArray.map(({ label, color, value }, index) => (
+          <FieldCard
+            key={`${label}-${index}`}
+            valueTextColor={color}
+            value={value}
+            label={label}
+          />
+        ))}
+      </Flex>
+
+      <Divider w="100%" color="darkGray.1" />
+      {/* ProgressBar   */}
+      <StreamProgressBar
+        endDate={convertTaiTimeBNToDate(stream.stop_time)}
+        startDate={convertTaiTimeBNToDate(stream.start_time)}
+      />
+      <Button variant={"light"} hiddenFrom={"xs"} color="red" w={"100%"}>
+        Cancel Stream
+      </Button>
+    </Flex>
   );
 };

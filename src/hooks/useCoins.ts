@@ -7,16 +7,27 @@ import {
   TOKEN_STREAMING_CONTRACT_ID,
 } from "@/constants/constants";
 import { Option } from "../../types/contracts/common";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
 
-export const useCoins = () => {
-  const [coins, setCoins] = useState<CoinQuantity[]>([]);
+export const globalCoins = atom<CoinQuantity[]>({
+  key: "globalCoins",
+  default: [],
+});
+
+export const useFetchCoins = () => {
+  console.log("running useFetchCoins");
+  const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
 
   const wallet = useWallet();
   useEffect(() => {
     if (wallet.wallet == undefined) {
+      console.log("wallet is undefined");
       return;
     }
+    console.log("wallet is defined", wallet.wallet);
+    //TODO: we need to subscribe to balance changes or add a nother call to useFetchCoins in any component we think is likely to change the balance
     wallet.wallet.getBalances().then((fetchedCoins) => {
+      console.log("Re-fetchedCoins", fetchedCoins);
       setCoins(fetchedCoins);
     });
   }, [setCoins, wallet.wallet]);
@@ -67,7 +78,7 @@ export const useStreamTokenInfo = (
  */
 export const useCoinsWithInfo = () => {
   const [coinsWithInfo, setCoinsWithInfo] = useState<CoinWithInfo[]>();
-  const coins = useCoins();
+  const coins = useRecoilValue(globalCoins);
   const wallet = useWallet();
   useEffect(() => {
     const provider = wallet.wallet?.provider;

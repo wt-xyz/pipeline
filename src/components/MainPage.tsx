@@ -5,12 +5,7 @@ import { Dispatch, ReactElement, SetStateAction } from "react";
 import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
 import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccordionItem";
 import { TextLg, TextXxl } from "components/TextVariants";
-import {
-  Stream,
-  useReceiverStreams,
-  useSenderStreams,
-  useStreams,
-} from "hooks/Streams";
+import { Stream, useReceiverStreams, useSenderStreams } from "hooks/Streams";
 import {
   SendingAndReceiving,
   sendingOrReceivingAtom,
@@ -31,7 +26,7 @@ export const MainPage = ({
   createOrManage: createOrManageSet;
   setCreateOrManage: Dispatch<SetStateAction<createOrManageSet>>;
 }) => {
-  const streams = useStreams();
+  const streams = useRecoilValue(globalStreams);
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
   const sendingOrReceiving = useRecoilValue(sendingOrReceivingAtom);

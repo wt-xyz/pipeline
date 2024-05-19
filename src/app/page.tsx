@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@mantine/core";
 import { Header } from "components/Header/Header";
 import { MainPage } from "components/MainPage";
-import { useStreams } from "hooks/Streams";
-import { useIsMobile } from "hooks/useIsMobile";
+import { useFetchStreams } from "hooks/Streams";
+import { useFetchCoins } from "hooks/useCoins";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export type createOrManageSet = "create" | "manage";
 
@@ -28,8 +29,9 @@ export default function Home() {
   }, [createOrManage]);
 
   const isMobile = useIsMobile();
-  const streams = useStreams();
-  console.log("streams", streams);
+  const streams = useFetchStreams();
+  const coins = useFetchCoins();
+  console.log("Rendering Home Page");
 
   return (
     <AppShell

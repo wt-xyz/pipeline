@@ -1,5 +1,9 @@
 import { MantineColor } from "@mantine/core";
-import { formatAddress, parseDecimalsBN } from "utils/formatUtils";
+import {
+  formatAddress,
+  formatDecimals,
+  parseDecimalsBN,
+} from "utils/formatUtils";
 import {
   daysAwayFromTaiTimeBN,
   getDaysBetweenTaiTimes,
@@ -11,6 +15,7 @@ import { Stream } from "hooks/Streams";
 export const buildFieldArray = (
   stream: Stream,
   isUserSender: boolean,
+  maxWithdrawable: BN,
 ): { value: string; label: string; color: MantineColor }[] => {
   const fieldArray = [];
   if (isUserSender) {
@@ -55,7 +60,7 @@ export const buildFieldArray = (
     {
       label: "Total Withdrawable",
       //TODO: update with max withdrawable call
-      value: "1023",
+      value: formatDecimals(maxWithdrawable),
       color: "blue",
     },
     {

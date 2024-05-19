@@ -10,7 +10,7 @@ import {
 import { useForm } from "@mantine/form";
 import { DateTimePicker, DatesProvider } from "@mantine/dates";
 import { useCreateStream } from "@/hooks/TokenStreamingAbi";
-import { useCoins } from "@/hooks/useCoins";
+import { useFetchCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
 import { useConnectUI, useWallet } from "@fuels/react";
 import { Address, BN } from "fuels";
@@ -36,7 +36,7 @@ function isDatesDefined(values: FormValues): values is Omit<
 
 export const CreateStreamForm = () => {
   const wallet = useWallet();
-  const coins = useCoins();
+  const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
   const [timezone, setTimezone] = useState("UTC");
 

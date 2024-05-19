@@ -1,11 +1,11 @@
 import { AbstractAddress, BN, CoinQuantity } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { globalStreams } from "components/MainPage";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
-import { compact } from "lodash";
-import { useCoins } from "hooks/useCoins";
+import { compact, isEqual } from "lodash";
+import { globalCoins } from "hooks/useCoins";
 import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
 import {
   AssetIdInput,
@@ -31,17 +31,18 @@ const getStream = async (
 };
 
 export type Stream = StreamOutput & { streamId: string };
-export const useStreams = (
+export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): Stream[] | undefined => {
+  console.log("running useFetchStreams");
   const [streams, setStreams] = useRecoilState<Stream[]>(globalStreams);
-  const coins = useCoins();
-  console.log("coins", coins);
+  const coins = useRecoilValue(globalCoins);
   const tokenContract = useTokenStreamingAbi(contractId);
 
   useEffect(() => {
     if (!tokenContract || coins.length === 0) return;
     const getStreamResponses = async () => {
+      console.log("running getStreamResponses REFETCH");
       return (
         (
           compact(
@@ -70,8 +71,10 @@ export const useStreams = (
       );
     };
 
-    getStreamResponses().then((streams) => {
-      setStreams(streams);
+    getStreamResponses().then((responseStreams) => {
+      if (!isEqual(responseStreams, streams)) {
+        setStreams(responseStreams);
+      }
     });
   }, [coins, tokenContract]);
 
@@ -92,18 +95,20 @@ export const isUserOwnerOfReceiverAsset = (
   return !!userCoins.find((coin) => coin.assetId === receiverAsset.value);
 };
 
+// TODO: this should be a recoil selector
 export const useSenderStreams = () => {
-  const streams = useStreams();
-  const coins = useCoins();
+  const streams = useRecoilValue(globalStreams);
+  const coins = useRecoilValue(globalCoins);
 
   return streams?.filter((stream) =>
     isUserOwnerOfSenderAsset(stream.sender_asset, coins),
   );
 };
 
+// TODO: this should be a recoil selector
 export const useReceiverStreams = () => {
-  const streams = useStreams();
-  const coins = useCoins();
+  const streams = useRecoilValue(globalStreams);
+  const coins = useRecoilValue(globalCoins);
 
   return streams?.filter((stream) =>
     isUserOwnerOfReceiverAsset(stream.receiver_asset, coins),
