@@ -2,10 +2,11 @@ import {
   Children,
   cloneElement,
   ReactElement,
+  useCallback,
   useEffect,
   useState,
 } from "react";
-import { Box, MantineStyleProp } from "@mantine/core";
+import { Box, Flex, MantineStyleProp } from "@mantine/core";
 import { CustomAccordionItemProps } from "components/CustomAccordionItem/CustomAccordionItem";
 
 type CustomAccordionProps = {
@@ -40,22 +41,22 @@ export const CustomAccordion = ({
     localStorage.setItem(storageKey, JSON.stringify(openValues));
   }, [openValues, storageKey]);
 
-  const toggle = (value: string) => {
+  const toggle = useCallback((value: string) => {
     setOpenValues((values) =>
       values.includes(value)
         ? values.filter((v) => v !== value)
         : [...values, value],
     );
-  };
+  }, []);
 
   return (
-    <Box style={style}>
+    <Flex direction={"column"} gap={"md"} style={style}>
       {Children.map(children, (child) =>
         cloneElement(child, {
           isOpen: openValues.includes(child.props.value),
-          toggle: toggle,
+          toggle: () => toggle(child.props.value),
         }),
       )}
-    </Box>
+    </Flex>
   );
 };

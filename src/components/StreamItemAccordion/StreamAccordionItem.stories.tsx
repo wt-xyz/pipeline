@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { StreamAccordionItem } from "./StreamAccordionItem";
+import { CustomAccordion } from "../CustomAccordion/CustomAccordion";
 import { useState } from "react";
 import { useMantineTheme } from "@mantine/core";
 import { BN } from "fuels";
@@ -86,6 +87,7 @@ export const Default = () => {
 
   return (
     <StreamAccordionItem
+      value={streamReal.sender_asset.value}
       isOpen={isOpen}
       stream={streamReal}
       isUserSender={isUserSender}
@@ -95,11 +97,31 @@ export const Default = () => {
   );
 };
 
+export const WithCustomAccordion = () => {
+  return (
+    <CustomAccordion>
+      <StreamAccordionItem
+        value={streamReal.sender_asset.value}
+        stream={streamReal}
+        isUserSender={isUserSender}
+        streamId={streamReal.streamId}
+      />
+      <StreamAccordionItem
+        value={streamReal.receiver_asset.value}
+        stream={streamReal}
+        isUserSender={isUserSender}
+        streamId={streamReal.streamId}
+      />
+    </CustomAccordion>
+  );
+};
+
 export const Insolvent = () => {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
     <StreamAccordionItem
+      value={streamInsolvent.sender_asset.value}
       isOpen={isOpen}
       stream={streamInsolvent}
       isUserSender={isUserSender}

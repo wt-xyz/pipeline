@@ -2,6 +2,12 @@ import "../src/app/globals.css";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import { MantineProvider } from "@mantine/core";
+import {
+  FuelWalletConnector,
+  FuelWalletDevelopmentConnector,
+  FueletWalletConnector,
+} from "@fuels/connectors";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FuelProvider } from "@fuels/react";
 import {
   FuelWalletConnector,

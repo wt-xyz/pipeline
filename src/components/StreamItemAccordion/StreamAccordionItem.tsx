@@ -13,12 +13,14 @@ import { Stream } from "hooks/Streams";
 
 //TODO: streamId is probably in some way returnable in whatever object we get with stream, we will want to compact this into one unit when we combine the hooks.
 export const StreamAccordionItem = ({
+  value,
   stream,
   isUserSender,
   streamId,
   isOpen,
   toggle,
 }: {
+  value: string;
   stream: Stream;
   isUserSender: boolean;
   streamId: string;
@@ -85,7 +87,12 @@ export const StreamAccordionItem = ({
         {/* Render Cards for attribute display*/}
         <Flex gap={"md"} className={classes.FieldCardContainer}>
           {fieldsArray.map(({ label, color, value }, index) => (
-            <FieldCard valueTextColor={color} value={value} label={label} />
+            <FieldCard
+              key={`${label}-${index}`}
+              valueTextColor={color}
+              value={value}
+              label={label}
+            />
           ))}
         </Flex>
 
@@ -117,48 +124,3 @@ export const StreamAccordionItem = ({
     </CustomAccordionItem>
   );
 };
-
-// export const StreamsAccordion = ({ streams, isUserSender }: { streams: StreamOutput[], isUserSender: boolean }) => {
-//
-//     const [openValues, setOpenValues] = useState<String[]>([]);
-//     const theme = useMantineTheme();
-//
-//     return (
-//         <Accordion defaultValue={[]} multiple onChange={setOpenValues}
-//             styles={{
-//                 root: {
-//                     accordionRadius: theme.radius.lg,
-//                 },
-//                 control: {
-//                     backgroundColor: theme.colors.cardBackground[0],
-//                     color: "darkGray",
-//                     "&:hover": {
-//                         backgroundColor: "black",
-//                         color: "darkGray",
-//                     }
-//                 },
-//                 panel: {
-//                     backgroundColor: theme.colors.cardBackground[0],
-//                     color: "darkGray",
-//                 },
-//                 chevron: {
-//                     color: "white",
-//                 },
-//                 item: {
-//                     borderBottom: "none",
-//                 }
-//             }} >
-//             {streams.map((stream, index) => (
-//                 <StreamAccordionItem
-//                     key={stream.sender_asset.value}
-//                     stream={stream}
-//                     isUserSender={true}
-//                     streamId={stream.sender_asset.value}
-//                     isOpen={openValues.includes(stream.sender_asset.value)}
-//                 />
-//             ))}
-//         </Accordion>
-//     )
-//
-//
-// }

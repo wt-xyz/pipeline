@@ -65,6 +65,7 @@ export const MainPage = ({
                     (stream: Stream) => {
                       return (
                         <StreamAccordionItem
+                          value={stream.sender_asset.value}
                           key={stream.streamId}
                           isUserSender={true}
                           stream={stream}
