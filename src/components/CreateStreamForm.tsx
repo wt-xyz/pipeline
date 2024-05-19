@@ -86,7 +86,7 @@ export const CreateStreamForm = () => {
               values.token,
               new BN(10).pow(DECIMALS).mul(values.amount),
               wallet.wallet.address.toB256(),
-              Address.fromAddressOrString(values.recipient).toB256(),
+              values.recipient,
               convertUnixTimeMillisecondsToTaiTime(
                 new BN(values.startTime.getTime()),
               ),

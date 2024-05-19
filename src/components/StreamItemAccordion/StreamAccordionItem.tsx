@@ -31,10 +31,11 @@ type StreamAccordionItemViewProps = StreamAccordionItemProps & {
   onCancel: () => void;
   isCancelling: boolean;
   maxWithdrawable: BN;
+  withdrawResult: BN;
 };
 
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
-  const { withdraw, loading } = useFullWithdrawFromStream();
+  const { withdraw, loading, data } = useFullWithdrawFromStream();
   const { account } = useAccount();
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
@@ -54,6 +55,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
       onCancel={handleWithdraw}
       isCancelling={loading}
       maxWithdrawable={maxWithdrawable ?? new BN("0")}
+      withdrawResult={data}
     />
   );
 };
@@ -69,6 +71,7 @@ export const StreamAccordionItemView = ({
   onCancel,
   isCancelling,
   maxWithdrawable,
+  withdrawResult,
 }: StreamAccordionItemViewProps) => {
   // Assert that isOpen and toggle are not undefined when needed
   if (typeof isOpen === "undefined" || typeof toggle === "undefined") {
@@ -79,7 +82,9 @@ export const StreamAccordionItemView = ({
 
   const theme = useMantineTheme();
 
-  return (
+  return withdrawResult ? (
+    `Withdrawn ${formatDecimals(withdrawResult)} ${stream.underlying_asset.value} Successfully!`
+  ) : (
     <CustomAccordionItem
       label={
         <LabelComponent

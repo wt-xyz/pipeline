@@ -125,7 +125,11 @@ export const useFullWithdrawFromStream = (
         )
         .callParams({ forward: [1, shareToken] })
         .txParams({ variableOutputs: 2 })
-        .call();
+        .call()
+        .catch((e) => {
+          setLoading(false);
+          setError(e.message);
+        });
 
       setLoading(false);
       if (response?.transactionResult.isStatusFailure) {
