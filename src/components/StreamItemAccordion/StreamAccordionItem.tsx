@@ -13,6 +13,8 @@ import { Stream } from "hooks/Streams";
 import { useFullWithdrawFromStream } from "@/hooks/TokenStreamingAbi";
 import { useAccount } from "@fuels/react";
 import { useCallback } from "react";
+import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
+import { BN } from "fuels";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -120,7 +122,12 @@ export const StreamAccordionItemView = ({
     stream: Stream;
     isUserSender: boolean;
   }) => {
-    const fieldsArray = buildFieldArray(stream, isUserSender);
+    const maxWithdrawable = useMaxWithdrawable(stream);
+    const fieldsArray = buildFieldArray(
+      stream,
+      isUserSender,
+      maxWithdrawable ?? new BN("0"),
+    );
 
     return (
       <Flex direction={"column"} gap={"lg"} align={"center"} justify={"center"}>
