@@ -10,23 +10,54 @@ import { FieldCard } from "components/FieldCard/FieldCard";
 import { StreamProgressBar } from "components/StreamProgressBar/StreamProgressBar";
 import classes from "./ContentComponent.module.css";
 import { Stream } from "hooks/Streams";
+import { useFullWithdrawFromStream } from "@/hooks/TokenStreamingAbi";
+import { useAccount } from "@fuels/react";
+import { useCallback } from "react";
 
-//TODO: streamId is probably in some way returnable in whatever object we get with stream, we will want to compact this into one unit when we combine the hooks.
-export const StreamAccordionItem = ({
-  value,
-  stream,
-  isUserSender,
-  streamId,
-  isOpen,
-  toggle,
-}: {
+type StreamAccordionItemProps = {
   value: string;
   stream: Stream;
   isUserSender: boolean;
   streamId: string;
   isOpen?: boolean;
   toggle?: (value: string) => void;
-}) => {
+  onCancel?: () => void;
+  isCancelling?: boolean;
+};
+
+export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
+  const { withdraw, loading } = useFullWithdrawFromStream();
+  const { account } = useAccount();
+  const { stream } = props;
+
+  const handleWithdraw = useCallback(() => {
+    if (!account) return;
+    const share_asset = props.isUserSender
+      ? stream.sender_asset
+      : stream.receiver_asset;
+
+    withdraw(account, stream.underlying_asset.value, share_asset.value);
+  }, [account, props.isUserSender, stream, withdraw]);
+  return (
+    <StreamAccordionItemView
+      {...props}
+      onCancel={handleWithdraw}
+      isCancelling={loading}
+    />
+  );
+};
+
+//TODO: streamId is probably in some way returnable in whatever object we get with stream, we will want to compact this into one unit when we combine the hooks.
+export const StreamAccordionItemView = ({
+  value,
+  stream,
+  isUserSender,
+  streamId,
+  isOpen,
+  toggle,
+  onCancel,
+  isCancelling,
+}: StreamAccordionItemProps) => {
   // Assert that isOpen and toggle are not undefined when needed
   if (typeof isOpen === "undefined" || typeof toggle === "undefined") {
     throw new Error(
@@ -57,8 +88,17 @@ export const StreamAccordionItem = ({
       <Spread align={"center"}>
         <TotalAmountComponent stream={stream} />
         <Flex gap={"md"} px={"md"}>
-          <Button visibleFrom="xs" variant="subtle" color="red">
-            Cancel
+          <Button
+            visibleFrom="xs"
+            variant="subtle"
+            color="red"
+            disabled={isCancelling}
+            onClick={(event) => {
+              event.stopPropagation();
+              onCancel(streamId);
+            }}
+          >
+            {isCancelling ? "Cancelling..." : "Cancel"}
           </Button>
           {stream.configuration.is_undercollateralized && (
             <Button
