@@ -13,6 +13,7 @@ import { Stream } from "hooks/Streams";
 import { useFullWithdrawFromStream } from "@/hooks/TokenStreamingAbi";
 import { useAccount } from "@fuels/react";
 import { useCallback } from "react";
+import { BN } from "fuels";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -23,10 +24,11 @@ type StreamAccordionItemProps = {
   toggle?: (value: string) => void;
   onCancel?: () => void;
   isCancelling?: boolean;
+  withdrawResult?: BN;
 };
 
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
-  const { withdraw, loading } = useFullWithdrawFromStream();
+  const { withdraw, loading, data } = useFullWithdrawFromStream();
   const { account } = useAccount();
   const { stream } = props;
 
@@ -43,6 +45,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
       {...props}
       onCancel={handleWithdraw}
       isCancelling={loading}
+      withdrawResult={data}
     />
   );
 };
@@ -57,6 +60,7 @@ export const StreamAccordionItemView = ({
   toggle,
   onCancel,
   isCancelling,
+  withdrawResult,
 }: StreamAccordionItemProps) => {
   // Assert that isOpen and toggle are not undefined when needed
   if (typeof isOpen === "undefined" || typeof toggle === "undefined") {
@@ -95,10 +99,16 @@ export const StreamAccordionItemView = ({
             disabled={isCancelling}
             onClick={(event) => {
               event.stopPropagation();
-              onCancel(streamId);
+              onCancel?.();
             }}
           >
-            {isCancelling ? "Cancelling..." : "Cancel"}
+            {isUserSender
+              ? isCancelling
+                ? "Cancelling..."
+                : "Cancel"
+              : isCancelling
+                ? "Withdrawing..."
+                : "Withdraw"}
           </Button>
           {stream.configuration.is_undercollateralized && (
             <Button
@@ -149,7 +159,9 @@ export const StreamAccordionItemView = ({
     );
   };
 
-  return (
+  return withdrawResult ? (
+    `Withdrawn ${formatDecimals(withdrawResult)} ${stream.underlying_asset.value} Successfully!`
+  ) : (
     <CustomAccordionItem
       label={<LabelComponent stream={stream} />}
       value={stream.sender_asset.value}
