@@ -214,6 +214,7 @@ interface TokenStreamingAbiInterface extends Interface {
     is_solvent: FunctionFragment;
     partial_withdraw_from_stream: FunctionFragment;
     underlying_asset: FunctionFragment;
+    vested_amount: FunctionFragment;
     decimals: FunctionFragment;
     name: FunctionFragment;
     symbol: FunctionFragment;
@@ -264,6 +265,10 @@ interface TokenStreamingAbiInterface extends Interface {
   encodeFunctionData(
     functionFragment: "underlying_asset",
     values: [AssetIdInput],
+  ): Uint8Array;
+  encodeFunctionData(
+    functionFragment: "vested_amount",
+    values: [BigNumberish],
   ): Uint8Array;
   encodeFunctionData(
     functionFragment: "decimals",
@@ -336,6 +341,10 @@ interface TokenStreamingAbiInterface extends Interface {
     data: BytesLike,
   ): DecodedValue;
   decodeFunctionData(
+    functionFragment: "vested_amount",
+    data: BytesLike,
+  ): DecodedValue;
+  decodeFunctionData(
     functionFragment: "decimals",
     data: BytesLike,
   ): DecodedValue;
@@ -404,6 +413,7 @@ export class TokenStreamingAbi extends Contract {
       [vault_share_asset: AssetIdInput],
       AssetIdOutput
     >;
+    vested_amount: InvokeFunction<[stream_id: BigNumberish], BN>;
     decimals: InvokeFunction<[_asset: AssetIdInput], Option<number>>;
     name: InvokeFunction<[asset: AssetIdInput], Option<StdString>>;
     symbol: InvokeFunction<[asset: AssetIdInput], Option<StdString>>;

@@ -1125,6 +1125,27 @@ const _abi = {
     {
       inputs: [
         {
+          name: "stream_id",
+          type: 24,
+          typeArguments: null,
+        },
+      ],
+      name: "vested_amount",
+      output: {
+        name: "",
+        type: 24,
+        typeArguments: null,
+      },
+      attributes: [
+        {
+          name: "storage",
+          arguments: ["read"],
+        },
+      ],
+    },
+    {
+      inputs: [
+        {
           name: "_asset",
           type: 11,
           typeArguments: null,
@@ -1841,7 +1862,7 @@ const _abi = {
       logId: 16,
       loggedType: {
         name: "",
-        type: 4,
+        type: 16,
         typeArguments: [],
       },
     },
@@ -1857,7 +1878,7 @@ const _abi = {
       logId: 18,
       loggedType: {
         name: "",
-        type: 16,
+        type: 15,
         typeArguments: [],
       },
     },
@@ -1865,7 +1886,7 @@ const _abi = {
       logId: 19,
       loggedType: {
         name: "",
-        type: 15,
+        type: 4,
         typeArguments: [],
       },
     },
@@ -1961,7 +1982,7 @@ const _abi = {
       logId: 31,
       loggedType: {
         name: "",
-        type: 4,
+        type: 22,
         typeArguments: [],
       },
     },
@@ -1969,7 +1990,7 @@ const _abi = {
       logId: 32,
       loggedType: {
         name: "",
-        type: 22,
+        type: 4,
         typeArguments: [],
       },
     },
@@ -2385,7 +2406,7 @@ const _abi = {
       logId: 84,
       loggedType: {
         name: "",
-        type: 4,
+        type: 16,
         typeArguments: [],
       },
     },
@@ -2401,7 +2422,7 @@ const _abi = {
       logId: 86,
       loggedType: {
         name: "",
-        type: 16,
+        type: 15,
         typeArguments: [],
       },
     },
@@ -2409,7 +2430,7 @@ const _abi = {
       logId: 87,
       loggedType: {
         name: "",
-        type: 15,
+        type: 4,
         typeArguments: [],
       },
     },
@@ -2505,7 +2526,7 @@ const _abi = {
       logId: 99,
       loggedType: {
         name: "",
-        type: 4,
+        type: 22,
         typeArguments: [],
       },
     },
@@ -2513,7 +2534,7 @@ const _abi = {
       logId: 100,
       loggedType: {
         name: "",
-        type: 22,
+        type: 4,
         typeArguments: [],
       },
     },

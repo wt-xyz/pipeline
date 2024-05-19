@@ -18,9 +18,9 @@ const getStream = async (
 ) => {
   try {
     const response = await tokenContract?.functions
-      .get_stream_by_vault_share_id({ value: shareToken })
-      // .addContracts([tokenContract])
+      .get_stream_by_vault_share_id({ bits: shareToken })
       .get();
+    console.log("response", response);
     return response;
   } catch (e) {
     console.error(`Error: ${e} not a stream token`);
@@ -97,14 +97,14 @@ export const isUserOwnerOfSenderAsset = (
   senderAsset: AssetIdInput,
   userCoins: CoinQuantity[],
 ) => {
-  return !!userCoins.find((coin) => coin.assetId === senderAsset.value);
+  return !!userCoins.find((coin) => coin.assetId === senderAsset.bits);
 };
 
 export const isUserOwnerOfReceiverAsset = (
   receiverAsset: AssetIdInput,
   userCoins: CoinQuantity[],
 ) => {
-  return !!userCoins.find((coin) => coin.assetId === receiverAsset.value);
+  return !!userCoins.find((coin) => coin.assetId === receiverAsset.bits);
 };
 
 // TODO: this should be a recoil selector

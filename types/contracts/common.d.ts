@@ -15,18 +15,7 @@
 export type Enum<T> = {
   [K in keyof T]: Pick<T, K> & { [P in Exclude<keyof T, K>]?: never };
 }[keyof T];
-/**
- * Mimics Sway Enum.
- * Requires one and only one Key-Value pair and raises error if more are provided.
- */
-export type Enum<T> = {
-  [K in keyof T]: Pick<T, K> & { [P in Exclude<keyof T, K>]?: never };
-}[keyof T];
 
-/**
- * Mimics Sway Option and Vectors.
- * Vectors are treated like arrays in Typescript.
- */
 /**
  * Mimics Sway Option and Vectors.
  * Vectors are treated like arrays in Typescript.
