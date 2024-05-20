@@ -10,11 +10,12 @@ import {
 import { useForm } from "@mantine/form";
 import { DateTimePicker, DatesProvider } from "@mantine/dates";
 import { useCreateStream } from "@/hooks/TokenStreamingAbi";
-import { useFetchCoins } from "@/hooks/useCoins";
+import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
 import { useConnectUI, useWallet } from "@fuels/react";
-import { Address, BN } from "fuels";
+import { BN } from "fuels";
 import { useState } from "react";
+import { useNotificationHook } from "@/hooks/Notifications";
 
 type FormValues = {
   token: string;
@@ -40,7 +41,14 @@ export const CreateStreamForm = () => {
   const { connect, isConnecting } = useConnectUI();
   const [timezone, setTimezone] = useState("UTC");
 
-  const { createStream } = useCreateStream();
+  const { createStream, loading, error } = useCreateStream();
+  const { showNotification } = useNotificationHook(
+    "Creating stream...",
+    loading,
+    error,
+    "Stream created!",
+  );
+  const refreshCoins = useRefreshCoins();
 
   const form = useForm<FormValues>({
     validate: {
@@ -74,8 +82,7 @@ export const CreateStreamForm = () => {
           const DECIMALS = 9;
           // INFO: this is being used in the ternary expression below
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          isDatesDefined(values) &&
-            wallet.wallet?.address &&
+          if (isDatesDefined(values) && wallet.wallet?.address) {
             createStream(
               values.token,
               new BN(10).pow(DECIMALS).mul(values.amount),
@@ -92,7 +99,12 @@ export const CreateStreamForm = () => {
                 is_undercollateralized: false,
                 is_cancellable: true,
               },
-            );
+            ).then(() => {
+              // update the fetched streams
+              refreshCoins();
+            });
+            showNotification();
+          }
         })}
       >
         <Flex

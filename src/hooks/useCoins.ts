@@ -1,18 +1,47 @@
 import { useWallet } from "@fuels/react";
-import { useEffect, useState } from "react";
-import { BN, CoinQuantity } from "fuels";
+import { useCallback, useEffect, useState } from "react";
+import { Account, BN, CoinQuantity } from "fuels";
 import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
 import {
   DEFAULT_SUB_ID,
   TOKEN_STREAMING_CONTRACT_ID,
 } from "@/constants/constants";
 import { Option } from "../../types/contracts/common";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import {
+  atom,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from "recoil";
 
 export const globalCoins = atom<CoinQuantity[]>({
   key: "globalCoins",
   default: [],
 });
+
+const fetchCoins = async (
+  wallet: Account | null | undefined,
+): Promise<CoinQuantity[] | undefined> => {
+  if (wallet == undefined) {
+    console.log("wallet is undefined");
+    return;
+  }
+  console.log("wallet is defined", wallet);
+  return wallet.getBalances();
+};
+
+export const useRefreshCoins = () => {
+  const setCoins = useSetRecoilState(globalCoins);
+  const wallet = useWallet();
+  return useCallback(() => {
+    fetchCoins(wallet.wallet).then((fetchedCoins) => {
+      console.log("Re-fetchedCoins", fetchedCoins);
+      if (fetchedCoins != undefined) {
+        setCoins(fetchedCoins);
+      }
+    });
+  }, [setCoins, wallet.wallet]);
+};
 
 export const useFetchCoins = () => {
   console.log("running useFetchCoins");
@@ -20,15 +49,11 @@ export const useFetchCoins = () => {
 
   const wallet = useWallet();
   useEffect(() => {
-    if (wallet.wallet == undefined) {
-      console.log("wallet is undefined");
-      return;
-    }
-    console.log("wallet is defined", wallet.wallet);
-    //TODO: we need to subscribe to balance changes or add a nother call to useFetchCoins in any component we think is likely to change the balance
-    wallet.wallet.getBalances().then((fetchedCoins) => {
+    fetchCoins(wallet.wallet).then((fetchedCoins) => {
       console.log("Re-fetchedCoins", fetchedCoins);
-      setCoins(fetchedCoins);
+      if (fetchedCoins != undefined) {
+        setCoins(fetchedCoins);
+      }
     });
   }, [setCoins, wallet.wallet]);
 

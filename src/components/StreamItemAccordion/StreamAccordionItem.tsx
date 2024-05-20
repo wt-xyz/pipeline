@@ -9,7 +9,7 @@ import { buildFieldArray } from "utils/buildFieldsArray";
 import { FieldCard } from "components/FieldCard/FieldCard";
 import { StreamProgressBar } from "components/StreamProgressBar/StreamProgressBar";
 import classes from "./ContentComponent.module.css";
-import { isUserOwnerOfSenderAsset, Stream } from "hooks/Streams";
+import { Stream } from "hooks/Streams";
 import {
   useFullWithdrawFromStream,
   useTotalVested,
@@ -18,8 +18,6 @@ import { useAccount } from "@fuels/react";
 import { useCallback } from "react";
 import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BN } from "fuels";
-import { type } from "os";
-import { on } from "events";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -37,7 +35,6 @@ type StreamAccordionItemViewProps = StreamAccordionItemProps & {
     maxWithdrawable: BN;
     totalVested: BN;
   };
-  withdrawResult?: BN;
 };
 
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
@@ -56,7 +53,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
     withdraw(account, stream.underlying_asset.value, share_asset.value);
   }, [account, props.isUserSender, stream, withdraw]);
 
-  return (
+  return data && props.isUserSender ? null : (
     <StreamAccordionItemView
       {...props}
       onCancel={handleSenderWithdraw}
@@ -65,7 +62,6 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
         maxWithdrawable: maxWithdrawable ?? new BN("0"),
         totalVested: totalVested ?? new BN("0"),
       }}
-      withdrawResult={data}
     />
   );
 };
@@ -80,7 +76,6 @@ export const StreamAccordionItemView = ({
   toggle,
   onCancel,
   isCancelling,
-  withdrawResult,
   stats,
 }: StreamAccordionItemViewProps) => {
   // Assert that isOpen and toggle are not undefined when needed
@@ -92,9 +87,7 @@ export const StreamAccordionItemView = ({
 
   const theme = useMantineTheme();
 
-  return withdrawResult ? (
-    `Withdrawn ${formatDecimals(withdrawResult)} ${stream.underlying_asset.value} Successfully!`
-  ) : (
+  return (
     <CustomAccordionItem
       label={
         <LabelComponent

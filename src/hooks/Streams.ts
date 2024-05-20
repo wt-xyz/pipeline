@@ -1,6 +1,6 @@
 import { AbstractAddress, BN, CoinQuantity } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { globalStreams } from "components/MainPage";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
@@ -31,6 +31,59 @@ const getStream = async (
 };
 
 export type Stream = StreamOutput & { streamId: string };
+const getStreamResponses = async (
+  tokenContract: TokenStreamingAbi | undefined,
+  coins: CoinQuantity[],
+) => {
+  if (!tokenContract || coins.length === 0) return;
+  console.log("running getStreamResponses REFETCH");
+  return (
+    (
+      compact(
+        await Promise.all(
+          coins
+            .filter((coin) => coin.amount.eq(new BN(1)))
+            .map(async (coin) => {
+              const stream = (await getStream(tokenContract, coin.assetId))
+                ?.value;
+
+              return stream
+                ? {
+                    ...stream[0],
+                    streamId: stream[1].toString(),
+                  }
+                : undefined;
+            }),
+        ),
+      ) as Stream[]
+    )
+      // TODO this feels a bit hacky here, findIndex run so many times, maybe a reducer is better
+      .filter(
+        (obj, index, self) =>
+          index === self.findIndex((t) => t.streamId === obj.streamId),
+      )
+  );
+};
+
+export const useRefreshStreams = (
+  contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
+) => {
+  const [streams, setStreams] = useRecoilState(globalStreams);
+  const tokenContract = useTokenStreamingAbi(contractId);
+  const coins = useRecoilValue(globalCoins);
+
+  const refreshStreams = async () => {
+    const newStreams = await getStreamResponses(tokenContract, coins);
+    if (newStreams && !isEqual(newStreams, streams)) {
+      setStreams(newStreams);
+    }
+  };
+
+  return {
+    refreshStreams,
+  };
+};
+
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): Stream[] | undefined => {
@@ -40,39 +93,8 @@ export const useFetchStreams = (
   const tokenContract = useTokenStreamingAbi(contractId);
 
   useEffect(() => {
-    if (!tokenContract || coins.length === 0) return;
-    const getStreamResponses = async () => {
-      console.log("running getStreamResponses REFETCH");
-      return (
-        (
-          compact(
-            await Promise.all(
-              coins
-                .filter((coin) => coin.amount.eq(new BN(1)))
-                .map(async (coin) => {
-                  const stream = (await getStream(tokenContract, coin.assetId))
-                    ?.value;
-
-                  return stream
-                    ? {
-                        ...stream[0],
-                        streamId: stream[1].toString(),
-                      }
-                    : undefined;
-                }),
-            ),
-          ) as Stream[]
-        )
-          // TODO this feels a bit hacky here, findIndex run so many times, maybe a reducer is better
-          .filter(
-            (obj, index, self) =>
-              index === self.findIndex((t) => t.streamId === obj.streamId),
-          )
-      );
-    };
-
-    getStreamResponses().then((responseStreams) => {
-      if (!isEqual(responseStreams, streams)) {
+    getStreamResponses(tokenContract, coins).then((responseStreams) => {
+      if (responseStreams && !isEqual(responseStreams, streams)) {
         setStreams(responseStreams);
       }
     });
