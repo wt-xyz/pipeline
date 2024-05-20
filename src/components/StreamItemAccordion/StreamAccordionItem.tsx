@@ -18,6 +18,7 @@ import { useAccount } from "@fuels/react";
 import { useCallback } from "react";
 import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BN } from "fuels";
+import { useNotificationHook } from "@/hooks/Notifications";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -38,11 +39,18 @@ type StreamAccordionItemViewProps = StreamAccordionItemProps & {
 };
 
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
-  const { withdraw, loading, data } = useFullWithdrawFromStream();
+  const { withdraw, loading, data, error } = useFullWithdrawFromStream();
   const { account } = useAccount();
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
   const totalVested = useTotalVested(stream);
+
+  const { showNotification } = useNotificationHook(
+    props.isUserSender ? "Cancelling Stream..." : "Withdrawing...",
+    loading,
+    error,
+    `${formatDecimals(data ?? 0)} ${stream.underlying_asset.value} withdrawn!`,
+  );
 
   const handleSenderWithdraw = useCallback(() => {
     if (!account) return;
@@ -51,7 +59,8 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
       : stream.receiver_asset;
 
     withdraw(account, stream.underlying_asset.value, share_asset.value);
-  }, [account, props.isUserSender, stream, withdraw]);
+    showNotification();
+  }, [account, props.isUserSender, stream, withdraw, showNotification]);
 
   return data && props.isUserSender ? null : (
     <StreamAccordionItemView
