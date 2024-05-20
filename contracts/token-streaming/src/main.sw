@@ -281,6 +281,13 @@ impl Pipeline for Contract {
     fn is_solvent(stream_id: u64) -> bool {
       is_solvent(stream_id)
     }
+
+    #[storage(read)]
+    fn vested_amount(stream_id: u64) -> u64 {
+        let stream = get_stream(stream_id);
+
+        vested_amount(stream)
+    }
 }
 
 impl SRC20 for Contract {
