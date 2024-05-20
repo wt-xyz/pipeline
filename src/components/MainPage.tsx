@@ -34,7 +34,7 @@ export const MainPage = ({
   const isMobile = useIsMobile();
 
   return (
-    <Container pt={isMobile ? "xxl" : "sxl"} px={0}>
+    <Container pt={isMobile ? 0 : "xxl"} px={0}>
       <Flex hiddenFrom={"sm"} py={"xxl"} justify={"center"} w={"100%"}>
         <CreateOrManageButtonGroupWithDivider
           hiddenFrom={"sm"}
@@ -53,7 +53,7 @@ export const MainPage = ({
         <>
           {streams ? (
             <>
-              <Container pb={"xxl"}>
+              <Container py={"xxl"}>
                 <SendingAndReceiving />
               </Container>
               <CustomAccordion py={"xxl"}>

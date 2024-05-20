@@ -216,10 +216,7 @@ export const useMaxWithdrawable = (
         .max_withdrawable({ value: stream.underlying_asset.value }, vaultSubId)
         .get()
         .then((response) => {
-          console.log(
-            "should get max withdrawable here",
-            response.value?.toString(),
-          );
+          console.log("should get max withdrawable here", response);
           setMaxWithdrawable(response?.value);
         })
         .catch((e) => {
