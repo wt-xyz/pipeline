@@ -743,6 +743,8 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
     // INTERACTIONS
     // transfer the amount to the receiver
     transfer(receiver, stream.underlying_asset, amount);
+    // transfer the share asset back to the 
+    transfer(msg_sender().unwrap(), vault_share_asset, 1);
 
     log(Withdraw {
         caller: msg_sender().unwrap(),
