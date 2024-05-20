@@ -58,6 +58,7 @@ export const MainPage = ({
               </Container>
               <CustomAccordion py={"xxl"}>
                 {
+                  /* TODO: we need to reflect "no streams to show" if this map is empty for either sending or receiving streams.*/
                   (isSending ? sendingStreams : receiverStreams)?.map(
                     (stream: Stream) => {
                       return (

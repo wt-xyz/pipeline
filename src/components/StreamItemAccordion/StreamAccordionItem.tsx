@@ -9,7 +9,7 @@ import { buildFieldArray } from "utils/buildFieldsArray";
 import { FieldCard } from "components/FieldCard/FieldCard";
 import { StreamProgressBar } from "components/StreamProgressBar/StreamProgressBar";
 import classes from "./ContentComponent.module.css";
-import { Stream } from "hooks/Streams";
+import { isUserOwnerOfSenderAsset, Stream } from "hooks/Streams";
 import {
   useFullWithdrawFromStream,
   useTotalVested,
@@ -47,7 +47,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const maxWithdrawable = useMaxWithdrawable(stream);
   const totalVested = useTotalVested(stream);
 
-  const handleWithdraw = useCallback(() => {
+  const handleSenderWithdraw = useCallback(() => {
     if (!account) return;
     const share_asset = props.isUserSender
       ? stream.sender_asset
@@ -59,7 +59,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   return (
     <StreamAccordionItemView
       {...props}
-      onCancel={handleWithdraw}
+      onCancel={handleSenderWithdraw}
       isCancelling={loading}
       stats={{
         maxWithdrawable: maxWithdrawable ?? new BN("0"),
@@ -101,6 +101,7 @@ export const StreamAccordionItemView = ({
           stream={stream}
           isCancelling={isCancelling}
           onCancel={onCancel}
+          isUserSender={isUserSender}
         />
       }
       value={stream.sender_asset.value}
@@ -141,27 +142,43 @@ const LabelComponent = ({
   stream,
   isCancelling,
   onCancel,
+  isUserSender,
 }: {
   stream: Stream;
   isCancelling: boolean;
   onCancel: () => void;
+  isUserSender: boolean;
 }) => {
   return (
     <Spread align={"center"}>
       <TotalAmountComponent stream={stream} />
       <Flex gap={"md"} px={"md"}>
-        <Button
-          visibleFrom="xs"
-          variant="subtle"
-          color="red"
-          disabled={isCancelling}
-          onClick={(event) => {
-            event.stopPropagation();
-            onCancel();
-          }}
-        >
-          {isCancelling ? "Cancelling..." : "Cancel"}
-        </Button>
+        {isUserSender && (
+          <Button
+            visibleFrom="xs"
+            variant="subtle"
+            color="red"
+            disabled={isCancelling}
+            onClick={(event) => {
+              event.stopPropagation();
+              onCancel();
+            }}
+          >
+            {isCancelling ? "Cancelling..." : "Cancel"}
+          </Button>
+        )}
+        {!isUserSender && (
+          <Button
+            variant="light"
+            leftSection={<IconArrowBarToDown size={20} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              onCancel();
+            }}
+          >
+            Withdraw
+          </Button>
+        )}
         {stream.configuration.is_undercollateralized && (
           <Button
             variant="light"
