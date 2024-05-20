@@ -44,7 +44,7 @@ export default function RootLayout({
           >
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
               <RecoilRoot>
-                <Notifications position="top-left" />
+                <Notifications position="top-left" containerWidth="600px" />
                 {children}
               </RecoilRoot>
             </MantineProvider>

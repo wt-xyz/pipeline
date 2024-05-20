@@ -1,8 +1,19 @@
-import { Button, Divider, Flex, useMantineTheme } from "@mantine/core";
+import {
+  Button,
+  Divider,
+  Flex,
+  Modal,
+  TextInput,
+  useMantineTheme,
+} from "@mantine/core";
 import { CustomAccordionItem } from "components/CustomAccordionItem/CustomAccordionItem";
 import { Spread } from "components/Spread";
 import { TextMd, TextXxl } from "components/TextVariants";
-import { formatAddress, formatDecimals } from "utils/formatUtils";
+import {
+  formatAddress,
+  formatDecimals,
+  parseDecimals,
+} from "utils/formatUtils";
 import { IconArrowBarToDown } from "@tabler/icons-react";
 import { convertTaiTimeBNToDate } from "utils/dateTimeUtils";
 import { buildFieldArray } from "utils/buildFieldsArray";
@@ -11,13 +22,13 @@ import { StreamProgressBar } from "components/StreamProgressBar/StreamProgressBa
 import classes from "./ContentComponent.module.css";
 import { Stream } from "hooks/Streams";
 import {
-  useFullWithdrawFromStream,
+  useWithdrawFromStream,
   useTotalVested,
 } from "@/hooks/TokenStreamingAbi";
 import { useAccount } from "@fuels/react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
-import { BN } from "fuels";
+import { BigNumberish, BN } from "fuels";
 import { useNotificationHook } from "@/hooks/Notifications";
 
 type StreamAccordionItemProps = {
@@ -38,8 +49,35 @@ type StreamAccordionItemViewProps = StreamAccordionItemProps & {
   };
 };
 
+type WithdrawModalProps = {
+  onClick: (value: BigNumberish) => void;
+  onClose: () => void;
+  opened: boolean;
+};
+
+const WithdrawModal = ({ onClick, opened, onClose }: WithdrawModalProps) => {
+  const [value, setValue] = useState<string>("0");
+
+  const handleButtonClick = () => {
+    // convert value to proper decimals
+    onClick(value);
+    onClose();
+  };
+
+  return (
+    <Modal title="Withdraw Modal" opened={opened} onClose={onClose}>
+      <TextInput
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        placeholder="Enter value"
+      />
+      <Button onClick={handleButtonClick}>Withdraw</Button>
+    </Modal>
+  );
+};
+
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
-  const { withdraw, loading, data, error } = useFullWithdrawFromStream();
+  const { withdraw, loading, data, error } = useWithdrawFromStream();
   const { account } = useAccount();
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
@@ -52,20 +90,28 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
     `${formatDecimals(data ?? 0)} ${stream.underlying_asset.value} withdrawn!`,
   );
 
-  const handleSenderWithdraw = useCallback(() => {
-    if (!account) return;
-    const share_asset = props.isUserSender
-      ? stream.sender_asset
-      : stream.receiver_asset;
+  const handleWithdraw = useCallback(
+    (amount?: BigNumberish) => {
+      if (!account) return;
+      const share_asset = props.isUserSender
+        ? stream.sender_asset
+        : stream.receiver_asset;
 
-    withdraw(account, stream.underlying_asset.value, share_asset.value);
-    showNotification();
-  }, [account, props.isUserSender, stream, withdraw, showNotification]);
+      withdraw(
+        account,
+        stream.underlying_asset.value,
+        share_asset.value,
+        amount,
+      );
+      showNotification();
+    },
+    [account, props.isUserSender, stream, withdraw, showNotification],
+  );
 
   return data && props.isUserSender ? null : (
     <StreamAccordionItemView
       {...props}
-      onCancel={handleSenderWithdraw}
+      onCancel={handleWithdraw}
       isCancelling={loading}
       stats={{
         maxWithdrawable: maxWithdrawable ?? new BN("0"),
@@ -97,30 +143,33 @@ export const StreamAccordionItemView = ({
   const theme = useMantineTheme();
 
   return (
-    <CustomAccordionItem
-      label={
-        <LabelComponent
+    <>
+      <CustomAccordionItem
+        label={
+          <LabelComponent
+            stream={stream}
+            isCancelling={isCancelling}
+            onCancel={onCancel}
+            isUserSender={isUserSender}
+          />
+        }
+        value={stream.sender_asset.value}
+        isOpen={isOpen}
+        toggle={toggle}
+        style={{
+          backgroundColor: theme.colors.cardBackground[0],
+          borderRadius: theme.radius.xl,
+        }}
+      >
+        {/*  */}
+        <ContentComponent
           stream={stream}
-          isCancelling={isCancelling}
           onCancel={onCancel}
           isUserSender={isUserSender}
+          stats={stats}
         />
-      }
-      value={stream.sender_asset.value}
-      isOpen={isOpen}
-      toggle={toggle}
-      style={{
-        backgroundColor: theme.colors.cardBackground[0],
-        borderRadius: theme.radius.xl,
-      }}
-    >
-      <ContentComponent
-        stream={stream}
-        isUserSender={isUserSender}
-        onCancel={onCancel}
-        stats={stats}
-      />
-    </CustomAccordionItem>
+      </CustomAccordionItem>
+    </>
   );
 };
 
@@ -151,6 +200,8 @@ const LabelComponent = ({
   onCancel: () => void;
   isUserSender: boolean;
 }) => {
+  const [modalOpened, setModalOpened] = useState<boolean>(false);
+
   return (
     <Spread align={"center"}>
       <TotalAmountComponent stream={stream} />
@@ -175,7 +226,7 @@ const LabelComponent = ({
             leftSection={<IconArrowBarToDown size={20} />}
             onClick={(event) => {
               event.stopPropagation();
-              onCancel();
+              setModalOpened(true);
             }}
           >
             Withdraw
@@ -190,6 +241,11 @@ const LabelComponent = ({
           </Button>
         )}
       </Flex>
+      <WithdrawModal
+        onClick={onCancel}
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+      />
     </Spread>
   );
 };

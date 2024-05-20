@@ -4,13 +4,17 @@ import {
   BaseAssetId,
   BigNumberish,
   BytesLike,
+  FunctionInvocationResult,
   InvocationCallResult,
 } from "fuels";
 import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
 import { useWallet } from "@fuels/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { stringAddressesToIdentityInputs } from "@/utils/formatUtils";
+import {
+  parseDecimals,
+  stringAddressesToIdentityInputs,
+} from "@/utils/formatUtils";
 import {
   StreamConfigurationInput,
   StreamOutput,
@@ -97,7 +101,7 @@ export const useCreateStream = (
 
 // When this function is called by the receiver they withdraw the full available balance from their stream vault
 // when called by the sender, this withdraws their collateral and cancels the stream. will not withdraw funds already allocated to the user.
-export const useFullWithdrawFromStream = (
+export const useWithdrawFromStream = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
   const tokenContract = useTokenStreamingAbi(contractId);
@@ -111,25 +115,40 @@ export const useFullWithdrawFromStream = (
       recipientIdentityString: string,
       underlyingAsset: string,
       shareToken: string,
+      amount?: BigNumberish,
     ) => {
       setLoading(true);
       const [recipientIdentityInput] = stringAddressesToIdentityInputs([
         recipientIdentityString,
       ]);
 
-      const response = await tokenContract?.functions
-        .withdraw(
-          recipientIdentityInput,
-          { value: underlyingAsset },
-          BaseAssetId,
-        )
-        .callParams({ forward: [1, shareToken] })
-        .txParams({ variableOutputs: 2 })
-        .call()
-        .catch((e) => {
-          setLoading(false);
-          setError(e.message);
-        });
+      let response: void | FunctionInvocationResult<BN, void> | undefined =
+        undefined;
+
+      if (amount == undefined) {
+        response = await tokenContract?.functions
+          .withdraw(
+            recipientIdentityInput,
+            { value: underlyingAsset },
+            BaseAssetId,
+          )
+          .callParams({ forward: [1, shareToken] })
+          .txParams({ variableOutputs: 2 })
+          .call()
+          .catch((e) => {
+            setLoading(false);
+            setError(e.message);
+          });
+      } else {
+        // TODO we need to get the SRC20 decimal value here
+        const convertedAmount = parseDecimals(amount.toString());
+
+        response = await tokenContract?.functions
+          .partial_withdraw_from_stream(recipientIdentityInput, convertedAmount)
+          .txParams({ variableOutputs: 2 })
+          .callParams({ forward: [1, shareToken] })
+          .call();
+      }
 
       setLoading(false);
       if (response?.transactionResult.isStatusFailure) {
