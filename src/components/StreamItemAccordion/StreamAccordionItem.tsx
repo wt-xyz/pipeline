@@ -10,7 +10,10 @@ import { FieldCard } from "components/FieldCard/FieldCard";
 import { StreamProgressBar } from "components/StreamProgressBar/StreamProgressBar";
 import classes from "./ContentComponent.module.css";
 import { Stream } from "hooks/Streams";
-import { useFullWithdrawFromStream } from "@/hooks/TokenStreamingAbi";
+import {
+  useFullWithdrawFromStream,
+  useTotalVested,
+} from "@/hooks/TokenStreamingAbi";
 import { useAccount } from "@fuels/react";
 import { useCallback } from "react";
 import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
@@ -30,7 +33,10 @@ type StreamAccordionItemProps = {
 type StreamAccordionItemViewProps = StreamAccordionItemProps & {
   onCancel: () => void;
   isCancelling: boolean;
-  maxWithdrawable: BN;
+  stats: {
+    maxWithdrawable: BN;
+    totalVested: BN;
+  };
   withdrawResult?: BN;
 };
 
@@ -39,6 +45,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const { account } = useAccount();
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
+  const totalVested = useTotalVested(stream);
 
   const handleWithdraw = useCallback(() => {
     if (!account) return;
@@ -54,7 +61,10 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
       {...props}
       onCancel={handleWithdraw}
       isCancelling={loading}
-      maxWithdrawable={maxWithdrawable ?? new BN("0")}
+      stats={{
+        maxWithdrawable: maxWithdrawable ?? new BN("0"),
+        totalVested: totalVested ?? new BN("0"),
+      }}
       withdrawResult={data}
     />
   );
@@ -70,8 +80,8 @@ export const StreamAccordionItemView = ({
   toggle,
   onCancel,
   isCancelling,
-  maxWithdrawable,
   withdrawResult,
+  stats,
 }: StreamAccordionItemViewProps) => {
   // Assert that isOpen and toggle are not undefined when needed
   if (typeof isOpen === "undefined" || typeof toggle === "undefined") {
@@ -104,7 +114,8 @@ export const StreamAccordionItemView = ({
       <ContentComponent
         stream={stream}
         isUserSender={isUserSender}
-        maxWithdrawable={maxWithdrawable}
+        onCancel={onCancel}
+        stats={stats}
       />
     </CustomAccordionItem>
   );
@@ -167,13 +178,15 @@ const LabelComponent = ({
 const ContentComponent = ({
   stream,
   isUserSender,
-  maxWithdrawable,
+  onCancel,
+  stats,
 }: {
   stream: Stream;
   isUserSender: boolean;
-  maxWithdrawable: BN;
+  onCancel: () => void;
+  stats: { maxWithdrawable: BN; totalVested: BN };
 }) => {
-  const fieldsArray = buildFieldArray(stream, isUserSender, maxWithdrawable);
+  const fieldsArray = buildFieldArray(stream, isUserSender, stats);
 
   return (
     <Flex direction={"column"} gap={"lg"} align={"center"} justify={"center"}>
@@ -195,7 +208,16 @@ const ContentComponent = ({
         endDate={convertTaiTimeBNToDate(stream.stop_time)}
         startDate={convertTaiTimeBNToDate(stream.start_time)}
       />
-      <Button variant={"light"} hiddenFrom={"xs"} color="red" w={"100%"}>
+      <Button
+        variant={"light"}
+        hiddenFrom={"xs"}
+        color="red"
+        w={"100%"}
+        onClick={(event) => {
+          event.stopPropagation();
+          onCancel();
+        }}
+      >
         Cancel Stream
       </Button>
     </Flex>

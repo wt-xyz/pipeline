@@ -46,13 +46,7 @@ export const CreateStreamForm = () => {
     validate: {
       token: (value) => (value ? null : "Token is required"),
       recipient: (value) => (value ? null : "Recipient is required"),
-      startTime: (value) => {
-        if (!value) {
-          return "Start time is required";
-        } else if (value < new Date()) {
-          return "Start time must be in the future!";
-        }
-      },
+      startTime: (value) => (value ? null : "Start time is required"),
       endTime: (value) => (value ? null : "End time is required"),
       amount: (value) => (value > 0 ? null : "Amount must be greater than 0"),
     },

@@ -5,6 +5,7 @@ import {
   parseDecimalsBN,
 } from "utils/formatUtils";
 import {
+  convertTaiTimeBNToDate,
   daysAwayFromTaiTimeBN,
   getDaysBetweenTaiTimes,
 } from "utils/dateTimeUtils";
@@ -15,7 +16,7 @@ import { Stream } from "hooks/Streams";
 export const buildFieldArray = (
   stream: Stream,
   isUserSender: boolean,
-  maxWithdrawable: BN,
+  stats: { maxWithdrawable: BN; totalVested: BN },
 ): { value: string; label: string; color: MantineColor }[] => {
   const fieldArray = [];
   if (isUserSender) {
@@ -40,27 +41,22 @@ export const buildFieldArray = (
     },
     {
       label: "Amount Vested",
-      //TODO: how do we get this value?
-      value: "1023",
+      value: formatDecimals(stats.totalVested),
       color: "primary",
     },
     {
       label: "Status",
-      //TODO: how do we get this value?
-      value: "Active",
-      // TODO: color changes based on status
-      color: "white",
+      value: getStreamStatus(stream),
+      color: getStreamStatusColor(getStreamStatus(stream)),
     },
     {
       label: "Amount Withdrawn",
-      //TODO: how do we get this value?
-      value: "0",
+      value: formatDecimals(stats.totalVested.sub(stats.maxWithdrawable)),
       color: "yellow",
     },
     {
       label: "Total Withdrawable",
-      //TODO: update with max withdrawable call
-      value: formatDecimals(maxWithdrawable),
+      value: formatDecimals(stats.maxWithdrawable),
       color: "blue",
     },
     {
@@ -73,7 +69,7 @@ export const buildFieldArray = (
       color: "white",
     },
     {
-      label: "Full Duration",
+      label: "Full Duration (Days)",
       value: getDaysBetweenTaiTimes(
         stream.start_time,
         stream.stop_time,
@@ -90,11 +86,51 @@ export const buildFieldArray = (
       },
       {
         label: "Days until insolvency",
-        value: "15",
-        //TODO: change color based on value
-        color: "red",
+        value: daysTillInsolvency(stream).toString(),
+        color:
+          daysTillInsolvency(stream) < 5
+            ? "red"
+            : daysTillInsolvency(stream) < 10
+              ? "yellow"
+              : "green",
       },
     );
   }
   return fieldArray;
+};
+
+const daysTillInsolvency = (stream: Stream) =>
+  stream.deposit
+    .div(stream.rate_per_second_e_10.div(10 ** 10))
+    .div(86400)
+    .toNumber();
+
+const getStreamStatus = (
+  stream: Stream,
+): "Active" | "Complete" | "Insolvent" | "Not Started" => {
+  let status;
+  if (convertTaiTimeBNToDate(stream.stop_time) < new Date()) {
+    status = "Complete";
+  } else if (convertTaiTimeBNToDate(stream.start_time) > new Date()) {
+    status = "Not Started";
+  } else {
+    status = "Active";
+  }
+
+  return status as "Active" | "Complete" | "Insolvent" | "Not Started";
+};
+
+const getStreamStatusColor = (
+  streamStatus: ReturnType<typeof getStreamStatus>,
+) => {
+  switch (streamStatus) {
+    case "Active":
+      return "green";
+    case "Complete":
+      return "blue";
+    case "Insolvent":
+      return "red";
+    case "Not Started":
+      return "gray";
+  }
 };

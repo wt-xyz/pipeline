@@ -16,7 +16,7 @@ import {
   StreamOutput,
   VaultInfoOutput,
 } from "../../types/contracts/TokenStreamingAbi";
-import stream from "stream";
+import { Stream } from "./Streams";
 
 // TODO: change readonly interactions to simulate instead of call
 export const useTokenStreamingAbi = (
@@ -226,4 +226,26 @@ export const useMaxWithdrawable = (
   }, [vaultSubId, stream.receiver_asset, tokenContract]);
 
   return maxWithdrawable;
+};
+
+export const useTotalVested = (
+  stream: Stream,
+  contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
+): BN | undefined => {
+  const tokenContract = useTokenStreamingAbi(contractId);
+
+  const [totalVested, setTotalVested] = useState<BN | undefined>();
+  useEffect(() => {
+    tokenContract?.functions
+      .vested_amount(stream.streamId)
+      .get()
+      .then((response) => {
+        setTotalVested(response?.value);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }, [tokenContract, stream]);
+
+  return totalVested;
 };

@@ -817,12 +817,12 @@ const _abi = {
           arguments: [" * `asset_id` - The underlying asset"],
         },
         {
-          name: "payable",
-          arguments: [],
-        },
-        {
           name: "storage",
           arguments: ["read", "write"],
+        },
+        {
+          name: "payable",
+          arguments: [],
         },
       ],
     },
@@ -887,6 +887,10 @@ const _abi = {
       },
       attributes: [
         {
+          name: "storage",
+          arguments: ["read"],
+        },
+        {
           name: "doc-comment",
           arguments: [
             " Returns the details of a stream by it's share asset id and the stream id",
@@ -913,10 +917,6 @@ const _abi = {
         {
           name: "doc-comment",
           arguments: [""],
-        },
-        {
-          name: "storage",
-          arguments: ["read"],
         },
       ],
     },
@@ -1009,12 +1009,12 @@ const _abi = {
       },
       attributes: [
         {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
-        {
           name: "payable",
           arguments: [],
+        },
+        {
+          name: "storage",
+          arguments: ["read", "write"],
         },
         {
           name: "doc-comment",
@@ -1088,10 +1088,6 @@ const _abi = {
       },
       attributes: [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-        {
           name: "doc-comment",
           arguments: [
             " Returns the underlying asset of a given vault by its share asset",
@@ -1118,6 +1114,31 @@ const _abi = {
         {
           name: "doc-comment",
           arguments: [""],
+        },
+        {
+          name: "storage",
+          arguments: ["read"],
+        },
+      ],
+    },
+    {
+      inputs: [
+        {
+          name: "stream_id",
+          type: 24,
+          typeArguments: null,
+        },
+      ],
+      name: "vested_amount",
+      output: {
+        name: "",
+        type: 24,
+        typeArguments: null,
+      },
+      attributes: [
+        {
+          name: "storage",
+          arguments: ["read"],
         },
       ],
     },
@@ -1196,10 +1217,6 @@ const _abi = {
       },
       attributes: [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-        {
           name: "doc-comment",
           arguments: [" Returns the name of a given asset"],
         },
@@ -1222,6 +1239,10 @@ const _abi = {
         {
           name: "doc-comment",
           arguments: [""],
+        },
+        {
+          name: "storage",
+          arguments: ["read"],
         },
       ],
     },
@@ -1247,10 +1268,6 @@ const _abi = {
       },
       attributes: [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-        {
           name: "doc-comment",
           arguments: [" Returns the symbol of a given asset"],
         },
@@ -1274,6 +1291,10 @@ const _abi = {
           name: "doc-comment",
           arguments: [""],
         },
+        {
+          name: "storage",
+          arguments: ["read"],
+        },
       ],
     },
     {
@@ -1286,14 +1307,14 @@ const _abi = {
       },
       attributes: [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-        {
           name: "doc-comment",
           arguments: [
             " Returns the total number of different assets minted by the contract",
           ],
+        },
+        {
+          name: "storage",
+          arguments: ["read"],
         },
       ],
     },
@@ -1369,10 +1390,6 @@ const _abi = {
       },
       attributes: [
         {
-          name: "payable",
-          arguments: [],
-        },
-        {
           name: "doc-comment",
           arguments: [" Deposits are blocked in this contract"],
         },
@@ -1385,6 +1402,10 @@ const _abi = {
         {
           name: "storage",
           arguments: ["read", "write"],
+        },
+        {
+          name: "payable",
+          arguments: [],
         },
       ],
     },
@@ -1408,10 +1429,6 @@ const _abi = {
         typeArguments: null,
       },
       attributes: [
-        {
-          name: "storage",
-          arguments: ["read"],
-        },
         {
           name: "doc-comment",
           arguments: [" Returns the balance of a given vault"],
@@ -1457,6 +1474,10 @@ const _abi = {
         {
           name: "doc-comment",
           arguments: [""],
+        },
+        {
+          name: "storage",
+          arguments: ["read"],
         },
       ],
     },
@@ -1572,10 +1593,6 @@ const _abi = {
       },
       attributes: [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-        {
           name: "doc-comment",
           arguments: [
             " Returns the maximum withdrawable amount for a given vault",
@@ -1607,6 +1624,10 @@ const _abi = {
           name: "doc-comment",
           arguments: [" * `vault_sub_id` - The sub id of the vault"],
         },
+        {
+          name: "storage",
+          arguments: ["read"],
+        },
       ],
     },
     {
@@ -1634,14 +1655,6 @@ const _abi = {
         typeArguments: null,
       },
       attributes: [
-        {
-          name: "payable",
-          arguments: [],
-        },
-        {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
         {
           name: "doc-comment",
           arguments: [" Withdraw from the stream"],
@@ -1703,6 +1716,14 @@ const _abi = {
         {
           name: "doc-comment",
           arguments: [" * `asset_id` - The receiver or sender share asset"],
+        },
+        {
+          name: "payable",
+          arguments: [],
+        },
+        {
+          name: "storage",
+          arguments: ["read", "write"],
         },
       ],
     },
@@ -2016,7 +2037,7 @@ const _abi = {
       logId: 38,
       loggedType: {
         name: "",
-        type: 16,
+        type: 4,
         typeArguments: [],
       },
     },
@@ -2024,7 +2045,7 @@ const _abi = {
       logId: 39,
       loggedType: {
         name: "",
-        type: 4,
+        type: 16,
         typeArguments: [],
       },
     },
@@ -2136,7 +2157,7 @@ const _abi = {
       logId: 53,
       loggedType: {
         name: "",
-        type: 22,
+        type: 4,
         typeArguments: [],
       },
     },
@@ -2144,7 +2165,7 @@ const _abi = {
       logId: 54,
       loggedType: {
         name: "",
-        type: 4,
+        type: 22,
         typeArguments: [],
       },
     },
@@ -2232,12 +2253,20 @@ const _abi = {
       logId: 65,
       loggedType: {
         name: "",
-        type: 13,
+        type: 4,
         typeArguments: [],
       },
     },
     {
       logId: 66,
+      loggedType: {
+        name: "",
+        type: 13,
+        typeArguments: [],
+      },
+    },
+    {
+      logId: 67,
       loggedType: {
         name: "",
         type: 22,
