@@ -29,8 +29,8 @@ export default function Home() {
   }, [createOrManage]);
 
   const isMobile = useIsMobile();
-  const streams = useFetchStreams();
-  const coins = useFetchCoins();
+  useFetchStreams();
+  useFetchCoins();
   console.log("Rendering Home Page");
 
   return (
