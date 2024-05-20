@@ -31,7 +31,7 @@ type StreamAccordionItemViewProps = StreamAccordionItemProps & {
   onCancel: () => void;
   isCancelling: boolean;
   maxWithdrawable: BN;
-  withdrawResult: BN;
+  withdrawResult: BN | undefined;
 };
 
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
