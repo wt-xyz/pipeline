@@ -2,12 +2,16 @@
 
 mod utils;
 
+use std::time::Duration;
+
 use utils::*;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use assert_matches::assert_matches;
 use fuels::prelude::*;
 use rstest::rstest;
+
+const SECS_IN_A_DAY: u64 = 86_400;
 
 #[tokio::test]
 // create a stream
@@ -253,6 +257,67 @@ async fn cannot_create_undercollateralized_stream_with_invalid_params(
         create_stream_result.unwrap_err().downcast_ref(),
         Some(fuels_core::types::errors::Error::RevertTransactionError { ref reason, .. }) if reason == "IncorrectDeposit"
     );
+
+    Ok(())
+}
+
+#[rstest]
+#[case::yesterday_part(1, 2, 0.5)]
+#[case::last_week_part(7, 14, 0.5)]
+#[case::last_week_done(7, 6, 1f32)]
+#[case::last_month_part(30, 60, 0.5)]
+#[case::last_month_done(30, 29, 1f32)]
+#[tokio::test]
+async fn can_create_streams_in_past(
+    #[case] days_ago: u64,
+    #[case] duration: u64,
+    #[case] expected_portion: f32,
+) -> Result<()> {
+    let (instance, _id, wallets) = get_contract_instance().await?;
+
+    let (sender_wallet, receiver_wallet, amount, start_time, _, underlying_asset) =
+        get_default_stream_values(wallets)?;
+
+    let start_time = start_time - Duration::from_secs(days_ago * SECS_IN_A_DAY);
+
+    let duration = Duration::from_secs(duration * SECS_IN_A_DAY);
+
+    let (_stream_id, stream) = create_stream(
+        &instance,
+        &sender_wallet,
+        &receiver_wallet,
+        underlying_asset,
+        amount,
+        start_time,
+        duration,
+        None,
+        None,
+    )
+    .await?;
+
+    #[allow(clippy::cast_possible_truncation)]
+    let expected_amount_to_receive = (amount as f32 * expected_portion) as u64;
+
+    // we need to fetch the sender and receiver assets
+    let vault_info_receiver = instance
+        .methods()
+        .get_vault_info(stream.receiver_asset)
+        .simulate()
+        .await?
+        .value;
+    let vault_id_receiver = vault_info_receiver.vault_sub_id;
+
+    let max_withdrawable = instance
+        .methods()
+        .max_withdrawable(underlying_asset, vault_id_receiver)
+        .call()
+        .await?
+        .value
+        .context("Missing max withdrawable")?;
+
+    // 0.1% margin of error for rounding
+    let diff = (max_withdrawable as i128 - expected_amount_to_receive as i128).abs();
+    assert!(diff <= (expected_amount_to_receive as f32 * 0.001) as i128);
 
     Ok(())
 }

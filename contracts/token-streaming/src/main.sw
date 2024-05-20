@@ -164,9 +164,6 @@ impl Pipeline for Contract {
         // no zero stream_size
         require(stream_size > 0, Error::ZeroDeposit);
 
-        // no start time before now
-        require(start_time >= timestamp(), Error::DateTooEarly);
-
         require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit);
 
         // calculate the rate per second
