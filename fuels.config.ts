@@ -1,7 +1,7 @@
 import { createConfig } from "fuels";
 
 export default createConfig({
-  contracts: ["contracts/token-streaming"],
+  workspace: ".",
   output: "./types",
   snapshotDir: "./chain",
   useBuiltinForc: false,
