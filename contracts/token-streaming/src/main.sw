@@ -13,8 +13,12 @@ use ::interface::Pipeline;
 use ::constants::E10; 
 // Standard interfaces
 
-use standards::src20::SRC20;
-use standards::src6::{SRC6, Withdraw, Deposit};
+use standards::{
+    src20::SRC20,
+    src6::{
+        SRC6, Withdraw, Deposit
+    }
+};
 
 use std::{
     asset::transfer,
