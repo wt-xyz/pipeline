@@ -1,11 +1,4 @@
-import {
-  Button,
-  Divider,
-  Flex,
-  Group,
-  Image,
-  useMantineTheme,
-} from "@mantine/core";
+import { Button, Divider, Flex, Image, useMantineTheme } from "@mantine/core";
 import { Spread } from "components/Spread";
 import { Wallet } from "components/Wallet/Wallet";
 import { Dispatch, SetStateAction } from "react";

@@ -1,5 +1,4 @@
 import { atom, useRecoilValue } from "recoil";
-import { isEmpty } from "lodash";
 import { Container, Flex } from "@mantine/core";
 import { createOrManageSet } from "@/app/page";
 import { Dispatch, ReactElement, SetStateAction } from "react";
@@ -14,6 +13,7 @@ import {
 import { CreateStreamForm } from "components/CreateStreamForm";
 import { CreateOrManageButtonGroupWithDivider } from "components/CreateOrManageButtonGroup/CreateOrManageButtonGroupWithDivider";
 import { useIsMobile } from "hooks/useIsMobile";
+import { isEmpty } from "lodash";
 
 export const globalStreams = atom({
   key: "globalStreams",

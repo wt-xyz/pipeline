@@ -1,4 +1,4 @@
-import { Card, CardProps, Flex, Text, useMantineTheme } from "@mantine/core";
+import { Card, CardProps, Flex, Text } from "@mantine/core";
 import { TextSm } from "components/TextVariants";
 import classes from "./FieldCard.module.scss";
 

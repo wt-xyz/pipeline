@@ -1,13 +1,13 @@
 import React from "react";
 import { useDisconnect } from "@fuels/react";
-import { Avatar, Button, MantineColor, Text } from "@mantine/core";
+import { Avatar, Button, MantineColor } from "@mantine/core";
 import { IconWallet } from "@tabler/icons-react";
 import { formatAddress } from "utils/formatUtils";
 import { TextLg } from "components/TextVariants";
 
 type WalletProps = {
   isConnected: boolean;
-  connectAsync: () => void;
+  connectAsync: (connectorName?: string) => void;
   isLoading: boolean;
   isError: boolean;
   error?: string;
@@ -19,8 +19,6 @@ export const WalletView = ({
   isConnected,
   connectAsync,
   isLoading,
-  isError,
-  error,
   account = "",
   color = "white",
 }: WalletProps) => {

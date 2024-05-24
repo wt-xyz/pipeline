@@ -240,7 +240,12 @@ export const useMaxWithdrawable = (
           console.error(e);
         });
     }
-  }, [vaultSubId, stream.receiver_asset, tokenContract]);
+  }, [
+    vaultSubId,
+    stream.receiver_asset,
+    tokenContract,
+    stream.underlying_asset,
+  ]);
 
   return maxWithdrawable;
 };

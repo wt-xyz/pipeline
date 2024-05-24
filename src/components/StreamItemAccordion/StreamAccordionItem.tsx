@@ -9,11 +9,7 @@ import {
 import { CustomAccordionItem } from "components/CustomAccordionItem/CustomAccordionItem";
 import { Spread } from "components/Spread";
 import { TextMd, TextXxl } from "components/TextVariants";
-import {
-  formatAddress,
-  formatDecimals,
-  parseDecimals,
-} from "utils/formatUtils";
+import { formatAddress, formatDecimals } from "utils/formatUtils";
 import { IconArrowBarToDown } from "@tabler/icons-react";
 import { convertTaiTimeBNToDate } from "utils/dateTimeUtils";
 import { buildFieldArray } from "utils/buildFieldsArray";
@@ -118,10 +114,8 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
 
 //TODO: streamId is probably in some way returnable in whatever object we get with stream, we will want to compact this into one unit when we combine the hooks.
 export const StreamAccordionItemView = ({
-  value,
   stream,
   isUserSender,
-  streamId,
   isOpen,
   toggle,
   onCancel,
