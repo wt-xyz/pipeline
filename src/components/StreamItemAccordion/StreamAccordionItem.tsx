@@ -87,7 +87,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
     props.isUserSender ? "Cancelling Stream..." : "Withdrawing...",
     loading,
     error,
-    `${formatDecimals(data ?? 0)} ${stream.underlying_asset.value} withdrawn!`,
+    `${formatDecimals(data ?? 0)} ${stream.underlying_asset.bits} withdrawn!`,
   );
 
   const handleWithdraw = useCallback(
@@ -97,12 +97,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
         ? stream.sender_asset
         : stream.receiver_asset;
 
-      withdraw(
-        account,
-        stream.underlying_asset.value,
-        share_asset.value,
-        amount,
-      );
+      withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount);
       showNotification();
     },
     [account, props.isUserSender, stream, withdraw, showNotification],
@@ -153,7 +148,7 @@ export const StreamAccordionItemView = ({
             isUserSender={isUserSender}
           />
         }
-        value={stream.sender_asset.value}
+        value={stream.sender_asset.bits}
         isOpen={isOpen}
         toggle={toggle}
         style={{
@@ -181,7 +176,7 @@ const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
         <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
         {/* TODO: change to symbol */}
         <TextXxl c={"gray.7"}>
-          {formatAddress(stream.underlying_asset.value)}
+          {formatAddress(stream.underlying_asset.bits)}
         </TextXxl>
       </Flex>
       <TextMd c={"gray.7"}>Total Amount</TextMd>
