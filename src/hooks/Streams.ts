@@ -1,12 +1,12 @@
 import { AbstractAddress, BN, CoinQuantity } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { globalStreams } from "components/MainPage";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
-import { compact, isEqual } from "lodash";
+import { compact, isEqual, uniqBy } from "lodash";
 import { globalCoins } from "hooks/useCoins";
-import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
+import { TokenStreamingAbi } from "../../types";
 import {
   AssetIdInput,
   StreamOutput,
@@ -16,16 +16,13 @@ const getStream = async (
   tokenContract: TokenStreamingAbi,
   shareToken: string,
 ) => {
-  console.log(`running getStream function with shareToken ${shareToken}`);
   try {
     const response = await tokenContract?.functions
       .get_stream_by_vault_share_id({ value: shareToken })
       // .addContracts([tokenContract])
       .get();
-    console.log("response", response);
     return response;
   } catch (e) {
-    console.log("response led to error");
     console.error(`Error: ${e} not a stream token`);
   }
 };
@@ -36,32 +33,25 @@ const getStreamResponses = async (
   coins: CoinQuantity[],
 ) => {
   if (!tokenContract || coins.length === 0) return;
-  console.log("running getStreamResponses REFETCH");
-  return (
-    (
-      compact(
-        await Promise.all(
-          coins
-            .filter((coin) => coin.amount.eq(new BN(1)))
-            .map(async (coin) => {
-              const stream = (await getStream(tokenContract, coin.assetId))
-                ?.value;
+  return uniqBy(
+    compact(
+      await Promise.all(
+        coins
+          .filter((coin) => coin.amount.eq(new BN(1)))
+          .map(async (coin) => {
+            const stream = (await getStream(tokenContract, coin.assetId))
+              ?.value;
 
-              return stream
-                ? {
-                    ...stream[0],
-                    streamId: stream[1].toString(),
-                  }
-                : undefined;
-            }),
-        ),
-      ) as Stream[]
-    )
-      // TODO this feels a bit hacky here, findIndex run so many times, maybe a reducer is better
-      .filter(
-        (obj, index, self) =>
-          index === self.findIndex((t) => t.streamId === obj.streamId),
-      )
+            return stream
+              ? {
+                  ...stream[0],
+                  streamId: stream[1].toString(),
+                }
+              : undefined;
+          }),
+      ),
+    ) as Stream[],
+    "streamId",
   );
 };
 
@@ -87,7 +77,6 @@ export const useRefreshStreams = (
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): Stream[] | undefined => {
-  console.log("running useFetchStreams");
   const [streams, setStreams] = useRecoilState<Stream[]>(globalStreams);
   const coins = useRecoilValue(globalCoins);
   const tokenContract = useTokenStreamingAbi(contractId);
@@ -98,6 +87,7 @@ export const useFetchStreams = (
         setStreams(responseStreams);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coins, tokenContract]);
 
   return streams;

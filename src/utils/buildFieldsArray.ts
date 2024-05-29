@@ -85,7 +85,7 @@ export const buildFieldArray = (
         color: "green",
       },
       {
-        label: "Days until insolvency",
+        label: "Days until Insolvency",
         value: daysTillInsolvency(stream).toString(),
         color:
           daysTillInsolvency(stream) < 5
