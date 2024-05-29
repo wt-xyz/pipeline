@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { Box, Flex, MantineStyleProp } from "@mantine/core";
+import { Flex, FlexProps } from "@mantine/core";
 import { CustomAccordionItemProps } from "components/CustomAccordionItem/CustomAccordionItem";
 
 type CustomAccordionProps = {
@@ -14,15 +14,14 @@ type CustomAccordionProps = {
   storageKey?: string;
   defaultOpenValues?: string[];
   allOpenByDefault?: boolean;
-  style?: MantineStyleProp;
-};
+} & Omit<FlexProps, "children">;
 
 export const CustomAccordion = ({
   children,
   storageKey = "accordion-open-values",
   defaultOpenValues = [],
   allOpenByDefault = false,
-  style,
+  ...otherFlexProps
 }: CustomAccordionProps) => {
   // Initialize state with local storage or default values
   const [openValues, setOpenValues] = useState<string[]>(() => {
@@ -50,7 +49,7 @@ export const CustomAccordion = ({
   }, []);
 
   return (
-    <Flex direction={"column"} gap={"md"} style={style}>
+    <Flex direction={"column"} gap={"md"} {...otherFlexProps}>
       {Children.map(children, (child) =>
         cloneElement(child, {
           isOpen: openValues.includes(child.props.value),

@@ -4,7 +4,7 @@
 /* eslint-disable */
 
 /*
-  Fuels version: 0.81.0
+  Fuels version: 0.82.0
   Forc version: 0.49.3
   Fuel-Core version: 0.22.1
 */
@@ -729,8 +729,11 @@ const _abi = {
       },
       "attributes": [
         {
-          "name": "payable",
-          "arguments": []
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
         },
         {
           "name": "doc-comment",
@@ -853,11 +856,8 @@ const _abi = {
           ]
         },
         {
-          "name": "storage",
-          "arguments": [
-            "read",
-            "write"
-          ]
+          "name": "payable",
+          "arguments": []
         }
       ]
     },
@@ -936,12 +936,6 @@ const _abi = {
       },
       "attributes": [
         {
-          "name": "storage",
-          "arguments": [
-            "read"
-          ]
-        },
-        {
           "name": "doc-comment",
           "arguments": [
             " Returns the details of a stream by it's share asset id and the stream id"
@@ -976,6 +970,12 @@ const _abi = {
           "arguments": [
             ""
           ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
         }
       ]
     },
@@ -994,6 +994,12 @@ const _abi = {
         "typeArguments": null
       },
       "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        },
         {
           "name": "doc-comment",
           "arguments": [
@@ -1028,12 +1034,6 @@ const _abi = {
           "name": "doc-comment",
           "arguments": [
             ""
-          ]
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read"
           ]
         }
       ]
@@ -1081,17 +1081,6 @@ const _abi = {
         "typeArguments": null
       },
       "attributes": [
-        {
-          "name": "payable",
-          "arguments": []
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read",
-            "write"
-          ]
-        },
         {
           "name": "doc-comment",
           "arguments": [
@@ -1163,6 +1152,17 @@ const _abi = {
           "arguments": [
             " * `asset_id` - The receiver share asset"
           ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
         }
       ]
     },
@@ -1228,6 +1228,29 @@ const _abi = {
     {
       "inputs": [
         {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "name": "vested_amount",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
           "name": "_asset",
           "type": 11,
           "typeArguments": null
@@ -1246,12 +1269,6 @@ const _abi = {
         ]
       },
       "attributes": [
-        {
-          "name": "storage",
-          "arguments": [
-            "read"
-          ]
-        },
         {
           "name": "doc-comment",
           "arguments": [
@@ -1287,6 +1304,12 @@ const _abi = {
           "arguments": [
             ""
           ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
         }
       ]
     },
@@ -1311,6 +1334,12 @@ const _abi = {
         ]
       },
       "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        },
         {
           "name": "doc-comment",
           "arguments": [
@@ -1345,12 +1374,6 @@ const _abi = {
           "name": "doc-comment",
           "arguments": [
             ""
-          ]
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read"
           ]
         }
       ]
@@ -1430,15 +1453,15 @@ const _abi = {
       },
       "attributes": [
         {
-          "name": "storage",
-          "arguments": [
-            "read"
-          ]
-        },
-        {
           "name": "doc-comment",
           "arguments": [
             " Returns the total number of different assets minted by the contract"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
           ]
         }
       ]
@@ -1464,6 +1487,12 @@ const _abi = {
         ]
       },
       "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        },
         {
           "name": "doc-comment",
           "arguments": [
@@ -1498,12 +1527,6 @@ const _abi = {
           "name": "doc-comment",
           "arguments": [
             ""
-          ]
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read"
           ]
         }
       ]
@@ -1767,6 +1790,12 @@ const _abi = {
       },
       "attributes": [
         {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        },
+        {
           "name": "doc-comment",
           "arguments": [
             " Returns the maximum withdrawable amount for a given vault"
@@ -1807,12 +1836,6 @@ const _abi = {
           "arguments": [
             " * `vault_sub_id` - The sub id of the vault"
           ]
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read"
-          ]
         }
       ]
     },
@@ -1841,17 +1864,6 @@ const _abi = {
         "typeArguments": null
       },
       "attributes": [
-        {
-          "name": "payable",
-          "arguments": []
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read",
-            "write"
-          ]
-        },
         {
           "name": "doc-comment",
           "arguments": [
@@ -1928,6 +1940,17 @@ const _abi = {
           "name": "doc-comment",
           "arguments": [
             " * `asset_id` - The receiver or sender share asset"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
           ]
         }
       ]
@@ -2066,7 +2089,7 @@ const _abi = {
       "logId": 16,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 16,
         "typeArguments": []
       }
     },
@@ -2082,7 +2105,7 @@ const _abi = {
       "logId": 18,
       "loggedType": {
         "name": "",
-        "type": 16,
+        "type": 15,
         "typeArguments": []
       }
     },
@@ -2090,7 +2113,7 @@ const _abi = {
       "logId": 19,
       "loggedType": {
         "name": "",
-        "type": 15,
+        "type": 4,
         "typeArguments": []
       }
     },
@@ -2186,7 +2209,7 @@ const _abi = {
       "logId": 31,
       "loggedType": {
         "name": "",
-        "type": 4,
+        "type": 22,
         "typeArguments": []
       }
     },
@@ -2194,7 +2217,7 @@ const _abi = {
       "logId": 32,
       "loggedType": {
         "name": "",
-        "type": 22,
+        "type": 4,
         "typeArguments": []
       }
     },

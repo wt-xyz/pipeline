@@ -1,14 +1,22 @@
 import { MantineColor } from "@mantine/core";
-import { formatAddress } from "utils/formatUtils";
 import {
+  formatAddress,
+  formatDecimals,
+  parseDecimalsBN,
+} from "utils/formatUtils";
+import {
+  convertTaiTimeBNToDate,
   daysAwayFromTaiTimeBN,
   getDaysBetweenTaiTimes,
 } from "utils/dateTimeUtils";
+import { BN } from "fuels";
+import Decimal from "decimal.js";
 import { Stream } from "hooks/Streams";
 
 export const buildFieldArray = (
   stream: Stream,
   isUserSender: boolean,
+  stats: { maxWithdrawable: BN; totalVested: BN },
 ): { value: string; label: string; color: MantineColor }[] => {
   const fieldArray = [];
   if (isUserSender) {
@@ -33,36 +41,35 @@ export const buildFieldArray = (
     },
     {
       label: "Amount Vested",
-      //TODO: how do we get this value?
-      value: "1023",
+      value: formatDecimals(stats.totalVested),
       color: "primary",
     },
     {
       label: "Status",
-      //TODO: how do we get this value?
-      value: "Active",
-      // TODO: color changes based on status
-      color: "white",
+      value: getStreamStatus(stream),
+      color: getStreamStatusColor(getStreamStatus(stream)),
     },
     {
       label: "Amount Withdrawn",
-      //TODO: how do we get this value?
-      value: "0",
+      value: formatDecimals(stats.totalVested.sub(stats.maxWithdrawable)),
       color: "yellow",
     },
     {
       label: "Total Withdrawable",
-      //TODO: update with max withdrawable call
-      value: "1023",
+      value: formatDecimals(stats.maxWithdrawable),
       color: "blue",
     },
     {
       label: "Rate per Second",
-      value: stream.rate_per_second_e_10.div(10 ** 10).toString(),
+      value: new Decimal(
+        parseDecimalsBN(stream.rate_per_second_e_10).toString(),
+      )
+        .div(10 ** 10)
+        .toString(),
       color: "white",
     },
     {
-      label: "Full Duration",
+      label: "Full Duration (Days)",
       value: getDaysBetweenTaiTimes(
         stream.start_time,
         stream.stop_time,
@@ -78,12 +85,52 @@ export const buildFieldArray = (
         color: "green",
       },
       {
-        label: "Days until insolvency",
-        value: "15",
-        //TODO: change color based on value
-        color: "red",
+        label: "Days until Insolvency",
+        value: daysTillInsolvency(stream).toString(),
+        color:
+          daysTillInsolvency(stream) < 5
+            ? "red"
+            : daysTillInsolvency(stream) < 10
+              ? "yellow"
+              : "green",
       },
     );
   }
   return fieldArray;
+};
+
+const daysTillInsolvency = (stream: Stream) =>
+  stream.deposit
+    .div(stream.rate_per_second_e_10.div(10 ** 10))
+    .div(86400)
+    .toNumber();
+
+const getStreamStatus = (
+  stream: Stream,
+): "Active" | "Complete" | "Insolvent" | "Not Started" => {
+  let status;
+  if (convertTaiTimeBNToDate(stream.stop_time) < new Date()) {
+    status = "Complete";
+  } else if (convertTaiTimeBNToDate(stream.start_time) > new Date()) {
+    status = "Not Started";
+  } else {
+    status = "Active";
+  }
+
+  return status as "Active" | "Complete" | "Insolvent" | "Not Started";
+};
+
+const getStreamStatusColor = (
+  streamStatus: ReturnType<typeof getStreamStatus>,
+) => {
+  switch (streamStatus) {
+    case "Active":
+      return "green";
+    case "Complete":
+      return "blue";
+    case "Insolvent":
+      return "red";
+    case "Not Started":
+      return "gray";
+  }
 };

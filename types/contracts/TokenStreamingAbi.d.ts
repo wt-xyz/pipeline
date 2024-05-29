@@ -4,7 +4,7 @@
 /* eslint-disable */
 
 /*
-  Fuels version: 0.81.0
+  Fuels version: 0.82.0
   Forc version: 0.49.3
   Fuel-Core version: 0.22.1
 */
@@ -64,6 +64,7 @@ interface TokenStreamingAbiInterface extends Interface {
     is_solvent: FunctionFragment;
     partial_withdraw_from_stream: FunctionFragment;
     underlying_asset: FunctionFragment;
+    vested_amount: FunctionFragment;
     decimals: FunctionFragment;
     name: FunctionFragment;
     symbol: FunctionFragment;
@@ -84,6 +85,7 @@ interface TokenStreamingAbiInterface extends Interface {
   encodeFunctionData(functionFragment: 'is_solvent', values: [BigNumberish]): Uint8Array;
   encodeFunctionData(functionFragment: 'partial_withdraw_from_stream', values: [IdentityInput, BigNumberish]): Uint8Array;
   encodeFunctionData(functionFragment: 'underlying_asset', values: [AssetIdInput]): Uint8Array;
+  encodeFunctionData(functionFragment: 'vested_amount', values: [BigNumberish]): Uint8Array;
   encodeFunctionData(functionFragment: 'decimals', values: [AssetIdInput]): Uint8Array;
   encodeFunctionData(functionFragment: 'name', values: [AssetIdInput]): Uint8Array;
   encodeFunctionData(functionFragment: 'symbol', values: [AssetIdInput]): Uint8Array;
@@ -103,6 +105,7 @@ interface TokenStreamingAbiInterface extends Interface {
   decodeFunctionData(functionFragment: 'is_solvent', data: BytesLike): DecodedValue;
   decodeFunctionData(functionFragment: 'partial_withdraw_from_stream', data: BytesLike): DecodedValue;
   decodeFunctionData(functionFragment: 'underlying_asset', data: BytesLike): DecodedValue;
+  decodeFunctionData(functionFragment: 'vested_amount', data: BytesLike): DecodedValue;
   decodeFunctionData(functionFragment: 'decimals', data: BytesLike): DecodedValue;
   decodeFunctionData(functionFragment: 'name', data: BytesLike): DecodedValue;
   decodeFunctionData(functionFragment: 'symbol', data: BytesLike): DecodedValue;
@@ -126,6 +129,7 @@ export class TokenStreamingAbi extends Contract {
     is_solvent: InvokeFunction<[stream_id: BigNumberish], boolean>;
     partial_withdraw_from_stream: InvokeFunction<[receiver: IdentityInput, amount: BigNumberish], BN>;
     underlying_asset: InvokeFunction<[vault_share_asset: AssetIdInput], AssetIdOutput>;
+    vested_amount: InvokeFunction<[stream_id: BigNumberish], BN>;
     decimals: InvokeFunction<[_asset: AssetIdInput], Option<number>>;
     name: InvokeFunction<[asset: AssetIdInput], Option<StdString>>;
     symbol: InvokeFunction<[asset: AssetIdInput], Option<StdString>>;

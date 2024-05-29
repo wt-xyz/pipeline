@@ -7,13 +7,7 @@ import {
   FuelWalletDevelopmentConnector,
   FueletWalletConnector,
 } from "@fuels/connectors";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FuelProvider } from "@fuels/react";
-import {
-  FuelWalletConnector,
-  FuelWalletDevelopmentConnector,
-  FueletWalletConnector,
-} from "@fuels/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { theme } from "../src/theme";
 import { RecoilRoot } from "recoil";

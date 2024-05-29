@@ -164,9 +164,6 @@ impl Pipeline for Contract {
         // no zero stream_size
         require(stream_size > 0, Error::ZeroDeposit);
 
-        // no start time before now
-        require(start_time >= timestamp(), Error::DateTooEarly);
-
         require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit);
 
         // calculate the rate per second
@@ -283,6 +280,13 @@ impl Pipeline for Contract {
     #[storage(read)]
     fn is_solvent(stream_id: u64) -> bool {
       is_solvent(stream_id)
+    }
+
+    #[storage(read)]
+    fn vested_amount(stream_id: u64) -> u64 {
+        let stream = get_stream(stream_id);
+
+        vested_amount(stream)
     }
 }
 
@@ -739,6 +743,8 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
     // INTERACTIONS
     // transfer the amount to the receiver
     transfer(receiver, stream.underlying_asset, amount);
+    // transfer the share asset back to the 
+    transfer(msg_sender().unwrap(), vault_share_asset, 1);
 
     log(Withdraw {
         caller: msg_sender().unwrap(),

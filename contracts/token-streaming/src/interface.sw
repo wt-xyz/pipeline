@@ -89,8 +89,16 @@ abi Pipeline {
     ///
     /// # Arguments
     ///
-    /// * `stream_id` - The stream to tcheck the solvency of
+    /// * `stream_id` - The stream to check the solvency of
     #[storage(read)]
     fn is_solvent(stream_id: u64) -> bool;
+
+    /// Returns the total amount vested
+    ///
+    /// # Arguments
+    ///
+    /// * `stream_id` - The stream to check the total vested amount of
+    #[storage(read)]
+    fn vested_amount(stream_id: u64) -> u64;
 }
 

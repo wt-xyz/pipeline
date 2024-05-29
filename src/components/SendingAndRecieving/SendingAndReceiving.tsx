@@ -2,6 +2,7 @@ import { Button, Group, Text, useMantineTheme } from "@mantine/core";
 import { TextXxl } from "components/TextVariants";
 import { atom, useRecoilState } from "recoil";
 import classes from "./SendingAndReceiving.module.scss";
+import { useFetchStreams } from "hooks/Streams";
 
 export type sendingOrReceivingSet = "sending" | "receiving";
 export const sendingOrReceivingAtom = atom({
@@ -10,6 +11,7 @@ export const sendingOrReceivingAtom = atom({
 });
 
 export const SendingAndReceiving = () => {
+  useFetchStreams();
   const [sendingOrReceiving, setSendingOrReceiving] = useRecoilState(
     sendingOrReceivingAtom,
   );

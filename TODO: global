@@ -1,0 +1,11 @@
+// TODO: we need to add an option to the create stream which will be a select with 3 options: 
+// 1. undercollateralized stream
+// 2. fully collateralized stream
+// 3. fully collateralized uncancellable stream
+
+
+// TODO: we need to add an option to create the stream while paying gas for the recipient. 
+// This will be an option that the user has where they set aside a pool of money that will be used to pay the gas for the recipient. 
+// the user creating the stream must first say that they want to and enter an amount of funds associated with their recipient's gas repository. 
+
+// TODO: 

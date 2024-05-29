@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { BN } from "fuels";
+import { Address, BN } from "fuels";
 import { truncate } from "lodash";
 
 export function formatDateToISO(date: Date) {
@@ -24,14 +24,23 @@ export function truncateString(s: string, maxLength: number) {
 }
 
 export function stringAddressesToIdentityInputs(arr: string[]) {
-  return arr.map((str) => ({
-    Address: {
-      value: str,
-    },
-  }));
+  return arr.map((str) => {
+    // If it's a bech32 address make it a bytes32 address
+    const value = Address.fromAddressOrString(str).toB256();
+
+    return {
+      Address: {
+        value,
+      },
+    };
+  });
 }
 
-export const parseDecimals = (val: number | string, decimals = 8): BN => {
+export const parseDecimalsBN = (val: BN, decimals = 9): BN => {
+  return val.div(10 ** decimals);
+};
+
+export const parseDecimals = (val: number | string, decimals = 9): BN => {
   const valDecimal = new Decimal(val);
 
   return new BN(valDecimal.mul(Math.pow(10, decimals)).toNumber());

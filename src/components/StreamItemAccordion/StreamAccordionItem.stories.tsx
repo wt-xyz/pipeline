@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { StreamAccordionItem } from "./StreamAccordionItem";
+import { StreamAccordionItemView } from "./StreamAccordionItem";
 import { CustomAccordion } from "../CustomAccordion/CustomAccordion";
 import { useState } from "react";
 import { useMantineTheme } from "@mantine/core";
@@ -9,11 +9,11 @@ import { Stream } from "hooks/Streams";
 
 const meta = {
   title: "Components/StreamsAccordion",
-  component: StreamAccordionItem,
+  component: StreamAccordionItemView,
   argTypes: {
     isUserSender: { control: "boolean" },
   },
-} satisfies Meta<typeof StreamAccordionItem>;
+} satisfies Meta<typeof StreamAccordionItemView>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -84,11 +84,14 @@ const streamId = "sampleStreamId";
 // Story definition
 export const Default = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   return (
-    <StreamAccordionItem
+    <StreamAccordionItemView
       value={streamReal.sender_asset.value}
       isOpen={isOpen}
+      isCancelling={isCancelling}
+      onCancel={() => setIsCancelling(true)}
       stream={streamReal}
       isUserSender={isUserSender}
       streamId={streamReal.streamId}
@@ -98,17 +101,23 @@ export const Default = () => {
 };
 
 export const WithCustomAccordion = () => {
+  const [isCancelling1, setIsCancelling1] = useState(false);
+  const [isCancelling2, setIsCancelling2] = useState(false);
   return (
     <CustomAccordion>
-      <StreamAccordionItem
+      <StreamAccordionItemView
         value={streamReal.sender_asset.value}
         stream={streamReal}
+        isCancelling={isCancelling1}
+        onCancel={() => setIsCancelling1(true)}
         isUserSender={isUserSender}
         streamId={streamReal.streamId}
       />
-      <StreamAccordionItem
+      <StreamAccordionItemView
         value={streamReal.receiver_asset.value}
         stream={streamReal}
+        isCancelling={isCancelling2}
+        onCancel={() => setIsCancelling2(true)}
         isUserSender={isUserSender}
         streamId={streamReal.streamId}
       />
@@ -119,12 +128,16 @@ export const WithCustomAccordion = () => {
 export const Insolvent = () => {
   const [isOpen, setIsOpen] = useState(true);
 
+  const [isCancelling, setIsCancelling] = useState(false);
+
   return (
-    <StreamAccordionItem
+    <StreamAccordionItemView
       value={streamInsolvent.sender_asset.value}
       isOpen={isOpen}
       stream={streamInsolvent}
       isUserSender={isUserSender}
+      isCancelling={isCancelling}
+      onCancel={() => setIsCancelling(true)}
       streamId={streamInsolvent.streamId}
       toggle={() => setIsOpen(!isOpen)}
     />

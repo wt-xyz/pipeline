@@ -11,9 +11,11 @@ import { RecoilRoot } from "recoil";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import "@mantine/notifications/styles.css";
 import "./globals.css";
 import { theme } from "@/theme";
-import { IBM_Plex_Mono, IBM_Plex_Sans, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Notifications } from "@mantine/notifications";
 // TODO: Change the font type to fit your project.
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,7 +43,10 @@ export default function RootLayout({
             }}
           >
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
-              <RecoilRoot>{children}</RecoilRoot>
+              <RecoilRoot>
+                <Notifications position="top-left" containerWidth="600px" />
+                {children}
+              </RecoilRoot>
             </MantineProvider>
           </FuelProvider>
         </QueryClientProvider>

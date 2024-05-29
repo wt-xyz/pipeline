@@ -1,20 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@mantine/core";
 import { Header } from "components/Header/Header";
 import { MainPage } from "components/MainPage";
-import { useStreams } from "hooks/Streams";
-import { useIsMobile } from "hooks/useIsMobile";
+import { useFetchStreams } from "hooks/Streams";
+import { useFetchCoins } from "hooks/useCoins";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export type createOrManageSet = "create" | "manage";
 
 export default function Home() {
-  const [createOrManage, setCreateOrManage] =
-    useState<createOrManageSet>("create");
+  const [createOrManage, setCreateOrManage] = useState<createOrManageSet>(
+    () => {
+      if (typeof window !== "undefined") {
+        return (
+          (localStorage.getItem("createOrManage") as createOrManageSet) ||
+          "create"
+        );
+      }
+      return "create";
+    },
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("createOrManage", createOrManage);
+    }
+  }, [createOrManage]);
 
   const isMobile = useIsMobile();
-  const streams = useStreams();
-  console.log("streams", streams);
+  useFetchStreams();
+  useFetchCoins();
+  console.log("Rendering Home Page");
 
   return (
     <AppShell
