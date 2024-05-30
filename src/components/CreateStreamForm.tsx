@@ -14,6 +14,7 @@ import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
 import { useConnectUI, useWallet } from "@fuels/react";
 import { BN } from "fuels";
+import Decimal from "decimal.js";
 import { useState } from "react";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useRouter } from "next/navigation";
@@ -83,16 +84,18 @@ export const CreateStreamForm = () => {
     // INFO: this is being used in the ternary expression below
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (isDatesDefined(values) && wallet.wallet?.address) {
+      const amount_decimals = new Decimal(10).pow(DECIMALS).mul(values.amount);
+      const amount_bn = new BN(amount_decimals.toString());
       createStream(
         values.token,
-        new BN(10).pow(DECIMALS).mul(values.amount),
+        amount_bn,
         wallet.wallet.address.toB256(),
         values.recipient,
         convertUnixTimeMillisecondsToTaiTime(
           new BN(values.startTime.getTime()),
         ),
         convertUnixTimeMillisecondsToTaiTime(new BN(values.endTime.getTime())),
-        new BN(10).pow(DECIMALS).mul(values.amount),
+        amount_bn,
         {
           is_undercollateralized: false,
           is_cancellable: true,
