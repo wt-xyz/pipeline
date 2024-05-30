@@ -1,7 +1,6 @@
 import { AbstractAddress, BN, CoinQuantity } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { globalStreams } from "components/MainPage";
+import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
 import { compact, isEqual, uniqBy } from "lodash";
@@ -11,6 +10,11 @@ import {
   AssetIdInput,
   StreamOutput,
 } from "../../types/contracts/TokenStreamingAbi";
+
+export const globalStreams = atom({
+  key: "globalStreams",
+  default: [] as Stream[],
+});
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,

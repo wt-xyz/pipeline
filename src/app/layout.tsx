@@ -20,9 +20,6 @@ import { Notifications } from "@mantine/notifications";
 const inter = Inter({ subsets: ["latin"] });
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Header } from "@/components/Header/Header";
-import { useEffect, useState } from "react";
-
-export type createOrManageSet = "create" | "manage";
 
 export default function RootLayout({
   children,
@@ -63,24 +60,6 @@ export default function RootLayout({
 const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
   const isMobile = useIsMobile();
 
-  const [createOrManage, setCreateOrManage] = useState<createOrManageSet>(
-    () => {
-      if (typeof window !== "undefined") {
-        return (
-          (localStorage.getItem("createOrManage") as createOrManageSet) ||
-          "create"
-        );
-      }
-      return "create";
-    },
-  );
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("createOrManage", createOrManage);
-    }
-  }, [createOrManage]);
-
   return (
     <AppShell
       bg={"background"}
@@ -95,10 +74,7 @@ const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
         }}
         px={"sxl"}
       >
-        <Header
-          createOrManage={createOrManage}
-          setCreateOrManage={setCreateOrManage}
-        />
+        <Header />
       </AppShell.Header>
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
