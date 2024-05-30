@@ -16,10 +16,12 @@ import "./globals.css";
 import { theme } from "@/theme";
 import { Inter } from "next/font/google";
 import { Notifications } from "@mantine/notifications";
-// TODO: Change the font type to fit your project.
-const inter = Inter({ subsets: ["latin"] });
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Header } from "@/components/Header/Header";
+import { useFetchStreams } from "hooks/Streams";
+import { useFetchCoins } from "hooks/useCoins";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -58,6 +60,8 @@ export default function RootLayout({
 }
 
 const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
+  useFetchStreams();
+  useFetchCoins();
   const isMobile = useIsMobile();
 
   return (

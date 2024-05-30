@@ -16,6 +16,7 @@ import { useConnectUI, useWallet } from "@fuels/react";
 import { BN } from "fuels";
 import { useState } from "react";
 import { useNotificationHook } from "@/hooks/Notifications";
+import { useRouter } from "next/navigation";
 
 type FormValues = {
   token: string;
@@ -74,39 +75,40 @@ export const CreateStreamForm = () => {
     },
   });
 
+  const router = useRouter();
+
+  const handleSubmit = (values: FormValues) => {
+    // FIXME use fetched decimals const DECIMALS = 9;
+    const DECIMALS = 9;
+    // INFO: this is being used in the ternary expression below
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    if (isDatesDefined(values) && wallet.wallet?.address) {
+      createStream(
+        values.token,
+        new BN(10).pow(DECIMALS).mul(values.amount),
+        wallet.wallet.address.toB256(),
+        values.recipient,
+        convertUnixTimeMillisecondsToTaiTime(
+          new BN(values.startTime.getTime()),
+        ),
+        convertUnixTimeMillisecondsToTaiTime(new BN(values.endTime.getTime())),
+        new BN(10).pow(DECIMALS).mul(values.amount),
+        {
+          is_undercollateralized: false,
+          is_cancellable: true,
+        },
+      ).then(() => {
+        // update the fetched streams
+        refreshCoins();
+        router.push("/manage");
+      });
+      showNotification();
+    }
+  };
+
   return (
     <Card bg={"cardBackground"}>
-      <form
-        onSubmit={form.onSubmit((values) => {
-          // FIXME use fetched decimals const DECIMALS = 9;
-          const DECIMALS = 9;
-          // INFO: this is being used in the ternary expression below
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          if (isDatesDefined(values) && wallet.wallet?.address) {
-            createStream(
-              values.token,
-              new BN(10).pow(DECIMALS).mul(values.amount),
-              wallet.wallet.address.toB256(),
-              values.recipient,
-              convertUnixTimeMillisecondsToTaiTime(
-                new BN(values.startTime.getTime()),
-              ),
-              convertUnixTimeMillisecondsToTaiTime(
-                new BN(values.endTime.getTime()),
-              ),
-              new BN(10).pow(DECIMALS).mul(values.amount),
-              {
-                is_undercollateralized: false,
-                is_cancellable: true,
-              },
-            ).then(() => {
-              // update the fetched streams
-              refreshCoins();
-            });
-            showNotification();
-          }
-        })}
-      >
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Flex
           direction={"column"}
           align={"right"}
