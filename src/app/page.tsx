@@ -1,11 +1,14 @@
 "use client";
-import Link from "next/link";
+import { NavLinkButton } from "@/components/Buttons/NavLinkButton";
+import { Flex } from "@mantine/core";
 
 export default function Home() {
   return (
-    <>
-      <Link href="/create">Create</Link>
-      <Link href="/manage">Manage</Link>
-    </>
+    <Flex style={{ height: "100vh" }} align="center" justify="center">
+      <div>
+        <NavLinkButton label="Create" path="/create" />
+        <NavLinkButton label="Manage" path="/manage" />
+      </div>
+    </Flex>
   );
 }

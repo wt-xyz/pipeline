@@ -1,9 +1,8 @@
-import { Button, Divider, Flex, Image, useMantineTheme } from "@mantine/core";
+import { Divider, Flex, Image } from "@mantine/core";
 import { Spread } from "components/Spread";
 import { Wallet } from "components/Wallet/Wallet";
-import { TextLg } from "components/TextVariants";
 import { GroupWithDivider } from "components/GroupWithDivider/GroupWithDivider";
-import { useRouter, usePathname } from "next/navigation";
+import { NavLinkButton } from "../Buttons/NavLinkButton";
 
 export const Header = () => {
   return (
@@ -42,35 +41,5 @@ export const Header = () => {
         <Wallet />
       </GroupWithDivider>
     </Spread>
-  );
-};
-
-type NavLinkButtonProps = {
-  label: string;
-  path: string;
-};
-
-const NavLinkButton = ({ label, path }: NavLinkButtonProps) => {
-  const theme = useMantineTheme();
-
-  const router = useRouter();
-  const currentRoute = usePathname();
-
-  const selected = path === currentRoute;
-
-  return (
-    <Button
-      px={"md"}
-      py={"xs"}
-      radius={"999px"}
-      h={"32px"}
-      variant={selected ? "light" : "subtle"}
-      color={selected ? theme.primaryColor : "gray"}
-      onClick={() => {
-        router.push(path);
-      }}
-    >
-      <TextLg fw={"400"}>{label}</TextLg>
-    </Button>
   );
 };
