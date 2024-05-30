@@ -16,7 +16,7 @@ pub const DEFAULT_START_OFFSET: Duration = Duration::from_secs(60);
 // Load abi from json
 abigen!(Contract(
     name = "Pipeline",
-    abi = "token-streaming/out/debug/token-streaming-abi.json"
+    abi = "contracts/token-streaming/out/debug/token-streaming-abi.json"
 ));
 
 pub async fn get_contract_instance(
