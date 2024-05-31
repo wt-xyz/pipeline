@@ -169,8 +169,10 @@ impl Pipeline for Contract {
 
         require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit);
 
+        let delta = stop_time - start_time;
+
         // calculate the rate per second
-        let rate_per_second_e_10 = (stream_size.as_u256() * E10.as_u256()) / (stop_time.as_u256() - start_time.as_u256());
+        let rate_per_second_e_10 = (stream_size.as_u256() * E10.as_u256()) / delta.as_u256();
 
         // get and increment stream id
         let stream_id = storage.total_assets.try_read().unwrap_or(0);
@@ -615,8 +617,7 @@ fn get_vault_info_option(vault_asset_id: AssetId) -> Option<VaultInfo> {
 ///
 /// * `stream_id` - The id of the stream
 ///
-fn delta_of(stream: Stream) -> u64 {
-    let block_timestamp = timestamp();
+fn delta_of(stream: Stream, block_timestamp: u64) -> u64 {
 
     if let Some(cancellation_time) = stream.cancellation_time {
         if cancellation_time < stream.stop_time {
@@ -668,7 +669,14 @@ fn balance_of(vault_share_asset_id: AssetId) -> u64 {
 }
 
 fn vested_amount(stream: Stream) -> u64 {
-  let delta = delta_of(stream);
+  let block_timestamp = timestamp();
+  let delta = delta_of(stream, block_timestamp);
+
+  // NOTE: This is a workaround for the rounding issue in the division
+  // Due to unfortunate autorounding even with high precision we need to overwrite the value with the total stream size
+  if(block_timestamp > stream.stop_time){
+    return stream.stream_size;
+  }
 
   u64::try_from(((delta.as_u256() * stream.rate_per_second_e_10) / E10.as_u256())).unwrap()
 }
@@ -815,7 +823,9 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
 
     // INTERACTIONS
     // send the appropriate amount of tokens to the sender
-    transfer(unvested_recipient, stream.underlying_asset, sender_balance);
+    if (sender_balance > 0){
+        transfer(unvested_recipient, stream.underlying_asset, sender_balance);
+    }
 
     burn(sender_share_asset, sender_vault_info.vault_sub_id, 1);
 

@@ -8,7 +8,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { RecoilRoot } from "recoil";
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { AppShell, ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/notifications/styles.css";
@@ -16,7 +16,11 @@ import "./globals.css";
 import { theme } from "@/theme";
 import { Inter } from "next/font/google";
 import { Notifications } from "@mantine/notifications";
-// TODO: Change the font type to fit your project.
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { Header } from "@/components/Header/Header";
+import { useFetchStreams } from "hooks/Streams";
+import { useFetchCoins } from "hooks/useCoins";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
@@ -45,7 +49,7 @@ export default function RootLayout({
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
               <RecoilRoot>
                 <Notifications position="top-left" containerWidth="600px" />
-                {children}
+                <AppShellLayout>{children}</AppShellLayout>
               </RecoilRoot>
             </MantineProvider>
           </FuelProvider>
@@ -54,3 +58,29 @@ export default function RootLayout({
     </html>
   );
 }
+
+const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
+  useFetchStreams();
+  useFetchCoins();
+  const isMobile = useIsMobile();
+
+  return (
+    <AppShell
+      bg={"background"}
+      px={isMobile ? "lg" : "120px"}
+      header={{ height: "84px" }}
+    >
+      <AppShell.Header
+        style={{
+          display: "flex",
+          justifyItems: "center",
+          justify: "center",
+        }}
+        px={"sxl"}
+      >
+        <Header />
+      </AppShell.Header>
+      <AppShell.Main>{children}</AppShell.Main>
+    </AppShell>
+  );
+};
