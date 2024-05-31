@@ -1,4 +1,3 @@
-import { CustomAccordionItem } from "components/CustomAccordionItem/CustomAccordionItem";
 import { Meta, StoryObj } from "@storybook/react";
 import { WalletView } from "./WalletView";
 
@@ -23,9 +22,8 @@ export const Primary: Story = {
     isConnected: false,
     isLoading: false,
     isError: false,
-    connectAsync: async (connectorName) => {
-      await setTimeout(() => console.log("Connected: ", connectorName), 1000);
-      return true;
+    connectAsync: (connectorName) => {
+      setTimeout(() => console.log("Connected: ", connectorName), 1000);
     },
   },
 };
@@ -36,9 +34,8 @@ export const Connected: Story = {
     isConnected: true,
     isLoading: false,
     isError: false,
-    connectAsync: async (connectorName) => {
-      await setTimeout(() => console.log("Connected: ", connectorName), 1000);
-      return true;
+    connectAsync: (connectorName) => {
+      setTimeout(() => console.log("Connected: ", connectorName), 1000);
     },
   },
 };
@@ -48,9 +45,8 @@ export const Loading: Story = {
     isConnected: false,
     isLoading: true,
     isError: false,
-    connectAsync: async (connectorName) => {
-      await setTimeout(() => console.log("Connected: ", connectorName), 1000);
-      return true;
+    connectAsync: (connectorName) => {
+      setTimeout(() => console.log("Connected: ", connectorName), 1000);
     },
   },
 };

@@ -1,7 +1,6 @@
 import {
   AbstractAddress,
   BN,
-  BaseAssetId,
   BigNumberish,
   BytesLike,
   FunctionInvocationResult,
@@ -63,7 +62,6 @@ export const useCreateStream = (
           receiverShareRecipientString,
         ]);
       if (!wallet.wallet?.provider) return;
-      const { minGasPrice } = wallet.wallet.provider.getGasConfig();
       setIsLoading(true);
       const response = await tokenContract?.functions
         .create_stream(
@@ -79,7 +77,6 @@ export const useCreateStream = (
         })
         .txParams({
           gasLimit: 1000000,
-          gasPrice: minGasPrice,
           variableOutputs: 2,
         })
         .call();
@@ -129,8 +126,9 @@ export const useWithdrawFromStream = (
         response = await tokenContract?.functions
           .withdraw(
             recipientIdentityInput,
-            { value: underlyingAsset },
-            BaseAssetId,
+            { bits: underlyingAsset },
+            // This could be any value, used to comply with vault standard
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
           )
           .callParams({ forward: [1, shareToken] })
           .txParams({ variableOutputs: 2 })
@@ -232,7 +230,7 @@ export const useMaxWithdrawable = (
 
     if (vaultSubId) {
       tokenContract?.functions
-        .max_withdrawable({ value: stream.underlying_asset.value }, vaultSubId)
+        .max_withdrawable({ bits: stream.underlying_asset.bits }, vaultSubId)
         .get()
         .then((response) => {
           console.log("should get max withdrawable here", response);
@@ -242,7 +240,12 @@ export const useMaxWithdrawable = (
           console.error(e);
         });
     }
-  }, [vaultSubId, stream.receiver_asset, tokenContract]);
+  }, [
+    vaultSubId,
+    stream.receiver_asset,
+    tokenContract,
+    stream.underlying_asset,
+  ]);
 
   return maxWithdrawable;
 };

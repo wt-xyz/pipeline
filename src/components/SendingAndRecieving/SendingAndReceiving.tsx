@@ -1,5 +1,4 @@
-import { Button, Group, Text, useMantineTheme } from "@mantine/core";
-import { TextXxl } from "components/TextVariants";
+import { Button, Group, Text } from "@mantine/core";
 import { atom, useRecoilState } from "recoil";
 import classes from "./SendingAndReceiving.module.scss";
 import { useFetchStreams } from "hooks/Streams";

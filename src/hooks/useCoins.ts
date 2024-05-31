@@ -75,7 +75,7 @@ export const useStreamTokenInfo = (
   streamAddress: string,
   contractAddress: string = TOKEN_STREAMING_CONTRACT_ID,
 ): { symbol?: string; name?: string } => {
-  const [streamTokenInfo, setStreamTokenInfo] = useState<{
+  const [streamTokenInfo] = useState<{
     symbol?: string;
     name?: string;
   }>({});
@@ -174,20 +174,20 @@ export const getCoinInfo = async (
   subId: string = DEFAULT_SUB_ID,
 ): Promise<CoinInfo> => {
   const symbol = tokenContract.functions
-    .symbol({ value: subId })
+    .symbol({ bits: subId })
     .simulate()
     .catch((e) => {
       console.error(e);
     });
   const name = tokenContract.functions
-    .name({ value: subId })
+    .name({ bits: subId })
     .simulate()
     .catch((e) => {
       console.error(e);
     });
 
   const decimals = tokenContract.functions
-    .decimals({ value: subId })
+    .decimals({ bits: subId })
     .simulate()
     .catch((e) => {
       console.error(e);

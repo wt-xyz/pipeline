@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { GroupWithDivider } from "components/GroupWithDivider/GroupWithDivider";
 import { Button, Divider, useMantineTheme } from "@mantine/core";
-import { theme } from "@/theme";
 import { TextLg } from "components/TextVariants";
 import { createOrManageSet } from "@/app/page";
 

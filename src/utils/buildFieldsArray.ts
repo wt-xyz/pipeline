@@ -22,13 +22,13 @@ export const buildFieldArray = (
   if (isUserSender) {
     fieldArray.push({
       label: "To",
-      value: formatAddress(stream.receiver_asset.value),
+      value: formatAddress(stream.receiver_asset.bits),
       color: "white",
     });
   } else {
     fieldArray.push({
       label: "From",
-      value: formatAddress(stream.sender_asset.value),
+      value: formatAddress(stream.sender_asset.bits),
       color: "white",
     });
   }

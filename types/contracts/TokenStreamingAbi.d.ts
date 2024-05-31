@@ -4,9 +4,9 @@
 /* eslint-disable */
 
 /*
-  Fuels version: 0.82.0
-  Forc version: 0.49.3
-  Fuel-Core version: 0.22.1
+  Fuels version: 0.88.1
+  Forc version: 0.59.0
+  Fuel-Core version: 0.26.0
 */
 
 import type {
@@ -31,13 +31,13 @@ export type IdentityOutput = Enum<{ Address: AddressOutput, ContractId: Contract
 export enum SenderOrReceiverInput { Sender = 'Sender', Receiver = 'Receiver' };
 export enum SenderOrReceiverOutput { Sender = 'Sender', Receiver = 'Receiver' };
 
-export type AddressInput = { value: string };
+export type AddressInput = { bits: string };
 export type AddressOutput = AddressInput;
-export type AssetIdInput = { value: string };
+export type AssetIdInput = { bits: string };
 export type AssetIdOutput = AssetIdInput;
 export type CancelStreamInput = { stream_id: BigNumberish, sender_asset: AssetIdInput, receiver_asset: AssetIdInput, unvested_recipient: IdentityInput, unvested_balance: BigNumberish, vested_balance: BigNumberish };
 export type CancelStreamOutput = { stream_id: BN, sender_asset: AssetIdOutput, receiver_asset: AssetIdOutput, unvested_recipient: IdentityOutput, unvested_balance: BN, vested_balance: BN };
-export type ContractIdInput = { value: string };
+export type ContractIdInput = { bits: string };
 export type ContractIdOutput = ContractIdInput;
 export type CreateStreamInput = { stream_id: BigNumberish, sender: IdentityInput, underlying_asset: AssetIdInput, receiver: IdentityInput, receiver_asset: AssetIdInput, sender_asset: AssetIdInput, deposit: BigNumberish, stream_size: BigNumberish, start_time: BigNumberish, stop_time: BigNumberish };
 export type CreateStreamOutput = { stream_id: BN, sender: IdentityOutput, underlying_asset: AssetIdOutput, receiver: IdentityOutput, receiver_asset: AssetIdOutput, sender_asset: AssetIdOutput, deposit: BN, stream_size: BN, start_time: BN, stop_time: BN };

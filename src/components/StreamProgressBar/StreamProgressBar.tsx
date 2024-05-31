@@ -1,4 +1,4 @@
-import { Flex, Progress, useMantineTheme } from "@mantine/core";
+import { Flex, Progress } from "@mantine/core";
 import { percentageCompleteFromTimestamps } from "@/utils/dateTimeUtils";
 import { formatDateToISO } from "@/utils/formatUtils";
 import { Spread } from "components/Spread";
@@ -15,7 +15,6 @@ export const StreamProgressBar = ({
   startDate,
   endDate,
 }: StreamProgressBarProps) => {
-  const theme = useMantineTheme();
   const percentage = percentageCompleteFromTimestamps(startDate, endDate);
   return (
     <>
@@ -42,7 +41,6 @@ const QuantizedProgress = ({
   value: number;
   segments?: number;
 }) => {
-  const theme = useMantineTheme();
   const segmentWidth = 100 / segments;
   // split the segments values into an array of values based on the total value so that each square is filled preportionally
   const segmentsFilled = value / segmentWidth;

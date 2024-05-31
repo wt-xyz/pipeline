@@ -2,18 +2,18 @@ library;
 
 // STRUCTS
 pub struct Stream {
-    deposit: u64,
+    pub deposit: u64,
     // This rate needs to be multiplied by 10^10 to preserve precision, 
-    rate_per_second_e_10: u256,
-    stream_size: u64,
-    vested_withdrawn_amount: u64,
-    start_time: u64,
-    stop_time: u64,
-    underlying_asset: AssetId,
-    receiver_asset: AssetId,
-    sender_asset: AssetId,
-    cancellation_time: Option<u64>,
-    configuration: StreamConfiguration,
+    pub rate_per_second_e_10: u256,
+    pub stream_size: u64,
+    pub vested_withdrawn_amount: u64,
+    pub start_time: u64,
+    pub stop_time: u64,
+    pub underlying_asset: AssetId,
+    pub receiver_asset: AssetId,
+    pub sender_asset: AssetId,
+    pub cancellation_time: Option<u64>,
+    pub configuration: StreamConfiguration,
 }
 
 pub enum SenderOrReceiver {
@@ -24,14 +24,14 @@ pub enum SenderOrReceiver {
 // vault info used to store information about a specific vault, this does not include anything that should be meta data
 pub struct VaultInfo {
     // Vault sub id
-    vault_sub_id: SubId,
+    pub vault_sub_id: SubId,
     // the asset type being managed by the vault
-    asset: AssetId,
-    stream_id: u64,
-    sender_or_receiver: SenderOrReceiver,
+    pub asset: AssetId,
+    pub stream_id: u64,
+    pub sender_or_receiver: SenderOrReceiver,
 }
 
 pub struct StreamConfiguration {
-    is_cancellable: bool,
-    is_undercollateralized: bool,
+    pub is_cancellable: bool,
+    pub is_undercollateralized: bool,
 }

@@ -1,11 +1,13 @@
-import { BN } from 'fuels';
+import { BN } from "fuels";
 
 export function convertTaiTimeToUnixTimeMilliseconds(num: string) {
-  return new BN((BigInt(num) - BigInt(Math.pow(2, 62)) - BigInt(10)).toString()).mul(1000);
+  return new BN(
+    (BigInt(num) - BigInt(Math.pow(2, 62)) - BigInt(10)).toString(),
+  ).mul(1000);
 }
 
 export function convertTaiTimeBNToUnixTimeMilliseconds(input: BN) {
-  return convertTaiTimeToUnixTimeMilliseconds(input.toString(10))
+  return convertTaiTimeToUnixTimeMilliseconds(input.toString(10));
 }
 
 export function convertUnixTimeMillisecondsToTaiTime(input: BN) {
@@ -13,12 +15,12 @@ export function convertUnixTimeMillisecondsToTaiTime(input: BN) {
 }
 
 export function convertTaiTimeBNToDate(input: BN) {
-  const unixTimeBN = convertTaiTimeToUnixTimeMilliseconds(input.toString(10))
+  const unixTimeBN = convertTaiTimeToUnixTimeMilliseconds(input.toString(10));
   return new Date(unixTimeBN.toNumber());
 }
 
 export function daysAwayFromTaiTimeBN(taiTime: BN): number {
-    return daysAway(convertTaiTimeBNToUnixTimeMilliseconds(taiTime).toNumber());
+  return daysAway(convertTaiTimeBNToUnixTimeMilliseconds(taiTime).toNumber());
 }
 
 export function daysAway(unixTimestamp: number): number {
@@ -39,13 +41,16 @@ export function daysAway(unixTimestamp: number): number {
 }
 
 export function getDaysBetweenTaiTimes(taiTime1: BN, taiTime2: BN): number {
-    return getDaysBetweenDates(convertTaiTimeBNToDate(taiTime1), convertTaiTimeBNToDate(taiTime2));
+  return getDaysBetweenDates(
+    convertTaiTimeBNToDate(taiTime1),
+    convertTaiTimeBNToDate(taiTime2),
+  );
 }
 
 export function getDaysBetweenDates(date1: Date, date2: Date): number {
-    const difference = date2.getTime() - date1.getTime();
-    const days = difference / (1000 * 60 * 60 * 24);
-    return Math.round(days);
+  const difference = date2.getTime() - date1.getTime();
+  const days = difference / (1000 * 60 * 60 * 24);
+  return Math.round(days);
 }
 
 export function percentageCompleteFromTimestamps(

@@ -30,7 +30,7 @@ export function stringAddressesToIdentityInputs(arr: string[]) {
 
     return {
       Address: {
-        value,
+        bits: value,
       },
     };
   });

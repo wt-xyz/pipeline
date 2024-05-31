@@ -62,10 +62,10 @@ pub async fn create_stream(
     let sender_wallet_address = Identity::Address(sender_wallet.address().into());
     let receiver_wallet_address = Identity::Address(receiver_wallet.address().into());
 
-    let call_params = CallParameters::new(amount, underlying_asset, 50_000);
+    let call_params = CallParameters::new(amount, underlying_asset, 100_000);
 
     // create a stream
-    let stream_id = instance
+    let stream_creation_result = instance
         .methods()
         .create_stream(
             sender_wallet_address,
@@ -81,8 +81,9 @@ pub async fn create_stream(
         .call_params(call_params)?
         .append_variable_outputs(2)
         .call()
-        .await?
-        .value;
+        .await?;
+
+    let stream_id = stream_creation_result.value;
 
     let stream = instance.methods().get_stream(stream_id).call().await?.value;
 

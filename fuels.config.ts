@@ -1,10 +1,19 @@
 import { createConfig } from "fuels";
+import { execSync } from "child_process";
 
 export default createConfig({
-  workspace: "./contracts",
+  workspace: ".",
   output: "./types",
-  useBuiltinForc: false,
-  chainConfig: "./chainConfig.json",
+  snapshotDir: "./chain",
+  privateKey:
+    "0xde97d8624a438121b86a1956544bd72ed68cd69f2c99555b08b1e8c51ffd511c",
+
+  onFailure: (error) => {
+    if (error.message.includes("not enough coins to fit the target")) {
+      console.log("Running 'yarn fuels deploy'...");
+      execSync("yarn fuels deploy");
+    }
+  },
 });
 
 /**

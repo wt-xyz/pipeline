@@ -1,4 +1,4 @@
-import { atom, useRecoilState, useRecoilValue } from "recoil";
+import { atom, useRecoilValue } from "recoil";
 import { Container, Flex } from "@mantine/core";
 import { createOrManageSet } from "@/app/page";
 import { Dispatch, ReactElement, SetStateAction } from "react";
@@ -13,6 +13,7 @@ import {
 import { CreateStreamForm } from "components/CreateStreamForm";
 import { CreateOrManageButtonGroupWithDivider } from "components/CreateOrManageButtonGroup/CreateOrManageButtonGroupWithDivider";
 import { useIsMobile } from "hooks/useIsMobile";
+import { isEmpty } from "lodash";
 
 export const globalStreams = atom({
   key: "globalStreams",
@@ -34,7 +35,7 @@ export const MainPage = ({
   const isMobile = useIsMobile();
 
   return (
-    <Container pt={isMobile ? 0 : "xxl"} px={0}>
+    <Container pt={isMobile ? "xxl" : "sxl"} px={0}>
       <Flex hiddenFrom={"sm"} py={"xxl"} justify={"center"} w={"100%"}>
         <CreateOrManageButtonGroupWithDivider
           hiddenFrom={"sm"}
@@ -51,7 +52,7 @@ export const MainPage = ({
         </>
       ) : (
         <>
-          {streams ? (
+          {!isEmpty(streams) ? (
             <>
               <Container py={"xxl"}>
                 <SendingAndReceiving />
@@ -63,7 +64,7 @@ export const MainPage = ({
                     (stream: Stream) => {
                       return (
                         <StreamAccordionItem
-                          value={stream.sender_asset.value}
+                          value={stream.sender_asset.bits}
                           key={stream.streamId}
                           isUserSender={isSending}
                           stream={stream}

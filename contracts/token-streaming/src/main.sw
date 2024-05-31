@@ -13,15 +13,18 @@ use ::interface::Pipeline;
 use ::constants::E10; 
 // Standard interfaces
 
-use src20::SRC20;
-use src6::{SRC6, Withdraw, Deposit};
+use standards::{
+    src20::SRC20,
+    src6::{
+        SRC6, Withdraw, Deposit
+    }
+};
 
 use std::{
     asset::transfer,
     auth::msg_sender,
     block::timestamp,
     call_frames::{
-        contract_id,
         msg_asset_id,
     },
     constants::{

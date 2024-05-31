@@ -2,7 +2,7 @@ start: front-end-start contract-start
 
 build: front-end-build contract-build
 
-dev: contract-start local-front-end-dev 
+dev: contract-start deploy local-front-end-dev 
 
 install: front-end-install contract-install
 
@@ -25,7 +25,7 @@ contract-install:
 	cd contracts && cargo build
 
 contract-start: 
-	yarn fuels dev
+	yarn fuels dev 
 
 contract-build:
 	yarn fuels build
@@ -45,6 +45,9 @@ fetch-contract-id:
 
 local-front-end-dev: 
 	yarn dev
+
+deploy:
+	forc deploy --node-url http://localhost:4000/v1/graphql --default-signer
 
 integration_test:
 	cd contracts && cargo test
