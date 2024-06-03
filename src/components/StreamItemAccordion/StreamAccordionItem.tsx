@@ -2,6 +2,8 @@ import {
   Button,
   Divider,
   Flex,
+  Grid,
+  GridCol,
   Modal,
   TextInput,
   useMantineTheme,
@@ -164,17 +166,20 @@ export const StreamAccordionItemView = ({
 
 const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
   return (
-    <Flex direction={"column"}>
-      <Flex gap="xs">
+    <Grid dir="row">
+      <Grid.Col span={4}>
         {/* TODO: get decimals from our hook: useCoinInfo */}
         <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
-        {/* TODO: change to symbol */}
+        <TextMd c={"gray.7"}>Total Amount</TextMd>
+      </Grid.Col>
+      <Grid.Col span={4}>
         <TextXxl c={"gray.7"}>
+          {/* TODO: change to symbol */}
           {formatAddress(stream.underlying_asset.bits)}
         </TextXxl>
-      </Flex>
-      <TextMd c={"gray.7"}>Total Amount</TextMd>
-    </Flex>
+        <TextMd c={"gray.7"}>Asset Id</TextMd>
+      </Grid.Col>
+    </Grid>
   );
 };
 
