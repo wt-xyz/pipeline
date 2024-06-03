@@ -6,11 +6,12 @@ import {
   Loader,
   NumberInput,
   Select,
+  Text,
   TextInput,
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { DateTimePicker, DatesProvider } from "@mantine/dates";
+import { DatePickerInput, DatesProvider } from "@mantine/dates";
 import { useCreateStream } from "@/hooks/TokenStreamingAbi";
 import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
@@ -28,19 +29,17 @@ import { SECONDS_PER_DAY } from "@/constants/constants";
 type FormValues = {
   token: string;
   recipient: string;
-  startTime: Date | undefined;
-  endTime: Date | undefined;
+  dates: [Date | undefined, Date | undefined];
   amount: number;
 };
 
 function isDatesDefined(values: FormValues): values is Omit<
   FormValues,
-  "startTime" | "endTime"
+  "dates"
 > & {
-  startTime: Date;
-  endTime: Date;
+  dates: [Date, Date];
 } {
-  return values.startTime !== undefined && values.endTime !== undefined;
+  return values.dates.every((date) => date !== undefined);
 }
 
 export const CreateStreamForm = () => {
@@ -62,23 +61,19 @@ export const CreateStreamForm = () => {
     validate: {
       token: (value) => (value ? null : "Token is required"),
       recipient: (value) => (value ? null : "Recipient is required"),
-      startTime: (value) => (value ? null : "Start time is required"),
-      endTime: (value) => (value ? null : "End time is required"),
+      dates: (value) =>
+        value.every((date) => date !== undefined)
+          ? null
+          : "Start and end time are required",
+      // endTime: (value) => (value ? null : "End time is required"),
       amount: (value) => (value > 0 ? null : "Amount must be greater than 0"),
     },
     initialValues: {
-      // FIXME remove these placeholder values
       token: "",
       recipient:
         "fuel15mssspz9pg2t3yf2dls4d6mvsc9jgc8mtc3na5jp6n8q840mxy3srhn4q8",
-      startTime: new Date(),
-      endTime: new Date(Date.now() + 1000 * SECONDS_PER_DAY * 7),
+      dates: [new Date(), new Date(Date.now() + 1000 * SECONDS_PER_DAY * 7)],
       amount: 123,
-      // token: '',
-      // recipient: '',
-      // startTime: undefined,
-      // endTime: undefined,
-      // amount: 0,
     },
   });
 
@@ -100,10 +95,8 @@ export const CreateStreamForm = () => {
         amount_bn,
         wallet.wallet.address.toB256(),
         values.recipient,
-        convertUnixTimeMillisecondsToTaiTime(
-          new BN(values.startTime.getTime()),
-        ),
-        convertUnixTimeMillisecondsToTaiTime(new BN(values.endTime.getTime())),
+        convertUnixTimeMillisecondsToTaiTime(new BN(values.dates[0].getTime())),
+        convertUnixTimeMillisecondsToTaiTime(new BN(values.dates[1].getTime())),
         amount_bn,
         {
           is_undercollateralized: false,
@@ -153,25 +146,24 @@ export const CreateStreamForm = () => {
           {/* TODO: add maximum and minimum dates */}
           <DatesProvider settings={{ timezone: timezone }}>
             <Flex direction="column">
-              <Flex gap={5} align="center">
-                <Title order={6}>Duration</Title>
-                <ActionIcon onClick={openTzModal} variant="subtle">
-                  <IconSettings />
-                </ActionIcon>
-              </Flex>
               <Flex direction="column" gap={3}>
-                <DateTimePicker
+                <DatePickerInput
+                  type="range"
                   clearable
-                  label={<>Start Date </>}
-                  valueFormat={"MMMM DD, YYYY HH:mm"}
-                  {...form.getInputProps("startTime")}
-                />
-                <DateTimePicker
-                  clearable
-                  locale={""}
-                  label={"End Date"}
-                  valueFormat={"MMMM DD, YYYY HH:mm"}
-                  {...form.getInputProps("endTime")}
+                  label={
+                    <Flex align="center">
+                      Start and End Dates
+                      <ActionIcon
+                        onClick={openTzModal}
+                        variant="subtle"
+                        size="sm"
+                      >
+                        <IconSettings size={14} />
+                      </ActionIcon>
+                    </Flex>
+                  }
+                  valueFormat="MMMM DD, YYYY HH:mm"
+                  {...form.getInputProps("dates")}
                 />
               </Flex>
             </Flex>
