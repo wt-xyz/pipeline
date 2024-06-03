@@ -23,6 +23,7 @@ import { useRecoilValue } from "recoil";
 import { IconSettings } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { timezoneAtom, TimezoneModal } from "./TimezoneModal";
+import { SECONDS_PER_DAY } from "@/constants/constants";
 
 type FormValues = {
   token: string;
@@ -70,8 +71,8 @@ export const CreateStreamForm = () => {
       token: "",
       recipient:
         "fuel15mssspz9pg2t3yf2dls4d6mvsc9jgc8mtc3na5jp6n8q840mxy3srhn4q8",
-      startTime: new Date(2024, 2, 29),
-      endTime: new Date(2024, 4, 18),
+      startTime: new Date(),
+      endTime: new Date(Date.now() + 1000 * SECONDS_PER_DAY * 7),
       amount: 123,
       // token: '',
       // recipient: '',
