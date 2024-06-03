@@ -1,13 +1,17 @@
-import { Button, useMantineTheme } from "@mantine/core";
+import { Button, ButtonProps, useMantineTheme } from "@mantine/core";
 import { usePathname, useRouter } from "next/navigation";
 import { TextLg } from "../TextVariants";
 
 type NavLinkButtonProps = {
   label: string;
   path: string;
-};
+} & ButtonProps;
 
-export const NavLinkButton = ({ label, path }: NavLinkButtonProps) => {
+export const NavLinkButton = ({
+  label,
+  path,
+  ...others
+}: NavLinkButtonProps) => {
   const theme = useMantineTheme();
 
   const router = useRouter();
@@ -26,6 +30,7 @@ export const NavLinkButton = ({ label, path }: NavLinkButtonProps) => {
       onClick={() => {
         router.push(path);
       }}
+      {...others}
     >
       <TextLg fw={"400"}>{label}</TextLg>
     </Button>
