@@ -12,6 +12,7 @@ import {
 import { BN } from "fuels";
 import Decimal from "decimal.js";
 import { Stream } from "hooks/Streams";
+import { SECONDS_PER_DAY } from "@/constants/constants";
 
 export const buildFieldArray = (
   stream: Stream,
@@ -50,19 +51,21 @@ export const buildFieldArray = (
       color: getStreamStatusColor(getStreamStatus(stream)),
     },
     {
-      label: "Amount Withdrawn",
+      label: isUserSender ? "Withdrawn by Receiver" : "Amount Withdrawn",
       value: formatDecimals(stats.totalVested.sub(stats.maxWithdrawable)),
       color: "yellow",
     },
     {
-      label: "Total Withdrawable",
+      label: isUserSender ? "Withdrawable by Receiver" : "Total Withdrawable",
       value: formatDecimals(stats.maxWithdrawable),
       color: "blue",
     },
     {
-      label: "Rate per Second",
+      label: "Rate per Day",
       value: new Decimal(
-        parseDecimalsBN(stream.rate_per_second_e_10).toString(),
+        parseDecimalsBN(stream.rate_per_second_e_10)
+          .mul(SECONDS_PER_DAY)
+          .toString(),
       )
         .div(10 ** 10)
         .toString(),
