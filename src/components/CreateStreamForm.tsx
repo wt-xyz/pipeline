@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Button,
   Card,
   Flex,
@@ -6,6 +7,7 @@ import {
   NumberInput,
   Select,
   TextInput,
+  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { DateTimePicker, DatesProvider } from "@mantine/dates";
@@ -15,9 +17,12 @@ import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
 import { useConnectUI, useWallet } from "@fuels/react";
 import { BN } from "fuels";
 import Decimal from "decimal.js";
-import { useState } from "react";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useRouter } from "next/navigation";
+import { useRecoilValue } from "recoil";
+import { IconSettings } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { timezoneAtom, TimezoneModal } from "./TimezoneModal";
 
 type FormValues = {
   token: string;
@@ -41,7 +46,7 @@ export const CreateStreamForm = () => {
   const wallet = useWallet();
   const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
-  const [timezone, setTimezone] = useState("UTC");
+  const timezone = useRecoilValue(timezoneAtom);
 
   const { createStream, loading, error } = useCreateStream();
   const { showNotification } = useNotificationHook(
@@ -75,6 +80,9 @@ export const CreateStreamForm = () => {
       // amount: 0,
     },
   });
+
+  const [tzModalOpened, { open: openTzModal, close: closeTzModal }] =
+    useDisclosure();
 
   const router = useRouter();
 
@@ -137,32 +145,35 @@ export const CreateStreamForm = () => {
             {...form.getInputProps("amount")}
           />
           <TextInput
-            label={"Who is the recipient? (ENS name or Ethereum address)"}
+            label={"Who is the recipient?"}
             placeholder={"0x12345.."}
             {...form.getInputProps("recipient")}
           />
-          <Select
-            label={"Select Timezone"}
-            searchable
-            data={Intl.supportedValuesOf("timeZone")}
-            value={timezone}
-            onChange={(value) => setTimezone(value ?? "UTC")}
-          />
           {/* TODO: add maximum and minimum dates */}
           <DatesProvider settings={{ timezone: timezone }}>
-            <DateTimePicker
-              clearable
-              label={"Start Date"}
-              valueFormat={"MMMM DD, YYYY HH:mm"}
-              {...form.getInputProps("startTime")}
-            />
-            <DateTimePicker
-              clearable
-              locale={""}
-              label={"End Date"}
-              valueFormat={"MMMM DD, YYYY HH:mm"}
-              {...form.getInputProps("endTime")}
-            />
+            <Flex direction="column">
+              <Flex gap={5} align="center">
+                <Title order={6}>Duration</Title>
+                <ActionIcon onClick={openTzModal} variant="subtle">
+                  <IconSettings />
+                </ActionIcon>
+              </Flex>
+              <Flex direction="column" gap={3}>
+                <DateTimePicker
+                  clearable
+                  label={<>Start Date </>}
+                  valueFormat={"MMMM DD, YYYY HH:mm"}
+                  {...form.getInputProps("startTime")}
+                />
+                <DateTimePicker
+                  clearable
+                  locale={""}
+                  label={"End Date"}
+                  valueFormat={"MMMM DD, YYYY HH:mm"}
+                  {...form.getInputProps("endTime")}
+                />
+              </Flex>
+            </Flex>
           </DatesProvider>
           {wallet.wallet ? (
             <Button type="submit" fz={"lg"}>
@@ -179,6 +190,7 @@ export const CreateStreamForm = () => {
           )}
         </Flex>
       </form>
+      <TimezoneModal opened={tzModalOpened} onClose={closeTzModal} />
     </Card>
   );
 };
