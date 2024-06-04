@@ -87,6 +87,9 @@ export const useCreateStream = (
         setError("Stream creation failed");
       }
 
+      console.log({
+        creationResponse: response,
+      });
       // we need to call a callback when the stream creation is successful or failed
       setIsLoading(false);
       setData(response?.value);
