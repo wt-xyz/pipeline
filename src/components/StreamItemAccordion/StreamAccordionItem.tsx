@@ -21,7 +21,7 @@ import { buildFieldArray } from "utils/buildFieldsArray";
 import { FieldCard } from "components/FieldCard/FieldCard";
 import { StreamProgressBar } from "components/StreamProgressBar/StreamProgressBar";
 import classes from "./ContentComponent.module.css";
-import { Stream } from "hooks/Streams";
+import { Stream, useRefreshStreams } from "hooks/Streams";
 import {
   useWithdrawFromStream,
   useTotalVested,
@@ -77,10 +77,10 @@ const SingleInputModal = ({
   onClose,
   max,
 }: SingleInputModalProps) => {
-  const [value, setValue] = useState<BN>(new BN(0));
+  const [value, setValue] = useState<string>("0");
 
   const handleButtonClick = () => {
-    onClick(value);
+    onClick(parseDecimals(value));
     onClose();
   };
 
@@ -88,13 +88,13 @@ const SingleInputModal = ({
     <Modal title={title} opened={opened} onClose={onClose}>
       <Flex>
         <TextInput
-          value={formatDecimals(new BN(value))}
-          onChange={(event) => setValue(parseDecimals(event.target.value))}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
           placeholder="Enter value"
         />
         <Button
           onClick={() => {
-            setValue(max);
+            setValue(formatDecimals(max));
           }}
         >
           Max
@@ -153,6 +153,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
   const totalVested = useTotalVested(stream);
+  const { refreshStreams } = useRefreshStreams();
 
   const { showNotification: showWithdrawalNotification } = useNotificationHook(
     props.isUserSender ? "Cancelling Stream..." : "Withdrawing...",
@@ -171,8 +172,9 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const handleTopUp = useCallback(
     (amount: BigNumberish) => {
       if (!account) return;
-      const topUpConfirmation = deposit(account, stream, amount);
+      deposit(account, stream, amount);
       showTopupNotification();
+      refreshStreams();
     },
     [account, props.isUserSender, stream, deposit, showTopupNotification],
   );
@@ -186,6 +188,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
 
       withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount);
       showWithdrawalNotification();
+      refreshStreams();
     },
     [account, props.isUserSender, stream, withdraw, showWithdrawalNotification],
   );
