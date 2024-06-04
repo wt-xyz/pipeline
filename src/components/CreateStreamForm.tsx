@@ -4,7 +4,7 @@ import {
   Card,
   CardSection,
   CardSectionProps,
-  Divider,
+  Checkbox,
   Flex,
   Loader,
   NumberInput,
@@ -34,7 +34,10 @@ type FormValues = {
   token: string;
   recipient: string;
   dates: [Date | undefined, Date | undefined];
-  amount: number;
+  streamSize: number;
+  deposit: number;
+  undercollateralized: boolean;
+  cancellable: boolean;
 };
 
 function isDatesDefined(values: FormValues): values is Omit<
@@ -70,14 +73,23 @@ export const CreateStreamForm = () => {
           ? null
           : "Start and end time are required",
       // endTime: (value) => (value ? null : "End time is required"),
-      amount: (value) => (value > 0 ? null : "Amount must be greater than 0"),
+      streamSize: (value) =>
+        value > 0 ? null : "Amount must be greater than 0",
+      deposit: (value, values) => {
+        return !values.undercollateralized || value > 0
+          ? null
+          : "Deposit must be greater than 0";
+      },
     },
     initialValues: {
       token: "",
       recipient:
         "fuel15mssspz9pg2t3yf2dls4d6mvsc9jgc8mtc3na5jp6n8q840mxy3srhn4q8",
       dates: [new Date(), new Date(Date.now() + 1000 * SECONDS_PER_DAY * 7)],
-      amount: 123,
+      streamSize: 123,
+      deposit: 0,
+      undercollateralized: false,
+      cancellable: true,
     },
   });
 
@@ -87,24 +99,25 @@ export const CreateStreamForm = () => {
   const router = useRouter();
 
   const handleSubmit = (values: FormValues) => {
-    // FIXME use fetched decimals const DECIMALS = 9;
-    const DECIMALS = 9;
-    // INFO: this is being used in the ternary expression below
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (isDatesDefined(values) && wallet.wallet?.address) {
-      const amount_decimals = new Decimal(10).pow(DECIMALS).mul(values.amount);
-      const amount_bn = new BN(amount_decimals.toString());
+      const streamSizeBn = numberInputToDecimalBN(values.streamSize);
+
+      const depositBn = values.undercollateralized
+        ? numberInputToDecimalBN(values.deposit)
+        : streamSizeBn;
+
       createStream(
         values.token,
-        amount_bn,
+        depositBn,
         wallet.wallet.address.toB256(),
         values.recipient,
         convertUnixTimeMillisecondsToTaiTime(new BN(values.dates[0].getTime())),
         convertUnixTimeMillisecondsToTaiTime(new BN(values.dates[1].getTime())),
-        amount_bn,
+        streamSizeBn,
         {
-          is_undercollateralized: false,
-          is_cancellable: true,
+          is_undercollateralized: values.undercollateralized,
+          is_cancellable: values.cancellable,
         },
       ).then(() => {
         // update the fetched streams
@@ -130,6 +143,25 @@ export const CreateStreamForm = () => {
             gap={20}
             style={{ color: "white" }}
           >
+            <Flex direction="column">
+              <CustomLabelComponent>Stream Type</CustomLabelComponent>
+              <Flex direction="column" gap="sm">
+                <Checkbox
+                  label={
+                    "Undercollateralized? (If you're not sure, leave this unchecked)"
+                  }
+                  {...form.getInputProps("undercollateralized")}
+                  checked={form.getInputProps("undercollateralized").value}
+                ></Checkbox>
+                <Checkbox
+                  label={
+                    "Cancellable? (If you're not sure, leave this checked)"
+                  }
+                  {...form.getInputProps("cancellable")}
+                  checked={form.getInputProps("cancellable").value}
+                ></Checkbox>
+              </Flex>
+            </Flex>
             {coins && (
               <Select
                 label={
@@ -146,15 +178,28 @@ export const CreateStreamForm = () => {
                 {...form.getInputProps("token")}
               />
             )}
-            <NumberInput
-              label={
-                <CustomLabelComponent>
-                  How much do you want to stream in total?
-                </CustomLabelComponent>
-              }
-              placeholder={"100"}
-              {...form.getInputProps("amount")}
-            />
+            <Flex direction="column" gap={20}>
+              <NumberInput
+                label={
+                  <CustomLabelComponent>
+                    How much do you want to stream in total?
+                  </CustomLabelComponent>
+                }
+                placeholder={"100"}
+                {...form.getInputProps("streamSize")}
+              />
+              {form.getValues().undercollateralized && (
+                <NumberInput
+                  label={
+                    <CustomLabelComponent>
+                      How much do you to deposit initially?
+                    </CustomLabelComponent>
+                  }
+                  placeholder={"100"}
+                  {...form.getInputProps("deposit")}
+                />
+              )}
+            </Flex>
             <TextInput
               label={
                 <CustomLabelComponent>
@@ -232,3 +277,11 @@ const CustomLabelComponent = ({
     {icon}
   </Flex>
 );
+
+const numberInputToDecimalBN = (amount: number): BN => {
+  // FIXME use fetched decimals const DECIMALS = 9;
+  const DECIMALS = 9;
+
+  const amount_decimals = new Decimal(10).pow(DECIMALS).mul(amount);
+  return new BN(amount_decimals.toString());
+};

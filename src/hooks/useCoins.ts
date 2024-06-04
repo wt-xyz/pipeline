@@ -35,7 +35,6 @@ export const useRefreshCoins = () => {
   const wallet = useWallet();
   return useCallback(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
-      console.log("Re-fetchedCoins", fetchedCoins);
       if (fetchedCoins != undefined) {
         setCoins(fetchedCoins);
       }
@@ -44,13 +43,11 @@ export const useRefreshCoins = () => {
 };
 
 export const useFetchCoins = () => {
-  console.log("running useFetchCoins");
   const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
 
   const wallet = useWallet();
   useEffect(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
-      console.log("Re-fetchedCoins", fetchedCoins);
       if (fetchedCoins != undefined) {
         setCoins(fetchedCoins);
       }

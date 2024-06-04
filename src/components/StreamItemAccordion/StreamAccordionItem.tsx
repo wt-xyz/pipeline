@@ -3,7 +3,6 @@ import {
   Divider,
   Flex,
   Grid,
-  GridCol,
   Modal,
   TextInput,
   useMantineTheme,
@@ -11,7 +10,11 @@ import {
 import { CustomAccordionItem } from "components/CustomAccordionItem/CustomAccordionItem";
 import { Spread } from "components/Spread";
 import { TextMd, TextXxl } from "components/TextVariants";
-import { formatAddress, formatDecimals } from "utils/formatUtils";
+import {
+  formatAddress,
+  formatDecimals,
+  parseDecimals,
+} from "utils/formatUtils";
 import { IconArrowBarToDown } from "@tabler/icons-react";
 import { convertTaiTimeBNToDate } from "utils/dateTimeUtils";
 import { buildFieldArray } from "utils/buildFieldsArray";
@@ -22,12 +25,14 @@ import { Stream } from "hooks/Streams";
 import {
   useWithdrawFromStream,
   useTotalVested,
+  useDepositToStream,
 } from "@/hooks/TokenStreamingAbi";
 import { useAccount } from "@fuels/react";
 import { useCallback, useState } from "react";
 import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BigNumberish, BN } from "fuels";
 import { useNotificationHook } from "@/hooks/Notifications";
+import { useDisclosure } from "@mantine/hooks";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -40,6 +45,7 @@ type StreamAccordionItemProps = {
 
 type StreamAccordionItemViewProps = StreamAccordionItemProps & {
   onCancel: () => void;
+  onTopUp: (value: BigNumberish) => void;
   isCancelling: boolean;
   stats: {
     maxWithdrawable: BN;
@@ -51,41 +57,124 @@ type WithdrawModalProps = {
   onClick: (value: BigNumberish) => void;
   onClose: () => void;
   opened: boolean;
+  max: BN;
 };
 
-const WithdrawModal = ({ onClick, opened, onClose }: WithdrawModalProps) => {
-  const [value, setValue] = useState<string>("0");
+type SingleInputModalProps = {
+  title: string;
+  buttonText: string;
+  onClick: (value: BN) => void;
+  opened: boolean;
+  onClose: () => void;
+  max: BN;
+};
+
+const SingleInputModal = ({
+  title,
+  buttonText,
+  onClick,
+  opened,
+  onClose,
+  max,
+}: SingleInputModalProps) => {
+  const [value, setValue] = useState<BN>(new BN(0));
 
   const handleButtonClick = () => {
-    // convert value to proper decimals
     onClick(value);
     onClose();
   };
 
   return (
-    <Modal title="Withdraw Modal" opened={opened} onClose={onClose}>
-      <TextInput
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder="Enter value"
-      />
-      <Button onClick={handleButtonClick}>Withdraw</Button>
+    <Modal title={title} opened={opened} onClose={onClose}>
+      <Flex>
+        <TextInput
+          value={formatDecimals(new BN(value))}
+          onChange={(event) => setValue(parseDecimals(event.target.value))}
+          placeholder="Enter value"
+        />
+        <Button
+          onClick={() => {
+            setValue(max);
+          }}
+        >
+          Max
+        </Button>
+      </Flex>
+      <Button onClick={handleButtonClick}>{buttonText}</Button>
     </Modal>
   );
 };
 
+const WithdrawModal = ({
+  onClick,
+  opened,
+  onClose,
+  max,
+}: WithdrawModalProps) => {
+  return (
+    <SingleInputModal
+      title="Withdraw"
+      buttonText="Withdraw"
+      onClick={onClick}
+      opened={opened}
+      onClose={onClose}
+      max={max}
+    />
+  );
+};
+
+const TopUpModal = ({ onClick, opened, onClose, max }: WithdrawModalProps) => {
+  return (
+    <SingleInputModal
+      title="Top Up"
+      buttonText="Top Up"
+      onClick={onClick}
+      opened={opened}
+      onClose={onClose}
+      max={max}
+    />
+  );
+};
+
 export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
-  const { withdraw, loading, data, error } = useWithdrawFromStream();
+  const {
+    withdraw,
+    loading: withdrawLoading,
+    data: withdrawData,
+    error: withdrawError,
+  } = useWithdrawFromStream();
+  const {
+    deposit,
+    loading: depositLoading,
+    error: depositError,
+    data: depositData,
+  } = useDepositToStream();
   const { account } = useAccount();
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
   const totalVested = useTotalVested(stream);
 
-  const { showNotification } = useNotificationHook(
+  const { showNotification: showWithdrawalNotification } = useNotificationHook(
     props.isUserSender ? "Cancelling Stream..." : "Withdrawing...",
-    loading,
-    error,
-    `${formatDecimals(data ?? 0)} ${stream.underlying_asset.bits} withdrawn!`,
+    withdrawLoading,
+    withdrawError,
+    `${formatDecimals(withdrawData ?? 0)} ${stream.underlying_asset.bits} withdrawn!`,
+  );
+
+  const { showNotification: showTopupNotification } = useNotificationHook(
+    "Topping up...",
+    depositLoading,
+    depositError,
+    `${formatDecimals(depositData ?? 0)} ${stream.underlying_asset.bits} topped up!`,
+  );
+
+  const handleTopUp = useCallback(
+    (amount: BigNumberish) => {
+      if (!account) return;
+      const topUpConfirmation = deposit(account, stream, amount);
+      showTopupNotification();
+    },
+    [account, props.isUserSender, stream, deposit, showTopupNotification],
   );
 
   const handleWithdraw = useCallback(
@@ -96,16 +185,17 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
         : stream.receiver_asset;
 
       withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount);
-      showNotification();
+      showWithdrawalNotification();
     },
-    [account, props.isUserSender, stream, withdraw, showNotification],
+    [account, props.isUserSender, stream, withdraw, showWithdrawalNotification],
   );
 
-  return data && props.isUserSender ? null : (
+  return withdrawData && props.isUserSender ? null : (
     <StreamAccordionItemView
       {...props}
       onCancel={handleWithdraw}
-      isCancelling={loading}
+      onTopUp={handleTopUp}
+      isCancelling={withdrawLoading}
       stats={{
         maxWithdrawable: maxWithdrawable ?? new BN("0"),
         totalVested: totalVested ?? new BN("0"),
@@ -121,6 +211,7 @@ export const StreamAccordionItemView = ({
   isOpen,
   toggle,
   onCancel,
+  onTopUp,
   isCancelling,
   stats,
 }: StreamAccordionItemViewProps) => {
@@ -141,7 +232,9 @@ export const StreamAccordionItemView = ({
             stream={stream}
             isCancelling={isCancelling}
             onCancel={onCancel}
+            onTopUp={onTopUp}
             isUserSender={isUserSender}
+            stats={stats}
           />
         }
         value={stream.sender_asset.bits}
@@ -187,14 +280,21 @@ const LabelComponent = ({
   stream,
   isCancelling,
   onCancel,
+  onTopUp,
   isUserSender,
+  stats,
 }: {
   stream: Stream;
   isCancelling: boolean;
+  onTopUp: (value: BigNumberish) => void;
   onCancel: () => void;
   isUserSender: boolean;
+  stats: { maxWithdrawable: BN; totalVested: BN };
 }) => {
-  const [modalOpened, setModalOpened] = useState<boolean>(false);
+  const [withdrawModalOpened, { open: openWithdraw, close: closeWithdraw }] =
+    useDisclosure();
+  const [topUpModalOpened, { open: openTopUp, close: closeTopUp }] =
+    useDisclosure();
 
   return (
     <Spread align={"center"}>
@@ -220,7 +320,7 @@ const LabelComponent = ({
             leftSection={<IconArrowBarToDown size={20} />}
             onClick={(event) => {
               event.stopPropagation();
-              setModalOpened(true);
+              openWithdraw();
             }}
           >
             Withdraw
@@ -230,6 +330,10 @@ const LabelComponent = ({
           <Button
             variant="light"
             leftSection={<IconArrowBarToDown size={20} />}
+            onClick={(event) => {
+              event.stopPropagation();
+              openTopUp();
+            }}
           >
             Top Up
           </Button>
@@ -237,8 +341,15 @@ const LabelComponent = ({
       </Flex>
       <WithdrawModal
         onClick={onCancel}
-        opened={modalOpened}
-        onClose={() => setModalOpened(false)}
+        opened={withdrawModalOpened}
+        onClose={closeWithdraw}
+        max={stats.maxWithdrawable}
+      />
+      <TopUpModal
+        onClick={onTopUp}
+        opened={topUpModalOpened}
+        onClose={closeTopUp}
+        max={stream.stream_size.sub(stream.deposit)}
       />
     </Spread>
   );

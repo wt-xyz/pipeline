@@ -24,7 +24,6 @@ const getStream = async (
     const response = await tokenContract?.functions
       .get_stream_by_vault_share_id({ bits: shareToken })
       .get();
-    console.log("response", response);
     return response;
   } catch (e) {
     console.error(`Error: ${e} not a stream token`);
