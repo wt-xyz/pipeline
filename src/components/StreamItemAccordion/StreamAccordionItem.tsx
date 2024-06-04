@@ -303,7 +303,7 @@ const LabelComponent = ({
     <Spread align={"center"}>
       <TotalAmountComponent stream={stream} />
       <Flex gap={"md"} px={"md"}>
-        {isUserSender && (
+        {isUserSender && stream.configuration.is_cancellable && (
           <Button
             visibleFrom="xs"
             variant="subtle"
@@ -329,7 +329,7 @@ const LabelComponent = ({
             Withdraw
           </Button>
         )}
-        {stream.configuration.is_undercollateralized && (
+        {isUserSender && stream.configuration.is_undercollateralized && (
           <Button
             variant="light"
             leftSection={<IconArrowBarToDown size={20} />}
