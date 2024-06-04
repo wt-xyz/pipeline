@@ -370,7 +370,7 @@ impl SRC6 for Contract {
         let vault_share_id = vault_asset_id(vault_sub_id);
         let vault_info = get_vault_info(vault_share_id);
         let mut stream = get_stream(vault_info.stream_id);
-        require(!stream.configuration.is_undercollateralized, Error::DepositsBlocked);
+        require(stream.configuration.is_undercollateralized, Error::DepositsBlocked);
 
         // check that the asset is correct
         let deposit_asset = msg_asset_id();
