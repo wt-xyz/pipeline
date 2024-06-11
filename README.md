@@ -1,4 +1,4 @@
-# Pipeline
+![Pipeline URL](https://www.pipeline.finance/title_logo.svg)
 
 [Testnet App](pipeline.finance)
 
