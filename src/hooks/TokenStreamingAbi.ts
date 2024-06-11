@@ -5,6 +5,7 @@ import {
   BytesLike,
   FunctionInvocationResult,
   InvocationCallResult,
+  sha256,
 } from "fuels";
 import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
 import { useWallet } from "@fuels/react";
@@ -86,6 +87,9 @@ export const useCreateStream = (
         setError("Stream creation failed");
       }
 
+      console.log({
+        creationResponse: response,
+      });
       // we need to call a callback when the stream creation is successful or failed
       setIsLoading(false);
       setData(response?.value);
@@ -94,6 +98,86 @@ export const useCreateStream = (
   );
 
   return { createStream, loading, error, data };
+};
+
+// Take this string value, it is a decimal value. It needs to be converted to a u64 value
+// Then take the sha256 hash of that value
+const getVaultSubId = (streamId: string, role: "sender" | "receiver") => {
+  const streamIdBn = new BN(streamId, 10);
+  const preImage = role === "sender" ? streamIdBn.add(new BN(1)) : streamIdBn;
+  // convert preImage to u64 bytes
+  const preImageBytes = preImage.toBytes(16);
+  console.log({ preImageBytes });
+  return sha256(preImageBytes);
+};
+
+export const useDepositToStream = (
+  contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
+) => {
+  const tokenContract = useTokenStreamingAbi(contractId);
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | undefined>();
+  const [data, setData] = useState<BN | undefined>();
+
+  const deposit = useCallback(
+    async (recipient: string, stream: Stream, amount: BigNumberish) => {
+      setLoading(true);
+
+      const [recipientIdentityInput] = stringAddressesToIdentityInputs([
+        recipient,
+      ]);
+
+      console.log("before get_vault_info");
+      console.log({ stream });
+      try {
+        const vaultSubIdPromise = tokenContract?.functions
+          .get_vault_info(stream.sender_asset)
+          .get();
+      } catch (e) {
+        console.error(e);
+        setLoading(false);
+        setError("Vault not found");
+        return;
+      }
+
+      console.log("after get_vault_info");
+
+      const vaultSubId = (
+        await tokenContract?.functions.get_vault_info(stream.sender_asset).get()
+      )?.value.vault_sub_id;
+      console.log("after get_vault_info");
+
+      if (!vaultSubId) {
+        setLoading(false);
+        setError("Vault not found");
+        return;
+      }
+
+      const response = await tokenContract?.functions
+        .deposit(recipientIdentityInput, vaultSubId)
+        .callParams({
+          forward: [amount, stream.underlying_asset.bits],
+        })
+        .txParams({ variableOutputs: 1 })
+        .call();
+
+      setLoading(false);
+
+      if (response?.transactionResult.isStatusFailure) {
+        setError("Deposit failed");
+      }
+      setData(response?.value);
+    },
+    [tokenContract],
+  );
+
+  return {
+    deposit,
+    loading,
+    error,
+    data,
+  };
 };
 
 // When this function is called by the receiver they withdraw the full available balance from their stream vault
@@ -207,11 +291,32 @@ export const usePartialWithdrawFromStream = (
   };
 };
 
+export const useVaultInfo = (
+  stream: StreamOutput,
+  contractId: AbstractAddress | string,
+): VaultInfoOutput | undefined => {
+  const tokenContract = useTokenStreamingAbi(contractId);
+  const [vaultInfo, setVaultInfo] = useState<VaultInfoOutput | undefined>();
+
+  useEffect(() => {
+    tokenContract?.functions
+      .get_vault_info(stream.receiver_asset)
+      .get()
+      .then((response) => {
+        setVaultInfo(response?.value);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  }, [tokenContract, stream.receiver_asset]);
+
+  return vaultInfo;
+};
+
 export const useMaxWithdrawable = (
   stream: StreamOutput,
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): BN | undefined => {
-  console.log("in useMaxWithdrawable ", { stream, contractId });
   const tokenContract = useTokenStreamingAbi(contractId);
   const [vaultSubId, setVaultSubId] = useState<string>();
   const [maxWithdrawable, setMaxWithdrawable] = useState<BN | undefined>();
@@ -221,7 +326,6 @@ export const useMaxWithdrawable = (
       .get_vault_info(stream.receiver_asset)
       .get()
       .then((vaultInfo: InvocationCallResult<VaultInfoOutput>) => {
-        console.log("valutInfo", vaultInfo);
         setVaultSubId(vaultInfo.value.vault_sub_id);
       })
       .catch((e) => {
@@ -233,7 +337,6 @@ export const useMaxWithdrawable = (
         .max_withdrawable({ bits: stream.underlying_asset.bits }, vaultSubId)
         .get()
         .then((response) => {
-          console.log("should get max withdrawable here", response);
           setMaxWithdrawable(response?.value);
         })
         .catch((e) => {

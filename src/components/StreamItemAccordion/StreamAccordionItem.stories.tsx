@@ -91,8 +91,11 @@ const isUserSender = true;
 
 // Story definition
 export const Default = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  // const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setIsTopUp] = useState(false);
 
   return (
     <StreamAccordionItemView
@@ -104,6 +107,7 @@ export const Default = () => {
       isUserSender={isUserSender}
       streamId={streamReal.streamId}
       toggle={() => setIsOpen(!isOpen)}
+      onTopUp={() => setIsTopUp(true)}
       stats={{
         maxWithdrawable: new BN("0x1ca35f0e00"),
         totalVested: new BN("0x0"),
@@ -115,6 +119,9 @@ export const Default = () => {
 export const WithCustomAccordion = () => {
   const [isCancelling1, setIsCancelling1] = useState(false);
   const [isCancelling2, setIsCancelling2] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setIsTopUp] = useState(false);
+
   return (
     <CustomAccordion>
       <StreamAccordionItemView
@@ -124,6 +131,7 @@ export const WithCustomAccordion = () => {
         onCancel={() => setIsCancelling1(true)}
         isUserSender={isUserSender}
         streamId={streamReal.streamId}
+        onTopUp={() => setIsTopUp(true)}
         stats={{
           maxWithdrawable: new BN("0x1ca35f0e00"),
           totalVested: new BN("0x0"),
@@ -136,6 +144,7 @@ export const WithCustomAccordion = () => {
         onCancel={() => setIsCancelling2(true)}
         isUserSender={isUserSender}
         streamId={streamReal.streamId}
+        onTopUp={() => setIsTopUp(true)}
         stats={{
           maxWithdrawable: new BN("0x1ca35f0e00"),
           totalVested: new BN("0x0"),
@@ -149,6 +158,8 @@ export const Insolvent = () => {
   const [isOpen, setIsOpen] = useState(true);
 
   const [isCancelling, setIsCancelling] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setIsTopUp] = useState(false);
 
   return (
     <StreamAccordionItemView
@@ -160,6 +171,7 @@ export const Insolvent = () => {
       onCancel={() => setIsCancelling(true)}
       streamId={streamInsolvent.streamId}
       toggle={() => setIsOpen(!isOpen)}
+      onTopUp={() => setIsTopUp(true)}
       stats={{
         maxWithdrawable: new BN("0x1ca35f0e00"),
         totalVested: new BN("0x0"),

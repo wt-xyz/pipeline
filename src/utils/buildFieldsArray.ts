@@ -84,7 +84,7 @@ export const buildFieldArray = (
     fieldArray.push(
       {
         label: "Collateral Deposited",
-        value: "1023",
+        value: parseDecimalsBN(stream.deposit).toString(),
         color: "green",
       },
       {
