@@ -1,47 +1,56 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Pipeline
+
+[Testnet App](pipeline.finance)
 
 ## About
-This is the WT Consulting template repo to get started quickly using our usual front end stack. 
 
-At a top level we use React, NextJs and Typescript. <br> <br>
-We also use: <br> 
-eslint for linting. <br>
-prettier for formatting. <br>
-Husky for commit rules and pre-commit linting and formatting. <br>
-Storybook for rapid prototyping and some testing.  <br>
-Mantine for themeing and for Components library when it is faster than using component. <br>
-Yarn V4 for package management.
+Pipeline Finance is a token streaming platform for the fuel blockchain.
 
-When using this repository, do not make commits to it directly. This is a template which means that we use this as a starting ground to start new repositories. Considder downloading it as a zip and adding it to a new repository. 
+Token streams are a form of payment channel where a sender can pay a receiver a certain amount of money over a fixed period of time. Rather than having discrete payments (think paycheck every two weeks) the receiver gets access to their funds continuously.
+
+Streaming can be used to pay for services, for software access, to vest tokens like stock options, or as a form of timelock.
+
+How it works:
+Token streams are initiated by the sender who creates a stream.
+
+1. They choose an amount, an asset to send, a receiver, and a range of dates to send from and to.
+2. They deposit their tokens into the stream.
+3. While the stream is active the receiver can withdraw their vested tokens at any time
+4. If the sender at any point wants to stop the stream they can, but the receiver will still have access to any funds vested until that point.
+
+Two additional stream types have been added.
+
+1. Under-collateralized streams
+
+- Users can set up a stream that does not require the full deposit at start time. The sender can continuously top off funds.
+
+2. Un-cancellable streams
+
+- Streams that once created cannot be cancelled by the sender
+- Usefull mostly for token vesting not payments.
 
 ## Getting Started
-First, run a yarn install: 
+
+### Prerequisites
+
+- **Rust:** Install Rust from the [official website](https://www.rust-lang.org/tools/install).
+- **Docker:** Install Docker from the [official website](https://docs.docker.com/get-docker/).
+- **Fuel toolchain:** Install this using `fuelup` from the [official website](https://docs.fuel.network/docs/intro/quickstart-contract/).
+  - Run nightly version `fuelup default nightly`
+  - Ensure that Fuel tooling is up to date run `fuelup update`
+- **Cargo make** is used for simplifying workspace tasks [official website](https://sagiegurari.github.io/cargo-make/)
+  - `cargo install cargo-make`
+- Node.js and Pnpm package manager [official website](https://pnpm.io)
+- Fuel Development Wallet
+
+First, run a yarn install:
 
 ```bash
 yarn install
 ```
+
 Then, run the development server:
+
 ```bash
-yarn dev
+make dev -j3
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
