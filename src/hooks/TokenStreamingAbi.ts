@@ -223,10 +223,9 @@ export const useWithdrawFromStream = (
           });
       } else {
         // TODO we need to get the SRC20 decimal value here
-        const convertedAmount = parseDecimals(amount.toString());
 
         response = await tokenContract?.functions
-          .partial_withdraw_from_stream(recipientIdentityInput, convertedAmount)
+          .partial_withdraw_from_stream(recipientIdentityInput, amount)
           .txParams({ variableOutputs: 2 })
           .callParams({ forward: [1, shareToken] })
           .call();
