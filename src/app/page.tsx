@@ -1,7 +1,6 @@
 "use client";
 import { CardButton } from "@/components/Buttons/CardButton";
-import { Card, Flex, Title, Text, useMantineTheme } from "@mantine/core";
-import { useHover } from "@mantine/hooks";
+import { Flex, Title, Text, useMantineTheme } from "@mantine/core";
 import { IconEdit, IconSend2 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
