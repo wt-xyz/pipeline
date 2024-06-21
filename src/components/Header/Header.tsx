@@ -9,7 +9,9 @@ export const Header = () => {
     // Desktop View
     <Spread align="center" w={"100%"}>
       {/* logo here */}
-      <Image h={"32px"} src={"./title_logo.svg"} alt={"Pipeline"} />
+      <a href="/" style={{ cursor: "pointer" }}>
+        <Image h={"32px"} src={"./title_logo.svg"} alt={"Pipeline"} />
+      </a>
       {/* Mobile View */}
       <Flex hiddenFrom="sm">
         <Wallet />
