@@ -32,6 +32,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <link rel="icon" href="PL_logo.svg" type="image/svg+xml" />
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
