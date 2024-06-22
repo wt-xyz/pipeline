@@ -3,15 +3,23 @@ import { Spread } from "components/Spread";
 import { Wallet } from "components/Wallet/Wallet";
 import { GroupWithDivider } from "components/GroupWithDivider/GroupWithDivider";
 import { NavLinkButton } from "../Buttons/NavLinkButton";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
+  const router = useRouter();
   return (
     // Desktop View
     <Spread align="center" w={"100%"}>
       {/* logo here */}
-      <a href="/" style={{ cursor: "pointer" }}>
-        <Image h={"32px"} src={"./title_logo.svg"} alt={"Pipeline"} />
-      </a>
+      <Image
+        h={"32px"}
+        src={"./title_logo.svg"}
+        alt={"Pipeline"}
+        onClick={() => router.push("/")}
+        style={{
+          cursor: "pointer",
+        }}
+      />
       {/* Mobile View */}
       <Flex hiddenFrom="sm">
         <Wallet />
