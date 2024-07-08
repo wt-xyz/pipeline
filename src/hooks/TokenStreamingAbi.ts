@@ -80,7 +80,10 @@ export const useCreateStream = (
           gasLimit: 1000000,
           variableOutputs: 2,
         })
-        .call();
+        .call()
+        .catch((e: Error) => {
+          setError(e.message);
+        });
 
       if (response?.transactionResult.isStatusFailure) {
         setIsLoading(false);
