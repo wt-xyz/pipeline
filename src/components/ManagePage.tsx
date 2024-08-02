@@ -1,6 +1,6 @@
 import { atom, useRecoilValue } from "recoil";
 import { Container, Flex } from "@mantine/core";
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
 import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccordionItem";
 import { TextLg } from "components/TextVariants";

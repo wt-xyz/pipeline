@@ -36,7 +36,8 @@ const getStreamResponses = async (
   coins: CoinQuantity[],
 ) => {
   if (!tokenContract || coins.length === 0) return;
-  return uniqBy(
+
+  const streams = uniqBy(
     compact(
       await Promise.all(
         coins
@@ -47,15 +48,19 @@ const getStreamResponses = async (
 
             return stream
               ? {
-                  ...stream[0],
-                  streamId: stream[1].toString(),
-                }
+                ...stream[0],
+                streamId: stream[1].toString(),
+              }
               : undefined;
           }),
       ),
     ) as Stream[],
     "streamId",
   );
+
+  console.log("streams - ", streams);
+
+  return streams;
 };
 
 export const useRefreshStreams = (
@@ -67,6 +72,8 @@ export const useRefreshStreams = (
 
   const refreshStreams = async () => {
     const newStreams = await getStreamResponses(tokenContract, coins);
+    console.log("refreshStreams - ", refreshStreams);
+
     if (newStreams && !isEqual(newStreams, streams)) {
       setStreams(newStreams);
     }
@@ -86,6 +93,8 @@ export const useFetchStreams = (
 
   useEffect(() => {
     getStreamResponses(tokenContract, coins).then((responseStreams) => {
+      console.log("responseStreams - ", responseStreams);
+
       if (responseStreams && !isEqual(responseStreams, streams)) {
         setStreams(responseStreams);
       }
