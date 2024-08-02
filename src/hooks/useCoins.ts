@@ -52,6 +52,7 @@ export const useFetchCoins = () => {
         setCoins(fetchedCoins);
       }
     });
+    console.log('coins - ', coins);
   }, [setCoins, wallet.wallet]);
 
   return coins;

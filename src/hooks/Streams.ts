@@ -58,8 +58,6 @@ const getStreamResponses = async (
     "streamId",
   );
 
-  console.log("streams - ", streams);
-
   return streams;
 };
 
@@ -92,15 +90,18 @@ export const useFetchStreams = (
   const tokenContract = useTokenStreamingAbi(contractId);
 
   useEffect(() => {
-    getStreamResponses(tokenContract, coins).then((responseStreams) => {
-      console.log("responseStreams - ", responseStreams);
+    // console.log("Radish", tokenContract, coins);
+    if (tokenContract && coins.length) {
+      getStreamResponses(tokenContract, coins).then((responseStreams) => {
+        console.log("fetchStreams - ", responseStreams);
 
-      if (responseStreams && !isEqual(responseStreams, streams)) {
-        setStreams(responseStreams);
-      }
-    });
+        if (responseStreams && !isEqual(responseStreams, streams)) {
+          setStreams(responseStreams);
+        }
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coins, tokenContract]);
+  }, [coins]);
 
   return streams;
 };
