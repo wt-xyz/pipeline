@@ -23,6 +23,7 @@ export const ManagePage = () => {
   const receiverStreams = useReceiverStreams();
   const sendingOrReceiving = useRecoilValue(sendingOrReceivingAtom);
   const isSending = sendingOrReceiving === "sending";
+
   const isMobile = useIsMobile();
 
   return (

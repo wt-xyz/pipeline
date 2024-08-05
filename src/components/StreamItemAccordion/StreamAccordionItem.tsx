@@ -186,7 +186,8 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
         ? stream.sender_asset
         : stream.receiver_asset;
 
-      withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount);
+      withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount, share_asset);
+
       showWithdrawalNotification();
       refreshStreams();
     },

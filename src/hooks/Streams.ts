@@ -70,7 +70,7 @@ export const useRefreshStreams = (
 
   const refreshStreams = async () => {
     const newStreams = await getStreamResponses(tokenContract, coins);
-    console.log("refreshStreams - ", refreshStreams);
+    // console.log("refreshStreams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, streams)) {
       setStreams(newStreams);
@@ -93,7 +93,7 @@ export const useFetchStreams = (
     // console.log("Radish", tokenContract, coins);
     if (tokenContract && coins.length) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
-        console.log("fetchStreams - ", responseStreams);
+        // console.log("fetchStreams - ", responseStreams);
 
         if (responseStreams && !isEqual(responseStreams, streams)) {
           setStreams(responseStreams);
