@@ -13,8 +13,6 @@ import {
   useRecoilValue,
   useSetRecoilState,
 } from "recoil";
-import { useDispatch, useSelector } from "react-redux";
-import { setCoins } from "@/redux/slice";
 
 export const globalCoins = atom<CoinQuantity[]>({
   key: "globalCoins",
@@ -33,31 +31,25 @@ const fetchCoins = async (
 };
 
 export const useRefreshCoins = () => {
-  // const setCoins = useSetRecoilState(globalCoins);
-  const dispatch = useDispatch();
-
+  const setCoins = useSetRecoilState(globalCoins);
   const wallet = useWallet();
   return useCallback(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        // setCoins(fetchedCoins);
-        dispatch(setCoins(fetchedCoins));
+        setCoins(fetchedCoins);
       }
     });
   }, [setCoins, wallet.wallet]);
 };
 
 export const useFetchCoins = () => {
-  // const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
-  const dispatch = useDispatch();
-  const coins = useSelector((state) => state.pipeline.coins);
-  const wallet = useWallet();
+  const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
 
+  const wallet = useWallet();
   useEffect(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        // setCoins(fetchedCoins);
-        dispatch(setCoins(fetchedCoins));
+        setCoins(fetchedCoins);
       }
     });
     // console.log('coins - ', coins);

@@ -20,6 +20,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { Header } from "@/components/Header/Header";
 import { useFetchStreams } from "hooks/Streams";
 import { useFetchCoins } from "hooks/useCoins";
+import { Provider } from 'react-redux';
+import { store } from "@/redux/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -49,8 +51,10 @@ export default function RootLayout({
           >
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
               <RecoilRoot>
-                <Notifications position="top-left" containerWidth="600px" />
-                <AppShellLayout>{children}</AppShellLayout>
+                <Provider store={store}>
+                  <Notifications position="top-left" containerWidth="600px" />
+                  <AppShellLayout>{children}</AppShellLayout>
+                </Provider>
               </RecoilRoot>
             </MantineProvider>
           </FuelProvider>
