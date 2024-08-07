@@ -13,10 +13,10 @@ import {
 import { setGlobalStreams } from "@/redux/slice";
 import { useDispatch, useSelector } from "react-redux";
 
-export const globalStreams = atom({
-  key: "globalStreams",
-  default: [] as Stream[],
-});
+// export const globalStreams = atom({
+//   key: "globalStreams",
+//   default: [] as Stream[],
+// });
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,
@@ -33,6 +33,7 @@ const getStream = async (
 };
 
 export type Stream = StreamOutput & { streamId: string };
+
 const getStreamResponses = async (
   tokenContract: TokenStreamingAbi | undefined,
   coins: CoinQuantity[],
@@ -102,11 +103,11 @@ export const useFetchStreams = (
     // console.log("Radish", tokenContract, coins);
     if (tokenContract && coins.length) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
-        // console.log("fetchStreams - ", responseStreams);
+        console.log("fetchStreams - ", responseStreams);
 
         if (responseStreams && !isEqual(responseStreams, globalStreams)) {
           // setStreams(responseStreams);
-          dispatch(setGlobalStreams(globalStreams));
+          dispatch(setGlobalStreams(responseStreams));
         }
       });
     }

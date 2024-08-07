@@ -13,10 +13,10 @@ import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 
-export const globalStreams = atom({
-  key: "globalStreams",
-  default: [] as Stream[],
-});
+// export const globalStreams = atom({
+//   key: "globalStreams",
+//   default: [] as Stream[],
+// });
 
 export const ManagePage = () => {
   // const streams = useRecoilValue(globalStreams);

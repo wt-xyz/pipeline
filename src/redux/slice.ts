@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { CoinQuantity } from 'fuels';
 
 const initialState = {
-  coins: [],
+  coins: [] as CoinQuantity[],
   coinsWithInfo: [],
   coinInfo: [],
   globalStreams: []
