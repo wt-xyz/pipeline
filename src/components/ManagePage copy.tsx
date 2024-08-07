@@ -11,7 +11,6 @@ import {
 } from "components/SendingAndRecieving/SendingAndReceiving";
 import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
 
 export const globalStreams = atom({
   key: "globalStreams",
@@ -19,8 +18,7 @@ export const globalStreams = atom({
 });
 
 export const ManagePage = () => {
-  // const streams = useRecoilValue(globalStreams);
-  const streams = useSelector((state: any) => state.pipeline.globalStreams);
+  const streams = useRecoilValue(globalStreams);
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
   const sendingOrReceiving = useRecoilValue(sendingOrReceivingAtom);

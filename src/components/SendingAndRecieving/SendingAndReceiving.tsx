@@ -4,6 +4,7 @@ import classes from "./SendingAndReceiving.module.scss";
 import { useFetchStreams } from "hooks/Streams";
 
 export type sendingOrReceivingSet = "sending" | "receiving";
+
 export const sendingOrReceivingAtom = atom({
   key: "sendingOrReceiving",
   default: "sending" as sendingOrReceivingSet,
@@ -26,8 +27,8 @@ export const SendingAndReceiving = () => {
         style={
           isSending
             ? {
-                borderBottom: "2px solid green",
-              }
+              borderBottom: "2px solid green",
+            }
             : {}
         }
       >
@@ -43,8 +44,8 @@ export const SendingAndReceiving = () => {
         style={
           !isSending
             ? {
-                borderBottom: "2px solid green",
-              }
+              borderBottom: "2px solid green",
+            }
             : {}
         }
       >

@@ -14,7 +14,7 @@ import {
   useSetRecoilState,
 } from "recoil";
 import { useDispatch, useSelector } from "react-redux";
-import { setCoins } from "@/redux/slice";
+import { setCoins, setCoinsWithInfo, setCoinInfo } from "@/redux/slice";
 
 export const globalCoins = atom<CoinQuantity[]>({
   key: "globalCoins",
@@ -50,7 +50,7 @@ export const useRefreshCoins = () => {
 export const useFetchCoins = () => {
   // const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
   const dispatch = useDispatch();
-  const coins = useSelector((state) => state.pipeline.coins);
+  const coins = useSelector((state: any) => state.pipeline.coins);
   const wallet = useWallet();
 
   useEffect(() => {
@@ -108,9 +108,13 @@ export const useStreamTokenInfo = (
  * useCoinsWithInfo grabs info on all coins in a users wallet
  */
 export const useCoinsWithInfo = () => {
-  const [coinsWithInfo, setCoinsWithInfo] = useState<CoinWithInfo[]>();
-  const coins = useRecoilValue(globalCoins);
+  // const [coinsWithInfo, setCoinsWithInfo] = useState<CoinWithInfo[]>();
+  // const coins = useRecoilValue(globalCoins);
+  const dispatch = useDispatch();
+  const coins = useSelector((state: any) => state.pipeline.coins);
+  const coinsWithInfo = useSelector((state: any) => state.pipeline.coinsWithInfo);
   const wallet = useWallet();
+
   useEffect(() => {
     const provider = wallet.wallet?.provider;
     if (provider == undefined) {
@@ -118,7 +122,7 @@ export const useCoinsWithInfo = () => {
     }
 
     Promise.all(
-      coins.map(async (coin) => {
+      coins.map(async (coin: any) => {
         const tokenContract = TokenStreamingAbi__factory.connect(
           coin.assetId,
           provider,
@@ -130,9 +134,11 @@ export const useCoinsWithInfo = () => {
         };
       }),
     ).then((coinsWithInfo) => {
-      setCoinsWithInfo(coinsWithInfo);
+      // setCoinsWithInfo(coinsWithInfo);
+      dispatch(setCoinsWithInfo(coinsWithInfo));
     });
   }, [coins, wallet]);
+
   return coinsWithInfo;
 };
 
@@ -162,12 +168,15 @@ export const useCoinsWithInfo = () => {
 export const useCoinInfo = (
   tokenContract: TokenStreamingAbi | undefined,
 ): CoinInfo | undefined => {
-  const [coinInfo, setCoinInfo] = useState<CoinInfo | undefined>(undefined);
+  // const [coinInfo, setCoinInfo] = useState<CoinInfo | undefined>(undefined);
+  const dispatch = useDispatch();
+  const coinInfo = useSelector((state: any) => state.pipeline.coinInfo);
+
 
   useEffect(() => {
     if (!tokenContract) return;
     getCoinInfo(tokenContract).then((result) => {
-      setCoinInfo(result);
+      dispatch(setCoinInfo(result));
     });
   }, [tokenContract]);
 
@@ -179,12 +188,14 @@ export const getCoinInfo = async (
   tokenContract: TokenStreamingAbi,
   subId: string = DEFAULT_SUB_ID,
 ): Promise<CoinInfo> => {
+
   const symbol = tokenContract.functions
     .symbol({ bits: subId })
     .simulate()
     .catch((e) => {
       console.error(e);
     });
+
   const name = tokenContract.functions
     .name({ bits: subId })
     .simulate()
