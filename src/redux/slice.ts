@@ -5,7 +5,9 @@ const initialState = {
   coins: [] as CoinQuantity[],
   coinsWithInfo: [],
   coinInfo: [],
-  globalStreams: []
+  globalStreams: [],
+  sendingOrReceiving: "",
+  timezone: null
 }
 
 export const slice = createSlice({
@@ -24,9 +26,15 @@ export const slice = createSlice({
     setGlobalStreams: (state, action) => {
       state.globalStreams = action.payload;
     },
+    setSendingOrReceiving: (state, action) => {
+      state.sendingOrReceiving = action.payload;
+    },
+    setTimezone: (state, action) => {
+      state.timezone = action.payload;
+    },
   }
 })
 
-export const { setCoins, setCoinsWithInfo, setCoinInfo, setGlobalStreams } = slice.actions;
+export const { setCoins, setCoinsWithInfo, setCoinInfo, setGlobalStreams, setSendingOrReceiving, setTimezone } = slice.actions;
 
 export default slice.reducer;

@@ -1,4 +1,3 @@
-import { atom, useRecoilValue } from "recoil";
 import { Container, Flex } from "@mantine/core";
 import { ReactElement, useEffect } from "react";
 import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
@@ -6,25 +5,17 @@ import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccord
 import { TextLg } from "components/TextVariants";
 import { Stream, useReceiverStreams, useSenderStreams } from "hooks/Streams";
 import {
-  SendingAndReceiving,
-  sendingOrReceivingAtom,
+  SendingAndReceiving
 } from "components/SendingAndRecieving/SendingAndReceiving";
 import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 
-// export const globalStreams = atom({
-//   key: "globalStreams",
-//   default: [] as Stream[],
-// });
-
 export const ManagePage = () => {
-  // const streams = useRecoilValue(globalStreams);
   const streams = useSelector((state: any) => state.pipeline.globalStreams);
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
-  const sendingOrReceiving = useRecoilValue(sendingOrReceivingAtom);
-  const isSending = sendingOrReceiving === "sending";
+  const isSending = useSelector((state: any) => state.pipeline.sendingOrReceiving);
 
   const isMobile = useIsMobile();
 

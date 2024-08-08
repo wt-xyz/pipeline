@@ -7,19 +7,8 @@ import {
   TOKEN_STREAMING_CONTRACT_ID,
 } from "@/constants/constants";
 import { Option } from "../../types/contracts/common";
-import {
-  atom,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
 import { useDispatch, useSelector } from "react-redux";
 import { setCoins, setCoinsWithInfo, setCoinInfo } from "@/redux/slice";
-
-export const globalCoins = atom<CoinQuantity[]>({
-  key: "globalCoins",
-  default: [],
-});
 
 const fetchCoins = async (
   wallet: Account | null | undefined,
@@ -33,14 +22,12 @@ const fetchCoins = async (
 };
 
 export const useRefreshCoins = () => {
-  // const setCoins = useSetRecoilState(globalCoins);
   const dispatch = useDispatch();
 
   const wallet = useWallet();
   return useCallback(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        // setCoins(fetchedCoins);
         dispatch(setCoins(fetchedCoins));
       }
     });
@@ -48,7 +35,6 @@ export const useRefreshCoins = () => {
 };
 
 export const useFetchCoins = () => {
-  // const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
   const dispatch = useDispatch();
   const coins = useSelector((state: any) => state.pipeline.coins);
   const wallet = useWallet();
@@ -57,7 +43,6 @@ export const useFetchCoins = () => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
         console.log("fetchedCoins - ", fetchedCoins);
-        // setCoins(fetchedCoins);
         dispatch(setCoins(fetchedCoins));
       }
     });
@@ -109,8 +94,6 @@ export const useStreamTokenInfo = (
  * useCoinsWithInfo grabs info on all coins in a users wallet
  */
 export const useCoinsWithInfo = () => {
-  // const [coinsWithInfo, setCoinsWithInfo] = useState<CoinWithInfo[]>();
-  // const coins = useRecoilValue(globalCoins);
   const dispatch = useDispatch();
   const coins = useSelector((state: any) => state.pipeline.coins);
   const coinsWithInfo = useSelector((state: any) => state.pipeline.coinsWithInfo);
@@ -135,7 +118,6 @@ export const useCoinsWithInfo = () => {
         };
       }),
     ).then((coinsWithInfo) => {
-      // setCoinsWithInfo(coinsWithInfo);
       dispatch(setCoinsWithInfo(coinsWithInfo));
     });
   }, [coins, wallet]);
@@ -169,10 +151,8 @@ export const useCoinsWithInfo = () => {
 export const useCoinInfo = (
   tokenContract: TokenStreamingAbi | undefined,
 ): CoinInfo | undefined => {
-  // const [coinInfo, setCoinInfo] = useState<CoinInfo | undefined>(undefined);
   const dispatch = useDispatch();
   const coinInfo = useSelector((state: any) => state.pipeline.coinInfo);
-
 
   useEffect(() => {
     if (!tokenContract) return;

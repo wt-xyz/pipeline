@@ -8,8 +8,8 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ['pipeline/setCoins', 'pipeline/setCoinsWithInfo', 'pipeline/setCoinInfo'],
-        ignoredPaths: ['pipeline.coins', 'pipeline.coinsWithInfo', 'pipeline.coinInfo'],
+        ignoredActions: ['pipeline/setCoins', 'pipeline/setCoinsWithInfo', 'pipeline/setCoinInfo', 'pipeline/setGlobalStreams'],
+        ignoredPaths: ['pipeline.coins', 'pipeline.coinsWithInfo', 'pipeline.coinInfo', 'pipeline.globalStreams'],
       },
     }),
 })

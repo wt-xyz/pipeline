@@ -1,15 +1,21 @@
 import { Button, Group, Text } from "@mantine/core";
+import { atom, useRecoilState } from "recoil";
 import classes from "./SendingAndReceiving.module.scss";
 import { useFetchStreams } from "hooks/Streams";
-import { useDispatch, useSelector } from "react-redux";
-import { setSendingOrReceiving } from "@/redux/slice";
 
 export type sendingOrReceivingSet = "sending" | "receiving";
 
+export const sendingOrReceivingAtom = atom({
+  key: "sendingOrReceiving",
+  default: "sending" as sendingOrReceivingSet,
+});
+
 export const SendingAndReceiving = () => {
   useFetchStreams();
-  const dispatch = useDispatch();
-  const isSending = useSelector((state: any) => state.pipeline.sendingOrReceiving);
+  const [sendingOrReceiving, setSendingOrReceiving] = useRecoilState(
+    sendingOrReceivingAtom,
+  );
+  const isSending = sendingOrReceiving === "sending";
 
   return (
     <Group gap={"xxl"}>
@@ -17,7 +23,7 @@ export const SendingAndReceiving = () => {
         className={classes.SendingOrReceivingButton}
         c={isSending ? "white" : "gray"}
         variant={"transparent"}
-        onClick={() => dispatch(setSendingOrReceiving("sending"))}
+        onClick={() => setSendingOrReceiving("sending")}
         style={
           isSending
             ? {
@@ -34,7 +40,7 @@ export const SendingAndReceiving = () => {
         className={classes.SendingOrReceivingButton}
         c={!isSending ? "white" : "gray"}
         variant={"transparent"}
-        onClick={() => dispatch(setSendingOrReceiving("receiving"))}
+        onClick={() => setSendingOrReceiving("receiving")}
         style={
           !isSending
             ? {

@@ -1,10 +1,8 @@
 import { AbstractAddress, BN, CoinQuantity } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
 import { compact, isEqual, uniqBy } from "lodash";
-import { globalCoins } from "hooks/useCoins";
 import { TokenStreamingAbi } from "../../types";
 import {
   AssetIdInput,
@@ -12,11 +10,6 @@ import {
 } from "../../types/contracts/TokenStreamingAbi";
 import { setGlobalStreams } from "@/redux/slice";
 import { useDispatch, useSelector } from "react-redux";
-
-// export const globalStreams = atom({
-//   key: "globalStreams",
-//   default: [] as Stream[],
-// });
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,
@@ -67,9 +60,7 @@ const getStreamResponses = async (
 export const useRefreshStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
-  // const [streams, setStreams] = useRecoilState(globalStreams);
   const tokenContract = useTokenStreamingAbi(contractId);
-  // const coins = useRecoilValue(globalCoins);
   const coins = useSelector((state: any) => state.pipeline.coins);
   const globalStreams = useSelector((state: any) => state.pipeline.globalStreams);
   const dispatch = useDispatch();
@@ -79,7 +70,6 @@ export const useRefreshStreams = (
     // console.log("refreshStreams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, globalStreams)) {
-      // setStreams(newStreams);
       dispatch(setGlobalStreams(newStreams));
     }
   };
@@ -92,21 +82,17 @@ export const useRefreshStreams = (
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): Stream[] | undefined => {
-  // const [streams, setStreams] = useRecoilState<Stream[]>(globalStreams);
-  // const coins = useRecoilValue(globalCoins);
   const tokenContract = useTokenStreamingAbi(contractId);
   const coins = useSelector((state: any) => state.pipeline.coins);
   const globalStreams = useSelector((state: any) => state.pipeline.globalStreams);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // console.log("Radish", tokenContract, coins);
     if (tokenContract && coins.length) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
         console.log("fetchStreams - ", responseStreams);
 
         if (responseStreams && !isEqual(responseStreams, globalStreams)) {
-          // setStreams(responseStreams);
           dispatch(setGlobalStreams(responseStreams));
         }
       });
@@ -133,8 +119,6 @@ export const isUserOwnerOfReceiverAsset = (
 
 // TODO: this should be a recoil selector
 export const useSenderStreams = () => {
-  // const streams = useRecoilValue(globalStreams);
-  // const coins = useRecoilValue(globalCoins);
   const globalStreams = useSelector((state: any) => state.pipeline.globalStreams);
   const coins = useSelector((state: any) => state.pipeline.coins);
 
@@ -145,8 +129,6 @@ export const useSenderStreams = () => {
 
 // TODO: this should be a recoil selector
 export const useReceiverStreams = () => {
-  // const streams = useRecoilValue(globalStreams);
-  // const coins = useRecoilValue(globalCoins);
   const globalStreams = useSelector((state: any) => state.pipeline.globalStreams);
   const coins = useSelector((state: any) => state.pipeline.coins);
 
