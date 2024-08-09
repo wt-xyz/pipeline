@@ -87,6 +87,10 @@ The TokenStreaming contract is a singleton contract that is responsible for mana
 
 - SRC-6: The TokenStreaming contract is SRC-6 (vault standard) compatible. Each stream is represented by two vaults. One for the sender and one for the receiver. As time passes, the withrdawable value from each vault changes based on the stream's vesting schedule.
 
+### Implementation Guide
+
+See [Implementation Guide](./ImplementationGuide.md) for a guide on how to implement the TokenStreaming contract.
+
 ### Interfaces
 
 See [SRC-20](https://docs.fuel.network/docs/sway-standards/src-20-native-asset/) for the SRC-20 standard.
