@@ -9,7 +9,7 @@ export type sendingOrReceivingSet = "sending" | "receiving";
 export const SendingAndReceiving = () => {
   useFetchStreams();
   const dispatch = useDispatch();
-  const isSending = useSelector((state: any) => state.pipeline.sendingOrReceiving);
+  const isSending = useSelector((state) => state.pipeline.sendingOrReceiving);
 
   return (
     <Group gap={"xxl"}>
@@ -21,8 +21,8 @@ export const SendingAndReceiving = () => {
         style={
           isSending
             ? {
-              borderBottom: "2px solid green",
-            }
+                borderBottom: "2px solid green",
+              }
             : {}
         }
       >
@@ -38,8 +38,8 @@ export const SendingAndReceiving = () => {
         style={
           !isSending
             ? {
-              borderBottom: "2px solid green",
-            }
+                borderBottom: "2px solid green",
+              }
             : {}
         }
       >

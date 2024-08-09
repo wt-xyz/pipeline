@@ -16,7 +16,7 @@ export const TimezoneModal = ({
   onClose: () => void;
 }) => {
   const dispatch = useDispatch();
-  const timezone = useSelector((state: any) => state.pipeline.timezone);
+  const timezone = useSelector((state) => state.pipeline.timezone);
 
   return (
     <Modal opened={opened} onClose={onClose} title={"Change Timezone"}>
@@ -25,7 +25,11 @@ export const TimezoneModal = ({
           data={Intl.supportedValuesOf("timeZone")}
           value={timezone}
           onChange={(value) =>
-            dispatch(setTimezone(value ?? Intl.DateTimeFormat().resolvedOptions().timeZone,))
+            dispatch(
+              setTimezone(
+                value ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+              ),
+            )
           }
         />
       </Modal.Body>

@@ -200,7 +200,7 @@ export const useWithdrawFromStream = (
       underlyingAsset: string,
       shareToken: string,
       amount?: BigNumberish,
-      asset: any
+      asset: string,
     ) => {
       setLoading(true);
       const [recipientIdentityInput] = stringAddressesToIdentityInputs([
@@ -230,9 +230,7 @@ export const useWithdrawFromStream = (
 
         console.log("part withdraw - ", asset);
 
-        const decimals = await tokenContract?.functions
-          .decimals(asset)
-          .get();
+        const decimals = await tokenContract?.functions.decimals(asset).get();
 
         console.log("decimals - ", decimals);
 

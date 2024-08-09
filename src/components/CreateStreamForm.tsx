@@ -170,7 +170,7 @@ export const CreateStreamForm = () => {
                   </CustomLabelComponent>
                 }
                 placeholder="Pick Token"
-                data={coins.map((coin: any) => ({
+                data={coins.map((coin) => ({
                   label: coin.assetId || "Unknown",
                   // label: coin.symbol || coin.address || 'Unknown', // Fallback to 'Unknown' if symbol is undefined
                   value: coin.assetId.toString(), // Assuming address is the desired value

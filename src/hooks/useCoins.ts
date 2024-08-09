@@ -36,7 +36,7 @@ export const useRefreshCoins = () => {
 
 export const useFetchCoins = () => {
   const dispatch = useDispatch();
-  const coins = useSelector((state: any) => state.pipeline.coins);
+  const coins = useSelector((state) => state.pipeline.coins);
   const wallet = useWallet();
 
   useEffect(() => {
@@ -95,8 +95,8 @@ export const useStreamTokenInfo = (
  */
 export const useCoinsWithInfo = () => {
   const dispatch = useDispatch();
-  const coins = useSelector((state: any) => state.pipeline.coins);
-  const coinsWithInfo = useSelector((state: any) => state.pipeline.coinsWithInfo);
+  const coins = useSelector((state) => state.pipeline.coins);
+  const coinsWithInfo = useSelector((state) => state.pipeline.coinsWithInfo);
   const wallet = useWallet();
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export const useCoinsWithInfo = () => {
     }
 
     Promise.all(
-      coins.map(async (coin: any) => {
+      coins.map(async (coin) => {
         const tokenContract = TokenStreamingAbi__factory.connect(
           coin.assetId,
           provider,
@@ -152,7 +152,7 @@ export const useCoinInfo = (
   tokenContract: TokenStreamingAbi | undefined,
 ): CoinInfo | undefined => {
   const dispatch = useDispatch();
-  const coinInfo = useSelector((state: any) => state.pipeline.coinInfo);
+  const coinInfo = useSelector((state) => state.pipeline.coinInfo);
 
   useEffect(() => {
     if (!tokenContract) return;
@@ -169,7 +169,6 @@ export const getCoinInfo = async (
   tokenContract: TokenStreamingAbi,
   subId: string = DEFAULT_SUB_ID,
 ): Promise<CoinInfo> => {
-
   const symbol = tokenContract.functions
     .symbol({ bits: subId })
     .simulate()

@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { CoinQuantity } from 'fuels';
+import { createSlice } from "@reduxjs/toolkit";
+import { CoinQuantity } from "fuels";
 
 const initialState = {
   coins: [] as CoinQuantity[],
@@ -7,11 +7,11 @@ const initialState = {
   coinInfo: [],
   globalStreams: [],
   sendingOrReceiving: "",
-  timezone: null
-}
+  timezone: null,
+};
 
 export const slice = createSlice({
-  name: 'pipeline',
+  name: "pipeline",
   initialState,
   reducers: {
     setCoins: (state, action) => {
@@ -32,9 +32,16 @@ export const slice = createSlice({
     setTimezone: (state, action) => {
       state.timezone = action.payload;
     },
-  }
-})
+  },
+});
 
-export const { setCoins, setCoinsWithInfo, setCoinInfo, setGlobalStreams, setSendingOrReceiving, setTimezone } = slice.actions;
+export const {
+  setCoins,
+  setCoinsWithInfo,
+  setCoinInfo,
+  setGlobalStreams,
+  setSendingOrReceiving,
+  setTimezone,
+} = slice.actions;
 
 export default slice.reducer;

@@ -2,18 +2,6 @@ import Decimal from "decimal.js";
 import { Address, BN } from "fuels";
 import { truncate } from "lodash";
 
-// Convert BN to a serializable format
-export const serializeBN = (coin: any) => ({
-  ...coin,
-  amount: coin.amount.toString(),
-});
-
-// Convert serialized data back to BN
-export const deserializeBN = (coin: any) => ({
-  ...coin,
-  amount: new BN(coin.amount),
-});
-
 export function formatDateToISO(date: Date) {
   // Convert the date to ISO string and slice to get the date part
   return date.toISOString().slice(0, 10).replaceAll("-", "/");
