@@ -5,7 +5,7 @@
   padding: var(--mantine-spacing-md);
   color: var(--mantine-color-gray-1);
 
-  @media(max-width: 36em) {
+  @media (max-width: 36em) {
     padding: var(--mantine-spacing-sm);
     width: 100%;
   }
@@ -13,7 +13,7 @@
   .TextContainer {
     flex-direction: column;
 
-    @media(max-width: 36em) {
+    @media (max-width: 36em) {
       flex-direction: row;
       justify-content: space-between;
     }
@@ -21,12 +21,9 @@
     .ValueText {
       width: 125px;
 
-      @media(max-width: 36em) {
+      @media (max-width: 36em) {
         width: auto;
       }
     }
   }
 }
-
-
-

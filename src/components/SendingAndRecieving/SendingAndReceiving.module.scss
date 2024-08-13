@@ -5,7 +5,7 @@
   padding-bottom: var(--mantine-spacing-lg);
   height: 48px;
 
-  @media(max-width: 36em) {
+  @media (max-width: 36em) {
     padding-bottom: var(--mantine-spacing-sm);
     height: 32px;
   }
@@ -15,10 +15,8 @@
     font-size: var(--mantine-font-size-xxl);
     line-height: var(--mantine-line-height-xs);
 
-
-    @media(max-width: 36em) {
-        font-size: var(--mantine-font-size-xl);
+    @media (max-width: 36em) {
+      font-size: var(--mantine-font-size-xl);
     }
   }
 }
-

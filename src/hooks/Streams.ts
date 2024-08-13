@@ -48,9 +48,9 @@ const getStreamResponses = async (
 
             return stream
               ? {
-                ...stream[0],
-                streamId: stream[1].toString(),
-              }
+                  ...stream[0],
+                  streamId: stream[1].toString(),
+                }
               : undefined;
           }),
       ),
