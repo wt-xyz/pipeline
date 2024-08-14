@@ -10,9 +10,10 @@ export type sendingOrReceivingSet = "sending" | "receiving";
 export const SendingAndReceiving = () => {
   useFetchStreams();
   const dispatch = useDispatch();
-  const isSending = useSelector(
+  const sendingOrReceiving = useSelector(
     (state: RootState) => state.pipeline.sendingOrReceiving,
   );
+  const isSending = sendingOrReceiving === "sending";
 
   return (
     <Group gap={"xxl"}>
