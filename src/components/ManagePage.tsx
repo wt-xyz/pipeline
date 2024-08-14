@@ -8,12 +8,18 @@ import { SendingAndReceiving } from "components/SendingAndRecieving/SendingAndRe
 import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
 import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 export const ManagePage = () => {
-  const streams = useSelector((state) => state.pipeline.globalStreams);
+  const streams = useSelector(
+    (state: RootState) => state.pipeline.globalStreams,
+  );
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
-  const isSending = useSelector((state) => state.pipeline.sendingOrReceiving);
+  const sendingOrReceiving = useSelector(
+    (state: RootState) => state.pipeline.sendingOrReceiving,
+  );
+  const isSending = sendingOrReceiving === "sending";
 
   const isMobile = useIsMobile();
 

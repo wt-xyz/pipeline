@@ -2,6 +2,7 @@ import { Modal, Select } from "@mantine/core";
 import { atom, useRecoilState } from "recoil";
 import { useDispatch, useSelector } from "react-redux";
 import { setTimezone } from "@/redux/slice";
+import { RootState } from "@/redux/store";
 
 export const timezoneAtom = atom<string | undefined>({
   key: "timezone",
@@ -16,7 +17,7 @@ export const TimezoneModal = ({
   onClose: () => void;
 }) => {
   const dispatch = useDispatch();
-  const timezone = useSelector((state) => state.pipeline.timezone);
+  const timezone = useSelector((state: RootState) => state.pipeline.timezone);
 
   return (
     <Modal opened={opened} onClose={onClose} title={"Change Timezone"}>

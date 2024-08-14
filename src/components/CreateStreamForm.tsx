@@ -29,6 +29,9 @@ import { useDisclosure } from "@mantine/hooks";
 import { TimezoneModal } from "./TimezoneModal";
 import { SECONDS_PER_DAY } from "@/constants/constants";
 import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { Option } from "../../types/contracts/common";
+import { CoinQuantity } from "fuels";
 
 type FormValues = {
   token: string;
@@ -53,7 +56,7 @@ export const CreateStreamForm = () => {
   const wallet = useWallet();
   const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
-  const timezone = useSelector((state: any) => state.pipeline.timezone);
+  const timezone = useSelector((state: RootState) => state.pipeline.timezone);
 
   const { createStream, loading, error } = useCreateStream();
   const { showNotification } = useNotificationHook(
@@ -170,7 +173,7 @@ export const CreateStreamForm = () => {
                   </CustomLabelComponent>
                 }
                 placeholder="Pick Token"
-                data={coins.map((coin) => ({
+                data={coins.map((coin: CoinQuantity) => ({
                   label: coin.assetId || "Unknown",
                   // label: coin.symbol || coin.address || 'Unknown', // Fallback to 'Unknown' if symbol is undefined
                   value: coin.assetId.toString(), // Assuming address is the desired value

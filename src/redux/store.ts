@@ -23,3 +23,6 @@ export const store = configureStore({
       },
     }),
 });
+
+// Define the RootState type based on the store
+export type RootState = ReturnType<typeof store.getState>;

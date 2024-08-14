@@ -8,7 +8,8 @@ import {
 } from "@/constants/constants";
 import { Option } from "../../types/contracts/common";
 import { useDispatch, useSelector } from "react-redux";
-import { setCoins, setCoinsWithInfo, setCoinInfo } from "@/redux/slice";
+import { setCoins, setCoinsWithInfo } from "@/redux/slice";
+import { RootState } from "@/redux/store";
 
 const fetchCoins = async (
   wallet: Account | null | undefined,
@@ -36,7 +37,7 @@ export const useRefreshCoins = () => {
 
 export const useFetchCoins = () => {
   const dispatch = useDispatch();
-  const coins = useSelector((state) => state.pipeline.coins);
+  const coins = useSelector((state: RootState) => state.pipeline.coins);
   const wallet = useWallet();
 
   useEffect(() => {
@@ -52,13 +53,13 @@ export const useFetchCoins = () => {
   return coins;
 };
 
-type CoinInfo = {
+export type CoinInfo = {
   symbol: Option<string>;
   name: Option<string>;
   decimals: Option<number>;
 };
 
-type CoinWithInfo = CoinInfo & {
+export type CoinWithInfo = CoinInfo & {
   amount: BN;
   assetId: string;
 };
@@ -95,8 +96,10 @@ export const useStreamTokenInfo = (
  */
 export const useCoinsWithInfo = () => {
   const dispatch = useDispatch();
-  const coins = useSelector((state) => state.pipeline.coins);
-  const coinsWithInfo = useSelector((state) => state.pipeline.coinsWithInfo);
+  const coins = useSelector((state: RootState) => state.pipeline.coins);
+  const coinsWithInfo = useSelector(
+    (state: RootState) => state.pipeline.coinsWithInfo,
+  );
   const wallet = useWallet();
 
   useEffect(() => {
@@ -151,13 +154,12 @@ export const useCoinsWithInfo = () => {
 export const useCoinInfo = (
   tokenContract: TokenStreamingAbi | undefined,
 ): CoinInfo | undefined => {
-  const dispatch = useDispatch();
-  const coinInfo = useSelector((state) => state.pipeline.coinInfo);
+  const [coinInfo, setCoinInfo] = useState<CoinInfo | undefined>(undefined);
 
   useEffect(() => {
     if (!tokenContract) return;
     getCoinInfo(tokenContract).then((result) => {
-      dispatch(setCoinInfo(result));
+      setCoinInfo(result);
     });
   }, [tokenContract]);
 

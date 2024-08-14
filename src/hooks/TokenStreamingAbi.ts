@@ -200,7 +200,6 @@ export const useWithdrawFromStream = (
       underlyingAsset: string,
       shareToken: string,
       amount?: BigNumberish,
-      asset: string,
     ) => {
       setLoading(true);
       const [recipientIdentityInput] = stringAddressesToIdentityInputs([
@@ -228,17 +227,11 @@ export const useWithdrawFromStream = (
       } else {
         // TODO we need to get the SRC20 decimal value here
 
-        console.log("part withdraw - ", asset);
-
-        const decimals = await tokenContract?.functions.decimals(asset).get();
-
-        console.log("decimals - ", decimals);
-
-        // response = await tokenContract?.functions
-        //   .partial_withdraw_from_stream(recipientIdentityInput, amount)
-        //   .txParams({ variableOutputs: 2 })
-        //   .callParams({ forward: [1, shareToken] })
-        //   .call();
+        response = await tokenContract?.functions
+          .partial_withdraw_from_stream(recipientIdentityInput, amount)
+          .txParams({ variableOutputs: 2 })
+          .callParams({ forward: [1, shareToken] })
+          .call();
       }
 
       setLoading(false);

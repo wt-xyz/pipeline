@@ -3,13 +3,16 @@ import classes from "./SendingAndReceiving.module.scss";
 import { useFetchStreams } from "hooks/Streams";
 import { useDispatch, useSelector } from "react-redux";
 import { setSendingOrReceiving } from "@/redux/slice";
+import { RootState } from "@/redux/store";
 
 export type sendingOrReceivingSet = "sending" | "receiving";
 
 export const SendingAndReceiving = () => {
   useFetchStreams();
   const dispatch = useDispatch();
-  const isSending = useSelector((state) => state.pipeline.sendingOrReceiving);
+  const isSending = useSelector(
+    (state: RootState) => state.pipeline.sendingOrReceiving,
+  );
 
   return (
     <Group gap={"xxl"}>
