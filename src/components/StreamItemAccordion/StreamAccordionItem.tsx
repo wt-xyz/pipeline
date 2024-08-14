@@ -92,6 +92,7 @@ const SingleInputModal = ({
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Enter value"
+          style={{ marginRight: "20px", marginBottom: "20px" }}
         />
         <Button
           onClick={() => {
