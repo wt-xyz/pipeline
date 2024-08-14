@@ -43,7 +43,7 @@ export const useFetchCoins = () => {
   useEffect(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        console.log("fetchedCoins - ", fetchedCoins);
+        // console.log("fetchedCoins - ", fetchedCoins);
         dispatch(setCoins(fetchedCoins));
       }
     });
