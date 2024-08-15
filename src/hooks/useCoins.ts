@@ -15,10 +15,11 @@ const fetchCoins = async (
   wallet: Account | null | undefined,
 ): Promise<CoinQuantity[] | undefined> => {
   if (wallet == undefined) {
-    console.log("wallet is undefined");
+    // console.log("wallet is undefined");
     return;
   }
-  console.log("wallet is defined", wallet);
+
+  // console.log("wallet is defined", wallet);
   return wallet.getBalances();
 };
 
