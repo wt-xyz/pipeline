@@ -27,7 +27,14 @@ export const Wallet = () => {
         account={account ?? ""}
       />
 
-      <Modal opened={opened} onClose={() => {}} title="Connect wallet" centered>
+      <Modal
+        opened={opened}
+        onClose={() => {
+          /* no-op */
+        }}
+        title="Connect wallet"
+        centered
+      >
         <Button onClick={connect}>Connect Wallet</Button>
       </Modal>
     </>
