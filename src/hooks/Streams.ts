@@ -93,6 +93,8 @@ export const useFetchStreams = (
   const dispatch = useDispatch();
 
   useEffect(() => {
+    console.log("coins - ", coins);
+
     if (tokenContract && coins.length) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
         console.log("fetchStreams - ", responseStreams);

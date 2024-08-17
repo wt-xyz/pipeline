@@ -21,6 +21,7 @@ import { useFetchStreams } from "hooks/Streams";
 import { useFetchCoins } from "@/hooks/useCoins";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -49,12 +50,10 @@ export default function RootLayout({
             }}
           >
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
-              {/* <RecoilRoot> */}
               <Provider store={store}>
                 <Notifications position="top-left" containerWidth="600px" />
                 <AppShellLayout>{children}</AppShellLayout>
               </Provider>
-              {/* </RecoilRoot> */}
             </MantineProvider>
           </FuelProvider>
         </QueryClientProvider>
@@ -64,9 +63,10 @@ export default function RootLayout({
 }
 
 const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
+  const isMobile = useIsMobile();
+
   useFetchStreams();
   useFetchCoins();
-  const isMobile = useIsMobile();
 
   return (
     <AppShell

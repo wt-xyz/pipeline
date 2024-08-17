@@ -1,5 +1,5 @@
 import { Container, Flex } from "@mantine/core";
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
 import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccordionItem";
 import { TextLg } from "components/TextVariants";
@@ -9,6 +9,8 @@ import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useFetchStreams } from "hooks/Streams";
+import { useFetchCoins } from "@/hooks/useCoins";
 
 export const ManagePage = () => {
   const streams = useSelector(
@@ -22,6 +24,11 @@ export const ManagePage = () => {
   const isSending = sendingOrReceiving === "sending";
 
   const isMobile = useIsMobile();
+
+  // useEffect(() => {
+  //   useFetchStreams();
+  //   useFetchCoins();
+  // }, []);
 
   return (
     <Container pt={isMobile ? "xxl" : "sxl"} px={0}>
