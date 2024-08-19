@@ -1,7 +1,7 @@
 import { useConnectUI, useAccount } from "@fuels/react";
 import { WalletView } from "./WalletView";
 import { useDisclosure } from "@mantine/hooks";
-import { Modal, Button, TextInput } from "@mantine/core";
+import { Modal, Button } from "@mantine/core";
 import { useEffect } from "react";
 
 export const Wallet = () => {

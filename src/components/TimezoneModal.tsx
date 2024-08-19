@@ -1,5 +1,5 @@
 import { Modal, Select } from "@mantine/core";
-import { atom, useRecoilState } from "recoil";
+import { atom } from "recoil";
 import { useDispatch, useSelector } from "react-redux";
 import { setTimezone } from "@/redux/slice";
 import { RootState } from "@/redux/store";

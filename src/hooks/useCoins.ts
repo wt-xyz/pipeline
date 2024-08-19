@@ -36,6 +36,23 @@ export const useRefreshCoins = () => {
   }, [setCoins, wallet.wallet]);
 };
 
+// export const useFetchCoins = async () => {
+//   const dispatch = useDispatch();
+//   const wallet = useWallet();
+
+//   if (!wallet.wallet) return [];
+
+//   const fetchedCoins = await fetchCoins(wallet.wallet);
+
+//   console.log("fetchedCoins:", fetchedCoins);
+
+//   if (!fetchedCoins) return [];
+
+//   dispatch(setCoins(fetchedCoins));
+
+//   return fetchedCoins;
+// };
+
 export const useFetchCoins = () => {
   const dispatch = useDispatch();
   const coins = useSelector((state: RootState) => state.pipeline.coins);

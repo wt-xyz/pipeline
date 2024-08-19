@@ -34,26 +34,24 @@ const getStreamResponses = async (
 ) => {
   if (!tokenContract || coins.length === 0) return;
 
-  const streams = uniqBy(
-    compact(
-      await Promise.all(
-        coins
-          .filter((coin) => coin.amount.eq(new BN(1)))
-          .map(async (coin) => {
-            const stream = (await getStream(tokenContract, coin.assetId))
-              ?.value;
+  console.log("getStreamResponses:", !tokenContract, coins.length);
 
-            return stream
-              ? {
-                  ...stream[0],
-                  streamId: stream[1].toString(),
-                }
-              : undefined;
-          }),
-      ),
-    ) as Stream[],
-    "streamId",
+  const result = await Promise.all(
+    coins
+      .filter((coin) => coin.amount.eq(new BN(1)))
+      .map(async (coin) => {
+        const stream = (await getStream(tokenContract, coin.assetId))?.value;
+
+        return stream
+          ? {
+              ...stream[0],
+              streamId: stream[1].toString(),
+            }
+          : undefined;
+      }),
   );
+
+  const streams = uniqBy(compact(result) as Stream[], "streamId");
 
   return streams;
 };
@@ -70,7 +68,7 @@ export const useRefreshStreams = (
 
   const refreshStreams = async () => {
     const newStreams = await getStreamResponses(tokenContract, coins);
-    // console.log("refreshStreams - ", refreshStreams);
+    console.log("refresh Streams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, globalStreams)) {
       dispatch(setGlobalStreams(newStreams));
@@ -84,7 +82,7 @@ export const useRefreshStreams = (
 
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
-): Stream[] | undefined => {
+): boolean | false => {
   const tokenContract = useTokenStreamingAbi(contractId);
   const coins = useSelector((state: RootState) => state.pipeline.coins);
   const globalStreams = useSelector(
@@ -93,21 +91,24 @@ export const useFetchStreams = (
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("coins - ", coins);
-
-    if (tokenContract && coins.length) {
+    console.log("coins => :", coins);
+    if (tokenContract && coins.length > 0) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
-        console.log("fetchStreams - ", responseStreams);
-
-        if (responseStreams && !isEqual(responseStreams, globalStreams)) {
+        if (
+          responseStreams?.length &&
+          !isEqual(responseStreams, globalStreams)
+        ) {
           dispatch(setGlobalStreams(responseStreams));
         }
       });
+      // console.log("coins - ", coins);
+      console.log("globalStreams - ", globalStreams);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return;
   }, [coins]);
 
-  return globalStreams;
+  return true;
 };
 
 export const isUserOwnerOfSenderAsset = (

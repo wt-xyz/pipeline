@@ -1,6 +1,5 @@
 import { Button, Group, Text } from "@mantine/core";
 import classes from "./SendingAndReceiving.module.scss";
-import { useFetchStreams } from "hooks/Streams";
 import { useDispatch, useSelector } from "react-redux";
 import { setSendingOrReceiving } from "@/redux/slice";
 import { RootState } from "@/redux/store";
@@ -8,7 +7,6 @@ import { RootState } from "@/redux/store";
 export type sendingOrReceivingSet = "sending" | "receiving";
 
 export const SendingAndReceiving = () => {
-  useFetchStreams();
   const dispatch = useDispatch();
   const sendingOrReceiving = useSelector(
     (state: RootState) => state.pipeline.sendingOrReceiving,

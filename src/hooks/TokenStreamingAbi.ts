@@ -1,5 +1,6 @@
 import {
   AbstractAddress,
+  Account,
   BN,
   BigNumberish,
   BytesLike,
@@ -34,6 +35,14 @@ export const useTokenStreamingAbi = (
     }
     return TokenStreamingAbi__factory.connect(contractId, wallet.wallet);
   }, [contractId, wallet.wallet]);
+};
+
+export const UseTokenStreamingAbiWithWallet = (
+  contractId: AbstractAddress | string,
+  wallet: Account | null | undefined,
+): TokenStreamingAbi | undefined => {
+  if (!wallet) return;
+  return TokenStreamingAbi__factory.connect(contractId, wallet);
 };
 
 export const useCreateStream = (
@@ -345,6 +354,8 @@ export const useMaxWithdrawable = (
           console.error(e);
         });
     }
+
+    // console.log("useMaxWithdrawable");
   }, [
     vaultSubId,
     stream.receiver_asset,
@@ -360,8 +371,8 @@ export const useTotalVested = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): BN | undefined => {
   const tokenContract = useTokenStreamingAbi(contractId);
-
   const [totalVested, setTotalVested] = useState<BN | undefined>();
+
   useEffect(() => {
     tokenContract?.functions
       .vested_amount(stream.streamId)
@@ -372,6 +383,8 @@ export const useTotalVested = (
       .catch((e) => {
         console.error(e);
       });
+
+    // console.log("useTotalVested");
   }, [tokenContract, stream]);
 
   return totalVested;
