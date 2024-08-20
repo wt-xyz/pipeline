@@ -34,7 +34,7 @@ const getStreamResponses = async (
 ) => {
   if (!tokenContract || coins.length === 0) return;
 
-  console.log("getStreamResponses:", !tokenContract, coins.length);
+  // console.log("getStreamResponses:", !tokenContract, coins.length);
 
   const result = await Promise.all(
     coins
@@ -68,7 +68,7 @@ export const useRefreshStreams = (
 
   const refreshStreams = async () => {
     const newStreams = await getStreamResponses(tokenContract, coins);
-    console.log("refresh Streams - ", refreshStreams);
+    // console.log("refresh Streams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, globalStreams)) {
       dispatch(setGlobalStreams(newStreams));
@@ -91,7 +91,7 @@ export const useFetchStreams = (
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("coins => :", coins);
+    // console.log("coins => :", coins);
     if (tokenContract && coins.length > 0) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
         if (

@@ -19,7 +19,6 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { Header } from "@/components/Header/Header";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
-import { StreamProvider } from "@/hooks/StreamProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,12 +47,10 @@ export default function RootLayout({
             }}
           >
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
-              <StreamProvider>
-                <Provider store={store}>
-                  <Notifications position="top-left" containerWidth="600px" />
-                  <AppShellLayout>{children}</AppShellLayout>
-                </Provider>
-              </StreamProvider>
+              <Provider store={store}>
+                <Notifications position="top-left" containerWidth="600px" />
+                <AppShellLayout>{children}</AppShellLayout>
+              </Provider>
             </MantineProvider>
           </FuelProvider>
         </QueryClientProvider>

@@ -30,7 +30,7 @@ import { SECONDS_PER_DAY } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { CoinQuantity } from "fuels";
-import useStreamProvider from "@/hooks/useStreamProvider";
+import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 
 type FormValues = {
   token: string;
@@ -53,9 +53,7 @@ function isDatesDefined(values: FormValues): values is Omit<
 
 export const CreateStreamForm = () => {
   const wallet = useWallet();
-
-  const { coins } = useStreamProvider();
-
+  const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
   const timezone = useSelector((state: RootState) => state.pipeline.timezone);
 
@@ -66,7 +64,7 @@ export const CreateStreamForm = () => {
     error,
     "Stream created!",
   );
-  // const refreshCoins = useRefreshCoins();
+  const refreshCoins = useRefreshCoins();
 
   const form = useForm<FormValues>({
     validate: {
