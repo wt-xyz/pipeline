@@ -12,8 +12,6 @@ import { RootState } from "@/redux/store";
 import useStreamProvider from "@/hooks/useStreamProvider";
 
 export const ManagePage = () => {
-  console.log("I am invoked.");
-
   const { streams, sendingStreams, receiverStreams } = useStreamProvider();
 
   const sendingOrReceiving = useSelector(

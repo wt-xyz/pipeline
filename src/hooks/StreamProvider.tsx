@@ -5,7 +5,6 @@ import React, {
   PropsWithChildren,
   useMemo,
 } from "react";
-// import Web3 from 'web3';
 import PropTypes from "prop-types";
 import { useWallet } from "@fuels/react";
 import { Account, BN, CoinQuantity, AbstractAddress } from "fuels";
@@ -15,8 +14,6 @@ import { compact, isEqual, uniqBy } from "lodash";
 import { TokenStreamingAbi } from "../../types";
 import { AssetIdInput } from "../../types/contracts/TokenStreamingAbi";
 import { Stream } from "./Streams";
-// import { ConnectExtension } from '@magic-ext/connect';
-// import { Magic } from 'magic-sdk';
 
 export const StreamContext = createContext<{
   coins: CoinQuantity[];
@@ -114,15 +111,12 @@ export const StreamProvider = ({ children }: PropsWithChildren) => {
   const handleFetchStreams = (
     contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
   ) => {
-    console.log("wallet - ", wallet);
-    console.log("wallet.wallet - ", wallet.wallet);
-
     const tokenContract = UseTokenStreamingAbiWithWallet(
       contractId,
       wallet.wallet,
     );
 
-    console.log("tokenContract", tokenContract, coins);
+    // console.log("streams - ", streams);
 
     if (tokenContract && coins.length > 0) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
@@ -143,10 +137,10 @@ export const StreamProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (coins?.length > 0) {
-      console.log("updated conis");
+      // console.log("coins - ", coins);
       handleFetchStreams();
     }
-  }, [coins, handleFetchStreams]);
+  }, [coins]);
 
   return (
     <StreamContext.Provider

@@ -337,6 +337,7 @@ export const useMaxWithdrawable = (
       .get_vault_info(stream.receiver_asset)
       .get()
       .then((vaultInfo: InvocationCallResult<VaultInfoOutput>) => {
+        // console.log("get_vault_info - ", vaultInfo.value.vault_sub_id);
         setVaultSubId(vaultInfo.value.vault_sub_id);
       })
       .catch((e) => {
@@ -348,6 +349,7 @@ export const useMaxWithdrawable = (
         .max_withdrawable({ bits: stream.underlying_asset.bits }, vaultSubId)
         .get()
         .then((response) => {
+          // console.log("max_withdrawable - ", response?.value);
           setMaxWithdrawable(response?.value);
         })
         .catch((e) => {
@@ -356,12 +358,7 @@ export const useMaxWithdrawable = (
     }
 
     // console.log("useMaxWithdrawable");
-  }, [
-    vaultSubId,
-    stream.receiver_asset,
-    tokenContract,
-    stream.underlying_asset,
-  ]);
+  }, [stream]);
 
   return maxWithdrawable;
 };
@@ -379,13 +376,12 @@ export const useTotalVested = (
       .get()
       .then((response) => {
         setTotalVested(response?.value);
+        // console.log("vested_amount - ", response?.value);
       })
       .catch((e) => {
         console.error(e);
       });
-
-    // console.log("useTotalVested");
-  }, [tokenContract, stream]);
+  }, [stream]);
 
   return totalVested;
 };
