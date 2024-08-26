@@ -11,13 +11,11 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
 export const ManagePage = () => {
-  const streams = useSelector(
-    (state: RootState) => state.pipeline.globalStreams,
-  );
+  const streams = useSelector((state: RootState) => state.streams.streams);
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
   const sendingOrReceiving = useSelector(
-    (state: RootState) => state.pipeline.sendingOrReceiving,
+    (state: RootState) => state.sendingOrReceiving.sendingOrReceiving,
   );
   const isSending = sendingOrReceiving === "sending";
 

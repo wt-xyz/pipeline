@@ -8,7 +8,7 @@ import {
   AssetIdInput,
   StreamOutput,
 } from "../../types/contracts/TokenStreamingAbi";
-import { setGlobalStreams } from "@/redux/slice";
+import { setStreams } from "@/redux/streamsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
@@ -62,9 +62,9 @@ export const useRefreshStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
   const tokenContract = useTokenStreamingAbi(contractId);
-  const coins = useSelector((state: RootState) => state.pipeline.coins);
+  const coins = useSelector((state: RootState) => state.coins.coins);
   const globalStreams = useSelector(
-    (state: RootState) => state.pipeline.globalStreams,
+    (state: RootState) => state.streams.streams,
   );
   const dispatch = useDispatch();
 
@@ -73,7 +73,7 @@ export const useRefreshStreams = (
     // console.log("refreshStreams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, globalStreams)) {
-      dispatch(setGlobalStreams(newStreams));
+      dispatch(setStreams(newStreams));
     }
   };
 
@@ -86,9 +86,9 @@ export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): Stream[] | undefined => {
   const tokenContract = useTokenStreamingAbi(contractId);
-  const coins = useSelector((state: RootState) => state.pipeline.coins);
+  const coins = useSelector((state: RootState) => state.coins.coins);
   const globalStreams = useSelector(
-    (state: RootState) => state.pipeline.globalStreams,
+    (state: RootState) => state.streams.streams,
   );
   const dispatch = useDispatch();
 
@@ -98,7 +98,7 @@ export const useFetchStreams = (
         console.log("fetchStreams - ", responseStreams);
 
         if (responseStreams && !isEqual(responseStreams, globalStreams)) {
-          dispatch(setGlobalStreams(responseStreams));
+          dispatch(setStreams(responseStreams));
         }
       });
     }
@@ -125,9 +125,9 @@ export const isUserOwnerOfReceiverAsset = (
 // TODO: this should be a recoil selector
 export const useSenderStreams = () => {
   const globalStreams = useSelector(
-    (state: RootState) => state.pipeline.globalStreams,
+    (state: RootState) => state.streams.streams,
   );
-  const coins = useSelector((state: RootState) => state.pipeline.coins);
+  const coins = useSelector((state: RootState) => state.coins.coins);
 
   return globalStreams?.filter((stream) =>
     isUserOwnerOfSenderAsset(stream.sender_asset, coins),
@@ -137,9 +137,9 @@ export const useSenderStreams = () => {
 // TODO: this should be a recoil selector
 export const useReceiverStreams = () => {
   const globalStreams = useSelector(
-    (state: RootState) => state.pipeline.globalStreams,
+    (state: RootState) => state.streams.streams,
   );
-  const coins = useSelector((state: RootState) => state.pipeline.coins);
+  const coins = useSelector((state: RootState) => state.coins.coins);
 
   return globalStreams?.filter((stream) =>
     isUserOwnerOfReceiverAsset(stream.receiver_asset, coins),

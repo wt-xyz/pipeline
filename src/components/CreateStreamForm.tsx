@@ -56,7 +56,7 @@ export const CreateStreamForm = () => {
   const wallet = useWallet();
   const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
-  const timezone = useSelector((state: RootState) => state.pipeline.timezone);
+  const timezone = useSelector((state: RootState) => state.timezone.timezone);
 
   const { createStream, loading, error } = useCreateStream();
   const { showNotification } = useNotificationHook(

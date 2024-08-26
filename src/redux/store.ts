@@ -1,27 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
-import slice from "./slice";
+import coinsSlice from "./coinsSlice";
+import streamsSlice from "./streamsSlice";
+import sendingOrReceivingSlice from "./sendingOrReceivingSlice";
+import timezoneSlice from "./timezoneSlice";
 
 export const store = configureStore({
   reducer: {
-    pipeline: slice,
+    coins: coinsSlice,
+    streams: streamsSlice,
+    sendingOrReceiving: sendingOrReceivingSlice,
+    timezone: timezoneSlice,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [
-          "pipeline/setCoins",
-          "pipeline/setCoinsWithInfo",
-          "pipeline/setCoinInfo",
-          "pipeline/setGlobalStreams",
-        ],
-        ignoredPaths: [
-          "pipeline.coins",
-          "pipeline.coinsWithInfo",
-          "pipeline.coinInfo",
-          "pipeline.globalStreams",
-        ],
-      },
-    }),
 });
 
 // Define the RootState type based on the store
