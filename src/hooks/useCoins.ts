@@ -8,7 +8,11 @@ import {
 } from "@/constants/constants";
 import { Option } from "../../types/contracts/common";
 import { useDispatch, useSelector } from "react-redux";
-import { setCoins } from "@/redux/coinsSlice";
+import {
+  setCoins,
+  CoinQuantityWithId,
+  selectAllCoins,
+} from "@/redux/coinsSlice";
 import { RootState } from "@/redux/store";
 
 const fetchCoins = async (
@@ -37,13 +41,13 @@ export const useRefreshCoins = () => {
 
 export const useFetchCoins = () => {
   const dispatch = useDispatch();
-  const coins = useSelector((state: RootState) => state.coins.coins);
+  const coins = useSelector(selectAllCoins);
   const wallet = useWallet();
 
   useEffect(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        console.log("fetchedCoins - ", fetchedCoins);
+        // console.log("fetchedCoins - ", fetchedCoins);
         dispatch(setCoins(fetchedCoins));
       }
     });
@@ -95,7 +99,7 @@ export const useStreamTokenInfo = (
  * useCoinsWithInfo grabs info on all coins in a users wallet
  */
 export const useCoinsWithInfo = () => {
-  const coins = useSelector((state: RootState) => state.coins.coins);
+  const coins = useSelector(selectAllCoins);
   let coinsWithInfo = null;
   const wallet = useWallet();
 

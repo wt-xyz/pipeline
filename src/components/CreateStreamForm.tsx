@@ -32,6 +32,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { Option } from "../../types/contracts/common";
 import { CoinQuantity } from "fuels";
+import { CoinQuantityWithId } from "@/redux/coinsSlice";
 
 type FormValues = {
   token: string;
@@ -173,7 +174,7 @@ export const CreateStreamForm = () => {
                   </CustomLabelComponent>
                 }
                 placeholder="Pick Token"
-                data={coins.map((coin: CoinQuantity) => ({
+                data={coins.map((coin: CoinQuantityWithId) => ({
                   label: coin.assetId || "Unknown",
                   // label: coin.symbol || coin.address || 'Unknown', // Fallback to 'Unknown' if symbol is undefined
                   value: coin.assetId.toString(), // Assuming address is the desired value

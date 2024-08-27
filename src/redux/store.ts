@@ -11,6 +11,13 @@ export const store = configureStore({
     sendingOrReceiving: sendingOrReceivingSlice,
     timezone: timezoneSlice,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["coins/setCoins"],
+        ignoredPaths: ["coins.coins"],
+      },
+    }),
 });
 
 // Define the RootState type based on the store

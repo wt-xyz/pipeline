@@ -11,6 +11,7 @@ import {
 import { setStreams } from "@/redux/streamsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { selectAllCoins, CoinQuantityWithId } from "@/redux/coinsSlice";
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,
@@ -30,7 +31,7 @@ export type Stream = StreamOutput & { streamId: string };
 
 const getStreamResponses = async (
   tokenContract: TokenStreamingAbi | undefined,
-  coins: CoinQuantity[],
+  coins: CoinQuantityWithId[],
 ) => {
   if (!tokenContract || coins.length === 0) return;
 
@@ -38,7 +39,7 @@ const getStreamResponses = async (
     compact(
       await Promise.all(
         coins
-          .filter((coin) => coin.amount.eq(new BN(1)))
+          .filter((coin) => new BN(coin.amount).eq(new BN(1)))
           .map(async (coin) => {
             const stream = (await getStream(tokenContract, coin.assetId))
               ?.value;
@@ -62,7 +63,7 @@ export const useRefreshStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
   const tokenContract = useTokenStreamingAbi(contractId);
-  const coins = useSelector((state: RootState) => state.coins.coins);
+  const coins = useSelector(selectAllCoins);
   const globalStreams = useSelector(
     (state: RootState) => state.streams.streams,
   );
@@ -86,7 +87,9 @@ export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): Stream[] | undefined => {
   const tokenContract = useTokenStreamingAbi(contractId);
-  const coins = useSelector((state: RootState) => state.coins.coins);
+  const coins = useSelector(selectAllCoins);
+  // console.log("coins - ", coins);
+
   const globalStreams = useSelector(
     (state: RootState) => state.streams.streams,
   );
@@ -110,14 +113,14 @@ export const useFetchStreams = (
 
 export const isUserOwnerOfSenderAsset = (
   senderAsset: AssetIdInput,
-  userCoins: CoinQuantity[],
+  userCoins: CoinQuantityWithId[],
 ) => {
   return !!userCoins.find((coin) => coin.assetId === senderAsset.bits);
 };
 
 export const isUserOwnerOfReceiverAsset = (
   receiverAsset: AssetIdInput,
-  userCoins: CoinQuantity[],
+  userCoins: CoinQuantityWithId[],
 ) => {
   return !!userCoins.find((coin) => coin.assetId === receiverAsset.bits);
 };
@@ -127,7 +130,7 @@ export const useSenderStreams = () => {
   const globalStreams = useSelector(
     (state: RootState) => state.streams.streams,
   );
-  const coins = useSelector((state: RootState) => state.coins.coins);
+  const coins = useSelector(selectAllCoins);
 
   return globalStreams?.filter((stream) =>
     isUserOwnerOfSenderAsset(stream.sender_asset, coins),
@@ -139,7 +142,7 @@ export const useReceiverStreams = () => {
   const globalStreams = useSelector(
     (state: RootState) => state.streams.streams,
   );
-  const coins = useSelector((state: RootState) => state.coins.coins);
+  const coins = useSelector(selectAllCoins);
 
   return globalStreams?.filter((stream) =>
     isUserOwnerOfReceiverAsset(stream.receiver_asset, coins),
