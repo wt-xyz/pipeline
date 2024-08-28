@@ -364,7 +364,7 @@ export const useTotalVested = (
   const [totalVested, setTotalVested] = useState<BN | undefined>();
   useEffect(() => {
     tokenContract?.functions
-      .vested_amount(stream.streamId)
+      .vested_amount(stream.id)
       .get()
       .then((response) => {
         setTotalVested(response?.value);

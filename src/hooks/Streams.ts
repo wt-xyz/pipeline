@@ -12,6 +12,8 @@ import { setStreams } from "@/redux/streamsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { selectAllCoins, CoinQuantityWithId } from "@/redux/coinsSlice";
+import { selectAllStreams } from "@/redux/streamsSlice";
+import { StreamSerializable } from "@/redux/streamsSlice";
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,
@@ -27,7 +29,7 @@ const getStream = async (
   }
 };
 
-export type Stream = StreamOutput & { streamId: string };
+export type Stream = StreamOutput & { id: string };
 
 const getStreamResponses = async (
   tokenContract: TokenStreamingAbi | undefined,
@@ -44,16 +46,25 @@ const getStreamResponses = async (
             const stream = (await getStream(tokenContract, coin.assetId))
               ?.value;
 
-            return stream
-              ? {
-                  ...stream[0],
-                  streamId: stream[1].toString(),
-                }
-              : undefined;
+            if (stream) {
+              return {
+                ...stream[0],
+                id: stream[1].toString(),
+                deposit: stream[0].deposit.toString(),
+                rate_per_second_e_10: stream[0].rate_per_second_e_10.toString(),
+                stream_size: stream[0].stream_size.toString(),
+                vested_withdrawn_amount:
+                  stream[0].vested_withdrawn_amount.toString(),
+                start_time: stream[0].start_time.toString(),
+                stop_time: stream[0].stop_time.toString(),
+              } as StreamSerializable;
+            }
+
+            return undefined;
           }),
       ),
-    ) as Stream[],
-    "streamId",
+    ) as StreamSerializable[],
+    "id",
   );
 
   return streams;
@@ -64,9 +75,7 @@ export const useRefreshStreams = (
 ) => {
   const tokenContract = useTokenStreamingAbi(contractId);
   const coins = useSelector(selectAllCoins);
-  const globalStreams = useSelector(
-    (state: RootState) => state.streams.streams,
-  );
+  const globalStreams = useSelector(selectAllStreams);
   const dispatch = useDispatch();
 
   const refreshStreams = async () => {
@@ -85,14 +94,12 @@ export const useRefreshStreams = (
 
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
-): Stream[] | undefined => {
+): StreamSerializable[] | undefined => {
   const tokenContract = useTokenStreamingAbi(contractId);
   const coins = useSelector(selectAllCoins);
   // console.log("coins - ", coins);
 
-  const globalStreams = useSelector(
-    (state: RootState) => state.streams.streams,
-  );
+  const globalStreams = useSelector(selectAllStreams);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -107,6 +114,8 @@ export const useFetchStreams = (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coins]);
+
+  console.log("globalStreams - ", globalStreams);
 
   return globalStreams;
 };
@@ -127,9 +136,7 @@ export const isUserOwnerOfReceiverAsset = (
 
 // TODO: this should be a recoil selector
 export const useSenderStreams = () => {
-  const globalStreams = useSelector(
-    (state: RootState) => state.streams.streams,
-  );
+  const globalStreams = useSelector(selectAllStreams);
   const coins = useSelector(selectAllCoins);
 
   return globalStreams?.filter((stream) =>
@@ -139,9 +146,7 @@ export const useSenderStreams = () => {
 
 // TODO: this should be a recoil selector
 export const useReceiverStreams = () => {
-  const globalStreams = useSelector(
-    (state: RootState) => state.streams.streams,
-  );
+  const globalStreams = useSelector(selectAllStreams);
   const coins = useSelector(selectAllCoins);
 
   return globalStreams?.filter((stream) =>
