@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=./node_modules/envio/fuel.schema.json
+name: PipelineStreams
+ecosystem: fuel
+networks:
+- id: 0
+  start_block: 0
+  contracts:
+  - name: TokenStreaming
+    address:
+    - 0x109981cc560daf5a8c27cbe33de7a35d179615b41c5de62e1903edb4e8e5213a
+    abi_file_path: abis/tokenstreaming-abi.json
+    handler: src/EventHandlers.ts
+    events:
+    - name: CreateStream
+      logId: '6901066102973855336'
