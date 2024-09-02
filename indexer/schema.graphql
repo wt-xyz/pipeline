@@ -1,4 +1,14 @@
 type TokenStreaming_CreateStream {
   id: ID!
+  sender_asset: String!
+  receiver_asset: String!
+  initial_sender: String!
+  initial_receiver: String!
+  underlying_asset: String!
+  deposit: BigInt!
+  stream_size: BigInt!
+  start_time: BigInt!
+  stop_time: BigInt!
+  timestamp: Int!
+  rate_per_second_e10: BigInt!
 }
-
