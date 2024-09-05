@@ -4,8 +4,6 @@
 import { TokenStreaming, TokenStreaming_CreateStream } from "generated";
 
 TokenStreaming.CreateStream.handler(async ({ event, context }) => {
-  console.log("event - ", event.data.receiver.payload.bits);
-
   context.TokenStreaming_CreateStream.set({
     id: event.data.stream_id.toString(),
     receiver_asset: event.data.receiver_asset.bits,

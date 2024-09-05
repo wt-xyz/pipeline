@@ -9,10 +9,10 @@ export function formatDateToISO(date: Date) {
 
 export function formatAddress(address: string) {
   // Check if the address is less than or equal to 9 characters, return as is (since there's nothing to shorten)
-  if (address.length <= 9) return address;
+  if (address?.length <= 9) return address;
 
   // Take the first 6 characters (including 0x), add ellipsis, and then the last 4 characters
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `${address?.slice(0, 6)}...${address?.slice(-4)}`;
 }
 
 export function truncateString(s: string, maxLength: number) {

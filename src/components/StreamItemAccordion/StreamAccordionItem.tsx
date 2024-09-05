@@ -263,12 +263,14 @@ export const StreamAccordionItemView = ({
 };
 
 const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
+  // console.log("stream_size - ", stream.stream_size);
+
   return (
     <Grid dir="row" style={{ width: "100%" }}>
       <Grid.Col span={4}>
         {/* TODO: get decimals from our hook: useCoinInfo */}
         <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
-        <TextMd c={"gray.7"}>Total Amount</TextMd>
+        <TextMd c={"gray.7"}>Total Amount {stream.streamId}</TextMd>
       </Grid.Col>
 
       <Grid.Col span={4}>

@@ -325,7 +325,7 @@ export const useVaultInfo = (
 };
 
 export const useMaxWithdrawable = (
-  stream: StreamOutput,
+  stream: Stream,
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): BN | undefined => {
   const tokenContract = useTokenStreamingAbi(contractId);

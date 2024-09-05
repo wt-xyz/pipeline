@@ -32,6 +32,10 @@ export const ManagePage = () => {
   useFetchStreams();
   useFetchCoins();
 
+  // console.log("streams - ", streams);
+  // console.log("sendingStreams - ", sendingStreams);
+  // console.log("receiverStreams - ", receiverStreams);
+
   return (
     <Container pt={isMobile ? "xxl" : "sxl"} px={0}>
       {isEmpty(streams) ? (
