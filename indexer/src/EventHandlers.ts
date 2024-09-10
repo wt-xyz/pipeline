@@ -19,5 +19,34 @@ TokenStreaming.CreateStream.handler(async ({ event, context }) => {
     rate_per_second_e10:
       (event.data.stream_size * BigInt(Math.pow(10, 10))) /
       (event.data.stop_time - event.data.start_time),
+    cancellation_time: undefined,
+    vested_withdraw_amount: undefined,
+  });
+});
+
+TokenStreaming.CancelStream.handler(async ({ event, context }) => {
+  const stream = await context.TokenStreaming_CreateStream.get(
+    event.data.stream_id.toString(),
+  );
+  if (!stream) throw Error();
+
+  context.TokenStreaming_CreateStream.set({
+    ...stream,
+    cancellation_time: event.time,
+  });
+});
+
+TokenStreaming.Withdraw.handler(async ({ event, context }) => {
+  const vault_sub_id = parseInt(event.data.vault_sub_id, 10);
+  const stream_id = vault_sub_id % 2 === 0 ? vault_sub_id : vault_sub_id - 1;
+
+  const stream = await context.TokenStreaming_CreateStream.get(
+    stream_id.toString(),
+  );
+  if (!stream) throw Error();
+
+  context.TokenStreaming_CreateStream.set({
+    ...stream,
+    vested_withdraw_amount: event.data.withdrawn_amount,
   });
 });

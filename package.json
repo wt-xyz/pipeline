@@ -69,8 +69,7 @@
   "lint-staged": {
     "*.{ts,js,tsx,jsx}": [
       "prettier --write",
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ]
   },
   "packageManager": "yarn@4.1.1"

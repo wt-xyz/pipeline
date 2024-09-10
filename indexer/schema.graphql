@@ -1,4 +1,4 @@
-type Stream {
+type TokenStreaming_CreateStream {
   id: ID!
   sender_asset: String!
   receiver_asset: String!
