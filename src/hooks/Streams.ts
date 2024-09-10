@@ -4,13 +4,11 @@ import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
 import { compact, isEqual, uniqBy } from "lodash";
 import { TokenStreamingAbi } from "../../types";
-import {
-  AssetIdInput,
-  StreamOutput,
-} from "../../types/contracts/TokenStreamingAbi";
+import { AssetIdInput } from "../../types/contracts/TokenStreamingAbi";
 import { setGlobalStreams } from "@/redux/slice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { ApolloClient, NormalizedCacheObject, gql } from "@apollo/client";
 
 const getStream = async (
   tokenContract: TokenStreamingAbi,
@@ -27,7 +25,6 @@ const getStream = async (
   }
 };
 
-// export type Stream = StreamOutput & { streamId: string };
 // Define the structure of the stream object
 type StreamConfig = {
   start_time: string;
@@ -42,6 +39,7 @@ type StreamConfig = {
   timestamp: number;
   underlying_asset: string;
   deposit: string;
+  vested_withdraw_amount: number;
 };
 
 // Create the configuration object for each stream
@@ -80,58 +78,63 @@ const processStream = (stream: StreamConfig): Stream => {
     streamId: stream.id, // Use the id directly
     stream_size: new BN(stream.stream_size), // Convert stream_size to BN
     underlying_asset: { bits: stream.underlying_asset }, // Convert underlying_asset to object
-    vested_withdrawn_amount: new BN(0), // Initialize or calculate based on logic
+    vested_withdrawn_amount: new BN(stream.vested_withdraw_amount), // Initialize or calculate based on logic
   };
 };
 
 const getStreamResponses = async (
+  client: ApolloClient<unknown>,
   tokenContract: TokenStreamingAbi | undefined,
   coins: CoinQuantity[],
 ) => {
   if (!tokenContract || coins.length === 0) return;
 
-  // Get streans using indexer
-  const apiUrl = "http://localhost:8080/v1/graphql";
+  const GET_STREAMS = gql`
+    query GetStreams($assetIds: [String!]) {
+      TokenStreaming_CreateStream(where: { sender_asset: { _in: $assetIds } }) {
+        id
+        sender_asset
+        receiver_asset
+        initial_sender
+        initial_receiver
+        underlying_asset
+        deposit
+        stream_size
+        start_time
+        stop_time
+        timestamp
+        rate_per_second_e10
+        cancellation_time
+        vested_withdraw_amount
+      }
+    }
+  `;
 
-  const res = await fetch(apiUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-          query MyQuery {
-            TokenStreaming_CreateStream {
-              start_time
-              stop_time
-              stream_size
-              rate_per_second_e10
-              id
-              initial_receiver
-              initial_sender
-              receiver_asset
-              sender_asset
-              timestamp
-              underlying_asset
-              deposit
-            }
-          }
-        `,
-    }),
-  });
-  const json = await res.json();
-  const filteredJson = json.data.TokenStreaming_CreateStream.filter(
-    (jsonItem: { sender_asset: string }) =>
-      coins.some((coin) => coin.assetId === jsonItem.sender_asset),
-  );
+  // Extract the assetId array from coins
+  const assetIds = coins.map((coin) => coin.assetId);
 
-  const streams = uniqBy(compact(filteredJson) as StreamConfig[], "id");
-  const processedStreams = streams.map(processStream);
+  try {
+    // Use the Apollo Client instance to fetch the query
+    const { data } = await client.query({
+      query: GET_STREAMS,
+      variables: { assetIds },
+    });
 
-  return processedStreams;
+    const streams = uniqBy(
+      compact(data.TokenStreaming_CreateStream) as StreamConfig[],
+      "id",
+    );
+    const processedStreams = streams.map(processStream);
+    console.log("processStreams - ", processedStreams);
+
+    return processedStreams;
+  } catch (error) {
+    console.error("Error fetching streams:", error);
+  }
 };
 
 export const useRefreshStreams = (
+  client: ApolloClient<unknown>,
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
   const tokenContract = useTokenStreamingAbi(contractId);
@@ -142,7 +145,7 @@ export const useRefreshStreams = (
   const dispatch = useDispatch();
 
   const refreshStreams = async () => {
-    const newStreams = await getStreamResponses(tokenContract, coins);
+    const newStreams = await getStreamResponses(client, tokenContract, coins);
     // console.log("refresh Streams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, globalStreams)) {
@@ -156,6 +159,7 @@ export const useRefreshStreams = (
 };
 
 export const useFetchStreams = (
+  client: ApolloClient<unknown>,
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ): boolean | false => {
   const tokenContract = useTokenStreamingAbi(contractId);
@@ -168,14 +172,16 @@ export const useFetchStreams = (
   useEffect(() => {
     // console.log("coins => :", coins);
     if (tokenContract && coins.length > 0) {
-      getStreamResponses(tokenContract, coins).then((responseStreams) => {
-        if (
-          responseStreams?.length &&
-          !isEqual(responseStreams, globalStreams)
-        ) {
-          dispatch(setGlobalStreams(responseStreams));
-        }
-      });
+      getStreamResponses(client, tokenContract, coins).then(
+        (responseStreams) => {
+          if (
+            responseStreams?.length &&
+            !isEqual(responseStreams, globalStreams)
+          ) {
+            dispatch(setGlobalStreams(responseStreams));
+          }
+        },
+      );
       // console.log("coins - ", coins);
       // console.log("globalStreams - ", globalStreams);
     }

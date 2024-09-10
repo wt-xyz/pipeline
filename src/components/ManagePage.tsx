@@ -15,6 +15,7 @@ import {
   useFetchStreams,
 } from "hooks/Streams";
 import { useFetchCoins } from "@/hooks/useCoins";
+import { useApolloClient } from "@apollo/client";
 
 export const ManagePage = () => {
   const streams = useSelector(
@@ -28,8 +29,9 @@ export const ManagePage = () => {
   );
   const isSending = sendingOrReceiving === "sending";
   const isMobile = useIsMobile();
+  const client = useApolloClient();
 
-  useFetchStreams();
+  useFetchStreams(client);
   useFetchCoins();
 
   // console.log("streams - ", streams);

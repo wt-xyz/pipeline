@@ -33,6 +33,7 @@ import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BigNumberish, BN } from "fuels";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useDisclosure } from "@mantine/hooks";
+import { useApolloClient } from "@apollo/client";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -154,7 +155,8 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
   const totalVested = useTotalVested(stream);
-  const { refreshStreams } = useRefreshStreams();
+  const client = useApolloClient();
+  const { refreshStreams } = useRefreshStreams(client);
 
   const { showNotification: showWithdrawalNotification } = useNotificationHook(
     props.isUserSender ? "Cancelling Stream..." : "Withdrawing...",
