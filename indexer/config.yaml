@@ -13,3 +13,11 @@ networks:
         events:
           - name: CreateStream
             logId: "6901066102973855336"
+          - name: Deposit
+            logId: "13151976532709238696"
+          - name: CancelStream
+            logId: "6674994989715820820"
+          - name: Error
+            logId: "5432468599230875534"
+          - name: Withdraw
+            logId: "7130535457264345996"

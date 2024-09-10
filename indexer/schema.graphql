@@ -1,4 +1,4 @@
-type TokenStreaming_CreateStream {
+type Stream {
   id: ID!
   sender_asset: String!
   receiver_asset: String!
@@ -11,4 +11,6 @@ type TokenStreaming_CreateStream {
   stop_time: BigInt!
   timestamp: Int!
   rate_per_second_e10: BigInt!
+  cancellation_time: Int
+  vested_withdraw_amount: BigInt
 }
