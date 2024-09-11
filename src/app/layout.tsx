@@ -7,7 +7,6 @@ import {
 } from "@fuels/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { RecoilRoot } from "recoil";
 import { AppShell, ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
@@ -18,8 +17,9 @@ import { Inter } from "next/font/google";
 import { Notifications } from "@mantine/notifications";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Header } from "@/components/Header/Header";
-import { useFetchStreams } from "hooks/Streams";
-import { useFetchCoins } from "hooks/useCoins";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,6 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const queryClient = new QueryClient();
+  const client = new ApolloClient({
+    uri: "http://localhost:8080/v1/graphql", // Replace with your GraphQL API endpoint
+    cache: new InMemoryCache(),
+  });
 
   return (
     <html lang="en">
@@ -37,32 +41,32 @@ export default function RootLayout({
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
       <body className={inter.className}>
-        <QueryClientProvider client={queryClient}>
-          <FuelProvider
-            fuelConfig={{
-              connectors: [
-                new FuelWalletConnector(),
-                new FuelWalletDevelopmentConnector(),
-                new FueletWalletConnector(),
-              ],
-            }}
-          >
-            <MantineProvider defaultColorScheme={"dark"} theme={theme}>
-              <RecoilRoot>
-                <Notifications position="top-left" containerWidth="600px" />
-                <AppShellLayout>{children}</AppShellLayout>
-              </RecoilRoot>
-            </MantineProvider>
-          </FuelProvider>
-        </QueryClientProvider>
+        <ApolloProvider client={client}>
+          <QueryClientProvider client={queryClient}>
+            <FuelProvider
+              fuelConfig={{
+                connectors: [
+                  new FuelWalletConnector(),
+                  new FuelWalletDevelopmentConnector(),
+                  new FueletWalletConnector(),
+                ],
+              }}
+            >
+              <MantineProvider defaultColorScheme={"dark"} theme={theme}>
+                <Provider store={store}>
+                  <Notifications position="top-left" containerWidth="600px" />
+                  <AppShellLayout>{children}</AppShellLayout>
+                </Provider>
+              </MantineProvider>
+            </FuelProvider>
+          </QueryClientProvider>
+        </ApolloProvider>
       </body>
     </html>
   );
 }
 
 const AppShellLayout = ({ children }: { children: React.ReactNode }) => {
-  useFetchStreams();
-  useFetchCoins();
   const isMobile = useIsMobile();
 
   return (

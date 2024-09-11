@@ -33,6 +33,7 @@ import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BigNumberish, BN } from "fuels";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useDisclosure } from "@mantine/hooks";
+import { useApolloClient } from "@apollo/client";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -91,6 +92,7 @@ const SingleInputModal = ({
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Enter value"
+          style={{ marginRight: "20px", marginBottom: "20px" }}
         />
         <Button
           onClick={() => {
@@ -153,7 +155,8 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
   const { stream } = props;
   const maxWithdrawable = useMaxWithdrawable(stream);
   const totalVested = useTotalVested(stream);
-  const { refreshStreams } = useRefreshStreams();
+  const client = useApolloClient();
+  const { refreshStreams } = useRefreshStreams(client);
 
   const { showNotification: showWithdrawalNotification } = useNotificationHook(
     props.isUserSender ? "Cancelling Stream..." : "Withdrawing...",
@@ -187,6 +190,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
         : stream.receiver_asset;
 
       withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount);
+
       showWithdrawalNotification();
       refreshStreams();
     },
@@ -261,13 +265,16 @@ export const StreamAccordionItemView = ({
 };
 
 const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
+  // console.log("stream_size - ", stream.stream_size);
+
   return (
-    <Grid dir="row">
+    <Grid dir="row" style={{ width: "100%" }}>
       <Grid.Col span={4}>
         {/* TODO: get decimals from our hook: useCoinInfo */}
         <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
-        <TextMd c={"gray.7"}>Total Amount</TextMd>
+        <TextMd c={"gray.7"}>Total Amount {stream.streamId}</TextMd>
       </Grid.Col>
+
       <Grid.Col span={4}>
         <TextXxl c={"gray.7"}>
           {/* TODO: change to symbol */}

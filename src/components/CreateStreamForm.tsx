@@ -17,18 +17,20 @@ import {
 import { useForm } from "@mantine/form";
 import { DatePickerInput, DatesProvider } from "@mantine/dates";
 import { useCreateStream } from "@/hooks/TokenStreamingAbi";
-import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
 import { useConnectUI, useWallet } from "@fuels/react";
 import { BN } from "fuels";
 import Decimal from "decimal.js";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useRouter } from "next/navigation";
-import { useRecoilValue } from "recoil";
 import { IconSettings } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { timezoneAtom, TimezoneModal } from "./TimezoneModal";
+import { TimezoneModal } from "./TimezoneModal";
 import { SECONDS_PER_DAY } from "@/constants/constants";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { CoinQuantity } from "fuels";
+import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 
 type FormValues = {
   token: string;
@@ -53,7 +55,7 @@ export const CreateStreamForm = () => {
   const wallet = useWallet();
   const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
-  const timezone = useRecoilValue(timezoneAtom);
+  const timezone = useSelector((state: RootState) => state.pipeline.timezone);
 
   const { createStream, loading, error } = useCreateStream();
   const { showNotification } = useNotificationHook(
@@ -121,7 +123,7 @@ export const CreateStreamForm = () => {
         },
       ).then(() => {
         // update the fetched streams
-        refreshCoins();
+        // refreshCoins();
         router.push("/manage");
       });
       showNotification();
@@ -170,7 +172,7 @@ export const CreateStreamForm = () => {
                   </CustomLabelComponent>
                 }
                 placeholder="Pick Token"
-                data={coins.map((coin) => ({
+                data={coins?.map((coin: CoinQuantity) => ({
                   label: coin.assetId || "Unknown",
                   // label: coin.symbol || coin.address || 'Unknown', // Fallback to 'Unknown' if symbol is undefined
                   value: coin.assetId.toString(), // Assuming address is the desired value

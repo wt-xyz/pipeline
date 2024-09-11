@@ -7,63 +7,77 @@ import {
   TOKEN_STREAMING_CONTRACT_ID,
 } from "@/constants/constants";
 import { Option } from "../../types/contracts/common";
-import {
-  atom,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from "recoil";
-
-export const globalCoins = atom<CoinQuantity[]>({
-  key: "globalCoins",
-  default: [],
-});
+import { useDispatch, useSelector } from "react-redux";
+import { setCoins, setCoinsWithInfo } from "@/redux/slice";
+import { RootState } from "@/redux/store";
 
 const fetchCoins = async (
   wallet: Account | null | undefined,
 ): Promise<CoinQuantity[] | undefined> => {
   if (wallet == undefined) {
-    console.log("wallet is undefined");
+    // console.log("wallet is undefined");
     return;
   }
-  console.log("wallet is defined", wallet);
+
+  // console.log("wallet is defined", wallet);
   return wallet.getBalances();
 };
 
 export const useRefreshCoins = () => {
-  const setCoins = useSetRecoilState(globalCoins);
+  const dispatch = useDispatch();
+
   const wallet = useWallet();
   return useCallback(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        setCoins(fetchedCoins);
+        dispatch(setCoins(fetchedCoins));
       }
     });
   }, [setCoins, wallet.wallet]);
 };
 
-export const useFetchCoins = () => {
-  const [coins, setCoins] = useRecoilState<CoinQuantity[]>(globalCoins);
+// export const useFetchCoins = async () => {
+//   const dispatch = useDispatch();
+//   const wallet = useWallet();
 
+//   if (!wallet.wallet) return [];
+
+//   const fetchedCoins = await fetchCoins(wallet.wallet);
+
+//   console.log("fetchedCoins:", fetchedCoins);
+
+//   if (!fetchedCoins) return [];
+
+//   dispatch(setCoins(fetchedCoins));
+
+//   return fetchedCoins;
+// };
+
+export const useFetchCoins = () => {
+  const dispatch = useDispatch();
+  const coins = useSelector((state: RootState) => state.pipeline.coins);
   const wallet = useWallet();
+
   useEffect(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        setCoins(fetchedCoins);
+        // console.log("fetchedCoins - ", fetchedCoins);
+        dispatch(setCoins(fetchedCoins));
       }
     });
+    // console.log('coins - ', coins);
   }, [setCoins, wallet.wallet]);
 
   return coins;
 };
 
-type CoinInfo = {
+export type CoinInfo = {
   symbol: Option<string>;
   name: Option<string>;
   decimals: Option<number>;
 };
 
-type CoinWithInfo = CoinInfo & {
+export type CoinWithInfo = CoinInfo & {
   amount: BN;
   assetId: string;
 };
@@ -99,9 +113,13 @@ export const useStreamTokenInfo = (
  * useCoinsWithInfo grabs info on all coins in a users wallet
  */
 export const useCoinsWithInfo = () => {
-  const [coinsWithInfo, setCoinsWithInfo] = useState<CoinWithInfo[]>();
-  const coins = useRecoilValue(globalCoins);
+  const dispatch = useDispatch();
+  const coins = useSelector((state: RootState) => state.pipeline.coins);
+  const coinsWithInfo = useSelector(
+    (state: RootState) => state.pipeline.coinsWithInfo,
+  );
   const wallet = useWallet();
+
   useEffect(() => {
     const provider = wallet.wallet?.provider;
     if (provider == undefined) {
@@ -121,9 +139,10 @@ export const useCoinsWithInfo = () => {
         };
       }),
     ).then((coinsWithInfo) => {
-      setCoinsWithInfo(coinsWithInfo);
+      dispatch(setCoinsWithInfo(coinsWithInfo));
     });
   }, [coins, wallet]);
+
   return coinsWithInfo;
 };
 
@@ -176,6 +195,7 @@ export const getCoinInfo = async (
     .catch((e) => {
       console.error(e);
     });
+
   const name = tokenContract.functions
     .name({ bits: subId })
     .simulate()

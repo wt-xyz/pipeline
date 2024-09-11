@@ -1,29 +1,42 @@
-import { atom, useRecoilValue } from "recoil";
 import { Container, Flex } from "@mantine/core";
 import { ReactElement } from "react";
 import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
 import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccordionItem";
 import { TextLg } from "components/TextVariants";
-import { Stream, useReceiverStreams, useSenderStreams } from "hooks/Streams";
-import {
-  SendingAndReceiving,
-  sendingOrReceivingAtom,
-} from "components/SendingAndRecieving/SendingAndReceiving";
+import { SendingAndReceiving } from "components/SendingAndRecieving/SendingAndReceiving";
 import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
-
-export const globalStreams = atom({
-  key: "globalStreams",
-  default: [] as Stream[],
-});
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import {
+  Stream,
+  useSenderStreams,
+  useReceiverStreams,
+  useFetchStreams,
+} from "hooks/Streams";
+import { useFetchCoins } from "@/hooks/useCoins";
+import { useApolloClient } from "@apollo/client";
 
 export const ManagePage = () => {
-  const streams = useRecoilValue(globalStreams);
+  const streams = useSelector(
+    (state: RootState) => state.pipeline.globalStreams,
+  );
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
-  const sendingOrReceiving = useRecoilValue(sendingOrReceivingAtom);
+
+  const sendingOrReceiving = useSelector(
+    (state: RootState) => state.pipeline.sendingOrReceiving,
+  );
   const isSending = sendingOrReceiving === "sending";
   const isMobile = useIsMobile();
+  const client = useApolloClient();
+
+  useFetchStreams(client);
+  useFetchCoins();
+
+  // console.log("streams - ", streams);
+  // console.log("sendingStreams - ", sendingStreams);
+  // console.log("receiverStreams - ", receiverStreams);
 
   return (
     <Container pt={isMobile ? "xxl" : "sxl"} px={0}>

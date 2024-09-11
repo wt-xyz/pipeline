@@ -1,0 +1,1989 @@
+{
+  "encoding": "1",
+  "types": [
+    {
+      "typeId": 0,
+      "type": "()",
+      "components": [],
+      "typeParameters": null
+    },
+    {
+      "typeId": 1,
+      "type": "(_, _)",
+      "components": [
+        {
+          "name": "__tuple_element",
+          "type": 18,
+          "typeArguments": null
+        },
+        {
+          "name": "__tuple_element",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 2,
+      "type": "b256",
+      "components": null,
+      "typeParameters": null
+    },
+    {
+      "typeId": 3,
+      "type": "bool",
+      "components": null,
+      "typeParameters": null
+    },
+    {
+      "typeId": 4,
+      "type": "enum Error",
+      "components": [
+        {
+          "name": "NonExistentStream",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "InvalidDates",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "DateTooEarly",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "SelfAddress",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "ZeroAddress",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "ZeroDeposit",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "StreamDoesNotExist",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "VaultDoesNotExist",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "NotReceiver",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "InsufficientBalance",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "InsufficientShares",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "StreamAlreadyCancelled",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "NotSender",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "NotEnoughCoins",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "DepositsBlocked",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "InvalidAsset",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "IncorrectDeposit",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "NotCancellable",
+          "type": 0,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 5,
+      "type": "enum Identity",
+      "components": [
+        {
+          "name": "Address",
+          "type": 10,
+          "typeArguments": null
+        },
+        {
+          "name": "ContractId",
+          "type": 14,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 6,
+      "type": "enum Option",
+      "components": [
+        {
+          "name": "None",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "Some",
+          "type": 8,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": [
+        8
+      ]
+    },
+    {
+      "typeId": 7,
+      "type": "enum SenderOrReceiver",
+      "components": [
+        {
+          "name": "Sender",
+          "type": 0,
+          "typeArguments": null
+        },
+        {
+          "name": "Receiver",
+          "type": 0,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 8,
+      "type": "generic T",
+      "components": null,
+      "typeParameters": null
+    },
+    {
+      "typeId": 9,
+      "type": "raw untyped ptr",
+      "components": null,
+      "typeParameters": null
+    },
+    {
+      "typeId": 10,
+      "type": "struct Address",
+      "components": [
+        {
+          "name": "bits",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 11,
+      "type": "struct AssetId",
+      "components": [
+        {
+          "name": "bits",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 12,
+      "type": "struct Bytes",
+      "components": [
+        {
+          "name": "buf",
+          "type": 17,
+          "typeArguments": null
+        },
+        {
+          "name": "len",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 13,
+      "type": "struct CancelStream",
+      "components": [
+        {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "sender_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "unvested_recipient",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "unvested_balance",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "vested_balance",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 14,
+      "type": "struct ContractId",
+      "components": [
+        {
+          "name": "bits",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 15,
+      "type": "struct CreateStream",
+      "components": [
+        {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "sender",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "sender_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "deposit",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "stream_size",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "start_time",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "stop_time",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 16,
+      "type": "struct Deposit",
+      "components": [
+        {
+          "name": "caller",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        },
+        {
+          "name": "deposited_amount",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "minted_shares",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 17,
+      "type": "struct RawBytes",
+      "components": [
+        {
+          "name": "ptr",
+          "type": 9,
+          "typeArguments": null
+        },
+        {
+          "name": "cap",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 18,
+      "type": "struct Stream",
+      "components": [
+        {
+          "name": "deposit",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "rate_per_second_e_10",
+          "type": 23,
+          "typeArguments": null
+        },
+        {
+          "name": "stream_size",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "vested_withdrawn_amount",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "start_time",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "stop_time",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "sender_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "cancellation_time",
+          "type": 6,
+          "typeArguments": [
+            {
+              "name": "",
+              "type": 24,
+              "typeArguments": null
+            }
+          ]
+        },
+        {
+          "name": "configuration",
+          "type": 19,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 19,
+      "type": "struct StreamConfiguration",
+      "components": [
+        {
+          "name": "is_cancellable",
+          "type": 3,
+          "typeArguments": null
+        },
+        {
+          "name": "is_undercollateralized",
+          "type": 3,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 20,
+      "type": "struct String",
+      "components": [
+        {
+          "name": "bytes",
+          "type": 12,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 21,
+      "type": "struct VaultInfo",
+      "components": [
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        },
+        {
+          "name": "asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "sender_or_receiver",
+          "type": 7,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 22,
+      "type": "struct Withdraw",
+      "components": [
+        {
+          "name": "caller",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        },
+        {
+          "name": "withdrawn_amount",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "burned_shares",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "typeParameters": null
+    },
+    {
+      "typeId": 23,
+      "type": "u256",
+      "components": null,
+      "typeParameters": null
+    },
+    {
+      "typeId": 24,
+      "type": "u64",
+      "components": null,
+      "typeParameters": null
+    },
+    {
+      "typeId": 25,
+      "type": "u8",
+      "components": null,
+      "typeParameters": null
+    }
+  ],
+  "functions": [
+    {
+      "inputs": [
+        {
+          "name": "unvested_recipient",
+          "type": 5,
+          "typeArguments": null
+        }
+      ],
+      "name": "cancel_stream",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Cancel a stream and return the unvested balance to the sender"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Only callable by providing one sender share asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the amount of shares that have be withdrawn from a given vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `unvested_recipient` - The contract or account that will receive the unvested tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - Must be one to verify ownership of the sender share asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The sender share asset"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "sender_share_recipient",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "receiver_share_recipient",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "start_time",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "stop_time",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "stream_size",
+          "type": 24,
+          "typeArguments": null
+        },
+        {
+          "name": "configuration",
+          "type": 19,
+          "typeArguments": null
+        }
+      ],
+      "name": "create_stream",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Create a new stream"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the id of the new stream"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " The underlying asset is received"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " A new stream is created"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Two new vaults are created, one for the sender and one for the receiver"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " The sender and receiver share assets are minted and sent to the sender and receiver respectively"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `sender_share_recipient` - The contract or account that will receive the sender share tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver_share_recipient` - The contract or account that will receive the receiver share tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `start_time` - The time at which the stream will start"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `stop_time` - The time at which the stream will stop"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `stream_size` - The total amount of assets to be distributed over the period"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `configuration` - Variables determining if a stream is cancellable or not"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - The amount of the underlying asset to be deposited"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The underlying asset"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "name": "get_stream",
+      "output": {
+        "name": "",
+        "type": 18,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the details of a stream by it's id"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `stream_id` - The id of the stream"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "vault_share_asset_id",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "get_stream_by_vault_share_id",
+      "output": {
+        "name": "",
+        "type": 1,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the details of a stream by it's share asset id and the stream id"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_share_asset_id` - The share asset id of the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "share_asset_id",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "get_vault_info",
+      "output": {
+        "name": "",
+        "type": 21,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the details of a vault by it's share asset id"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_share_asset_id` - The share asset id of the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "name": "is_solvent",
+      "output": {
+        "name": "",
+        "type": 3,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "amount",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "name": "partial_withdraw_from_stream",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Withdraw a certain amount from a specific stream"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Only callable by providing one receiver share asset "
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the amount of shares that have be withdrawn from a given vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver` - The contract or account that will receive the withdrawn tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - The amount of shares to be withdrawn"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " "
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - Must be one to verify ownership of the receiver share asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The receiver share asset"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "vault_share_asset",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "underlying_asset",
+      "output": {
+        "name": "",
+        "type": 11,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the underlying asset of a given vault by its share asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_share_asset` - The share asset id of the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "stream_id",
+          "type": 24,
+          "typeArguments": null
+        }
+      ],
+      "name": "vested_amount",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "_asset",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "decimals",
+      "output": {
+        "name": "",
+        "type": 6,
+        "typeArguments": [
+          {
+            "name": "",
+            "type": 25,
+            "typeArguments": null
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns 0 for the number of decimals for any asset as they are all NFTs"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "name",
+      "output": {
+        "name": "",
+        "type": 6,
+        "typeArguments": [
+          {
+            "name": "",
+            "type": 20,
+            "typeArguments": null
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the name of a given asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "symbol",
+      "output": {
+        "name": "",
+        "type": 6,
+        "typeArguments": [
+          {
+            "name": "",
+            "type": 20,
+            "typeArguments": null
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the symbol of a given asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "total_assets",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the total number of different assets minted by the contract"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset",
+          "type": 11,
+          "typeArguments": null
+        }
+      ],
+      "name": "total_supply",
+      "output": {
+        "name": "",
+        "type": 6,
+        "typeArguments": [
+          {
+            "name": "",
+            "type": 24,
+            "typeArguments": null
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the total supply of a given asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "name": "deposit",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Deposits are blocked in this contract"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Thus this is a function defined to comply with SRC-6 but it will always throw an error"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "_underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "name": "managed_assets",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the balance of a given vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " If the vault is a sender, the balance is the remaining unvested balance that can be withdrawn on cancellation"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " If the vault is a receiver, the balance is the remaining vested balance that can be withdrawn"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " "
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "_receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "_underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "name": "max_depositable",
+      "output": {
+        "name": "",
+        "type": 6,
+        "typeArguments": [
+          {
+            "name": "",
+            "type": 24,
+            "typeArguments": null
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the maximum depositable amount for a given vault and receiver of share assets"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " In V1 this deposits are disabled so this function will always return 0"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " It is implemented to comply with the SRC-6 standard"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver` - The contract or account that will receive the deposited tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "_underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "name": "max_withdrawable",
+      "output": {
+        "name": "",
+        "type": 6,
+        "typeArguments": [
+          {
+            "name": "",
+            "type": 24,
+            "typeArguments": null
+          }
+        ]
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the maximum withdrawable amount for a given vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " This differs from the managed_assets"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [
+        {
+          "name": "receiver",
+          "type": 5,
+          "typeArguments": null
+        },
+        {
+          "name": "_underlying_asset",
+          "type": 11,
+          "typeArguments": null
+        },
+        {
+          "name": "_vault_sub_id",
+          "type": 2,
+          "typeArguments": null
+        }
+      ],
+      "name": "withdraw",
+      "output": {
+        "name": "",
+        "type": 24,
+        "typeArguments": null
+      },
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Withdraw from the stream"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Calling this with a sender share asset will cancel the stream and return unvested tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Calling this with a receiver share asset will withdraw the full amount of vested tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " "
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver` - The contract or account that will receive the withdrawn tokens"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - Must be one to verify ownership of the receiver or sender share asset"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The receiver or sender share asset"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    }
+  ],
+  "loggedTypes": [
+    {
+      "logId": "5432468599230875534",
+      "loggedType": {
+        "name": "",
+        "type": 4,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "6674994989715820820",
+      "loggedType": {
+        "name": "",
+        "type": 13,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "7130535457264345996",
+      "loggedType": {
+        "name": "",
+        "type": 22,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "13151976532709238696",
+      "loggedType": {
+        "name": "",
+        "type": 16,
+        "typeArguments": []
+      }
+    },
+    {
+      "logId": "6901066102973855336",
+      "loggedType": {
+        "name": "",
+        "type": 15,
+        "typeArguments": []
+      }
+    }
+  ],
+  "messagesTypes": [],
+  "configurables": []
+}

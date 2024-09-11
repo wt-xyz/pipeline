@@ -63,7 +63,7 @@ export const buildFieldArray = (
     {
       label: "Rate per Day",
       value: new Decimal(
-        parseDecimalsBN(stream.rate_per_second_e_10)
+        parseDecimalsBN(new BN(stream.rate_per_second_e_10))
           .mul(SECONDS_PER_DAY)
           .toString(),
       )
