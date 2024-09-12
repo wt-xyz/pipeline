@@ -1,24 +1,16 @@
-import { AbstractAddress, BN, CoinQuantity } from "fuels";
+import { AbstractAddress, BN } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
 import { compact, isEqual, uniqBy } from "lodash";
-import { TokenStreamingAbi } from "../../types";
-import {
-  AssetIdInput,
-  StreamOutput,
-} from "../../types/contracts/TokenStreamingAbi";
+import { TokenStreaming } from "../../types";
+import { AssetIdInput, StreamOutput } from "../../types/TokenStreaming";
 import { setStreams } from "@/redux/streamsSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { selectAllCoins, CoinQuantityWithId } from "@/redux/coinsSlice";
 import { selectAllStreams } from "@/redux/streamsSlice";
-import { StreamSerializable } from "@/redux/streamsSlice";
 
-const getStream = async (
-  tokenContract: TokenStreamingAbi,
-  shareToken: string,
-) => {
+const getStream = async (tokenContract: TokenStreaming, shareToken: string) => {
   try {
     const response = await tokenContract?.functions
       .get_stream_by_vault_share_id({ bits: shareToken })
@@ -32,10 +24,10 @@ const getStream = async (
 export type Stream = StreamOutput & { id: string };
 
 const getStreamResponses = async (
-  tokenContract: TokenStreamingAbi | undefined,
+  tokenContract: TokenStreaming | undefined,
   coins: CoinQuantityWithId[],
-) => {
-  if (!tokenContract || coins.length === 0) return;
+): Promise<Stream[]> => {
+  if (!tokenContract || coins.length === 0) return [];
 
   const streams = uniqBy(
     compact(
@@ -50,20 +42,13 @@ const getStreamResponses = async (
               return {
                 ...stream[0],
                 id: stream[1].toString(),
-                deposit: stream[0].deposit.toString(),
-                rate_per_second_e_10: stream[0].rate_per_second_e_10.toString(),
-                stream_size: stream[0].stream_size.toString(),
-                vested_withdrawn_amount:
-                  stream[0].vested_withdrawn_amount.toString(),
-                start_time: stream[0].start_time.toString(),
-                stop_time: stream[0].stop_time.toString(),
-              } as StreamSerializable;
+              };
             }
 
             return undefined;
           }),
       ),
-    ) as StreamSerializable[],
+    ),
     "id",
   );
 
@@ -94,7 +79,7 @@ export const useRefreshStreams = (
 
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
-): StreamSerializable[] | undefined => {
+): void => {
   const tokenContract = useTokenStreamingAbi(contractId);
   const coins = useSelector(selectAllCoins);
   // console.log("coins - ", coins);
@@ -114,10 +99,6 @@ export const useFetchStreams = (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coins]);
-
-  console.log("globalStreams - ", globalStreams);
-
-  return globalStreams;
 };
 
 export const isUserOwnerOfSenderAsset = (

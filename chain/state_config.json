@@ -1,7 +1,7 @@
 {
   "coins": [
     {
-      "tx_id": "0x260eabfd50937e92939fd92687e9302a72e91c5065f64f853f2ccbe02396fe09d665",
+      "tx_id": "0x260eabfd50937e92939fd92687e9302a72e91c5065f64f853f2ccbe02396fe09",
       "output_index": 0,
       "tx_pointer_block_height": 0,
       "tx_pointer_tx_idx": 0,
@@ -10,7 +10,7 @@
       "asset_id": "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07"
     },
     {
-      "tx_id": "0x2a757c2317236f7883ac9bbbf7d402f034e0b725c544ef1c8725b1d2bd960f8c690f",
+      "tx_id": "0x2a757c2317236f7883ac9bbbf7d402f034e0b725c544ef1c8725b1d2bd960f8c",
       "output_index": 0,
       "tx_pointer_block_height": 0,
       "tx_pointer_tx_idx": 0,
@@ -19,7 +19,7 @@
       "asset_id": "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07"
     },
     {
-      "tx_id": "0x634ef6cda00bac63992bbde80c6d694d484d58025a5ca0c9c848f0d35a5a3eee74b2",
+      "tx_id": "0x634ef6cda00bac63992bbde80c6d694d484d58025a5ca0c9c848f0d35a5a3eee",
       "output_index": 0,
       "tx_pointer_block_height": 0,
       "tx_pointer_tx_idx": 0,
@@ -28,7 +28,7 @@
       "asset_id": "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07"
     },
     {
-      "tx_id": "0xd3543bb1da137a7987a96a1bb71681fdd195ff25318c0d4a923aa30eb27ffa80bc7b",
+      "tx_id": "0xd3543bb1da137a7987a96a1bb71681fdd195ff25318c0d4a923aa30eb27ffa80",
       "output_index": 0,
       "tx_pointer_block_height": 0,
       "tx_pointer_tx_idx": 0,
@@ -37,7 +37,7 @@
       "asset_id": "0xf8f8b6283d7fa5b672b530cbb84fcccb4ff8dc40f8176ef4544ddb1f1952ad07"
     },
     {
-      "tx_id": "0x00000000000000000000000000000000000000000000000000000000000000000001",
+      "tx_id": "0x0000000000000000000000000000000000000000000000000000000000000001",
       "output_index": 0,
       "tx_pointer_block_height": 0,
       "tx_pointer_tx_idx": 0,

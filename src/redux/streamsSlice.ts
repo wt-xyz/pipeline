@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 import { Stream } from "@/hooks/Streams";
 import { RootState } from "./store";
+import { BN } from "fuels";
 
 // Define a type that converts BN properties to strings
 export type StreamSerializable = Omit<
@@ -30,48 +31,45 @@ const streamsAdapter = createEntityAdapter<StreamSerializable>();
 // Define the initial state using the entity adapter's getInitialState method
 const initialState = streamsAdapter.getInitialState();
 
+const serializeStream = (stream: Stream): StreamSerializable => ({
+  ...stream,
+  deposit: stream.deposit.toString(),
+  rate_per_second_e_10: stream.rate_per_second_e_10.toString(),
+  stream_size: stream.stream_size.toString(),
+  vested_withdrawn_amount: stream.vested_withdrawn_amount.toString(),
+  start_time: stream.start_time.toString(),
+  stop_time: stream.stop_time.toString(),
+});
+
+// Function to convert StreamSerializable back to Stream
+export const deserializeStream = (stream: StreamSerializable): Stream => {
+  return {
+    ...stream,
+    deposit: new BN(stream.deposit),
+    rate_per_second_e_10: new BN(stream.rate_per_second_e_10),
+    stream_size: new BN(stream.stream_size),
+    vested_withdrawn_amount: new BN(stream.vested_withdrawn_amount),
+    start_time: new BN(stream.start_time),
+    stop_time: new BN(stream.stop_time),
+  };
+};
+
 // Create the slice
 export const slice = createSlice({
   name: "streams",
   initialState,
   reducers: {
-    setStreams: (state, action: PayloadAction<StreamSerializable[]>) => {
+    setStreams: (state, action: PayloadAction<Stream[]>) => {
       // Convert BN properties to strings
-      const serializableStreams = action.payload.map((stream) => ({
-        ...stream,
-        deposit: stream.deposit.toString(),
-        rate_per_second_e_10: stream.rate_per_second_e_10.toString(),
-        stream_size: stream.stream_size.toString(),
-        vested_withdrawn_amount: stream.vested_withdrawn_amount.toString(),
-        start_time: stream.start_time.toString(),
-        stop_time: stream.stop_time.toString(),
-      }));
+      const serializableStreams = action.payload.map(serializeStream);
       streamsAdapter.setAll(state, serializableStreams);
     },
     addStream: (state, action: PayloadAction<Stream>) => {
-      const serializableStream = {
-        ...action.payload,
-        deposit: action.payload.deposit.toString(),
-        rate_per_second_e_10: action.payload.rate_per_second_e_10.toString(),
-        stream_size: action.payload.stream_size.toString(),
-        vested_withdrawn_amount:
-          action.payload.vested_withdrawn_amount.toString(),
-        start_time: action.payload.start_time.toString(),
-        stop_time: action.payload.stop_time.toString(),
-      };
+      const serializableStream = serializeStream(action.payload);
       streamsAdapter.addOne(state, serializableStream);
     },
     updateStream: (state, action: PayloadAction<Stream>) => {
-      const serializableStream = {
-        ...action.payload,
-        deposit: action.payload.deposit.toString(),
-        rate_per_second_e_10: action.payload.rate_per_second_e_10.toString(),
-        stream_size: action.payload.stream_size.toString(),
-        vested_withdrawn_amount:
-          action.payload.vested_withdrawn_amount.toString(),
-        start_time: action.payload.start_time.toString(),
-        stop_time: action.payload.stop_time.toString(),
-      };
+      const serializableStream = serializeStream(action.payload);
       streamsAdapter.updateOne(state, {
         id: action.payload.id,
         changes: serializableStream,

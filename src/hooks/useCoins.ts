@@ -1,12 +1,12 @@
 import { useWallet } from "@fuels/react";
 import { useCallback, useEffect, useState } from "react";
 import { Account, BN, CoinQuantity } from "fuels";
-import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
+import { TokenStreaming } from "../../types";
 import {
   DEFAULT_SUB_ID,
   TOKEN_STREAMING_CONTRACT_ID,
 } from "@/constants/constants";
-import { Option } from "../../types/contracts/common";
+import { Option } from "../../types/common";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCoins,
@@ -23,7 +23,7 @@ const fetchCoins = async (
     return;
   }
   console.log("wallet is defined", wallet);
-  return wallet.getBalances();
+  return (await wallet.getBalances()).balances;
 };
 
 export const useRefreshCoins = () => {
@@ -80,7 +80,7 @@ export const useStreamTokenInfo = (
   const wallet = useWallet();
 
   const streamingContract = wallet.wallet
-    ? TokenStreamingAbi__factory.connect(contractAddress, wallet.wallet)
+    ? new TokenStreaming(contractAddress, wallet.wallet)
     : undefined;
   // TODO: enable this and debug
   useEffect(() => {
@@ -111,10 +111,7 @@ export const useCoinsWithInfo = () => {
 
     Promise.all(
       coins.map(async (coin) => {
-        const tokenContract = TokenStreamingAbi__factory.connect(
-          coin.assetId,
-          provider,
-        );
+        const tokenContract = new TokenStreaming(coin.assetId, provider);
         return {
           ...(await getCoinInfo(tokenContract)),
           amount: coin.amount,
@@ -153,7 +150,7 @@ export const useCoinsWithInfo = () => {
 // };
 
 export const useCoinInfo = (
-  tokenContract: TokenStreamingAbi | undefined,
+  tokenContract: TokenStreaming | undefined,
 ): CoinInfo | undefined => {
   const [coinInfo, setCoinInfo] = useState<CoinInfo | undefined>(undefined);
 
@@ -169,7 +166,7 @@ export const useCoinInfo = (
 
 // The symbol, name, and decimals would not take a vaule argument in that case
 export const getCoinInfo = async (
-  tokenContract: TokenStreamingAbi,
+  tokenContract: TokenStreaming,
   subId: string = DEFAULT_SUB_ID,
 ): Promise<CoinInfo> => {
   const symbol = tokenContract.functions
