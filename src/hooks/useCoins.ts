@@ -1,5 +1,5 @@
 import { useWallet } from "@fuels/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Account, BN, CoinQuantity } from "fuels";
 import { TokenStreaming } from "../../types";
 import {
@@ -8,12 +8,7 @@ import {
 } from "@/constants/constants";
 import { Option } from "../../types/common";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setCoins,
-  CoinQuantityWithId,
-  selectAllCoins,
-} from "@/redux/coinsSlice";
-import { RootState } from "@/redux/store";
+import { setCoins, selectAllCoins } from "@/redux/coinsSlice";
 
 const fetchCoins = async (
   wallet: Account | null | undefined,
@@ -35,7 +30,7 @@ export const useRefreshCoins = () => {
         dispatch(setCoins(fetchedCoins));
       }
     });
-  }, [setCoins, wallet.wallet]);
+  }, [wallet.wallet, dispatch]);
 };
 
 export const useFetchCoins = () => {
@@ -46,12 +41,10 @@ export const useFetchCoins = () => {
   useEffect(() => {
     fetchCoins(wallet.wallet).then((fetchedCoins) => {
       if (fetchedCoins != undefined) {
-        // console.log("fetchedCoins - ", fetchedCoins);
         dispatch(setCoins(fetchedCoins));
       }
     });
-    // console.log('coins - ', coins);
-  }, [setCoins, wallet.wallet]);
+  }, [wallet.wallet, dispatch]);
 
   return coins;
 };
@@ -78,9 +71,13 @@ export const useStreamTokenInfo = (
 
   const wallet = useWallet();
 
-  const streamingContract = wallet.wallet
-    ? new TokenStreaming(contractAddress, wallet.wallet)
-    : undefined;
+  const streamingContract = useMemo(
+    () =>
+      wallet.wallet
+        ? new TokenStreaming(contractAddress, wallet.wallet)
+        : undefined,
+    [wallet.wallet, contractAddress],
+  );
   // TODO: enable this and debug
   useEffect(() => {
     if (!streamingContract) return;
@@ -99,8 +96,8 @@ export const useStreamTokenInfo = (
  */
 export const useCoinsWithInfo = () => {
   const coins = useSelector(selectAllCoins);
-  let coinsWithInfo = null;
   const wallet = useWallet();
+  const [coinsWithInfo, setCoinsWithInfo] = useState<CoinWithInfo[]>([]);
 
   useEffect(() => {
     const provider = wallet.wallet?.provider;
@@ -118,7 +115,12 @@ export const useCoinsWithInfo = () => {
         };
       }),
     ).then((result) => {
-      coinsWithInfo = result;
+      setCoinsWithInfo(
+        result.map((coin) => ({
+          ...coin,
+          amount: new BN(coin.amount),
+        })),
+      );
     });
   }, [coins, wallet]);
 

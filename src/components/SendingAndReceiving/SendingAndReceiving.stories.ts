@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { SendingAndReceiving } from "components/SendingAndRecieving/SendingAndReceiving";
+import { SendingAndReceiving } from "components/SendingAndReceiving/SendingAndReceiving";
 
 const meta = {
   title: "Components/SendingAndReceiving",

@@ -1,19 +1,21 @@
 import { useConnectUI, useAccount } from "@fuels/react";
 import { WalletView } from "./WalletView";
 import { useDisclosure } from "@mantine/hooks";
-import { Modal, Button, TextInput } from "@mantine/core";
-import { useEffect } from "react";
+import { Modal, Button, Flex } from "@mantine/core";
+import { useEffect, useState } from "react";
 
 export const Wallet = () => {
   const { connect, isConnecting, isLoading, isError, error } = useConnectUI();
   const { account } = useAccount();
   const [opened, { open, close }] = useDisclosure(false);
-  // console.log("status", status);
-  // const { connectAsync, isError, isLoading, error, status } = useConnect();
-  // const { isConnected } = useIsConnected();
 
+  // delay checking if wallet is connected for .5 second to allow the wallet to connect
   useEffect(() => {
-    !!account === false ? open() : close();
+    const timer = setTimeout(() => {
+      !!account === false ? open() : close();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, [account]);
 
   return (
@@ -29,13 +31,16 @@ export const Wallet = () => {
 
       <Modal
         opened={opened}
-        onClose={() => {
-          /* no-op */
-        }}
         title="Connect wallet"
         centered
+        onClose={() => {
+          // noop
+        }}
+        withCloseButton={false}
       >
-        <Button onClick={connect}>Connect Wallet</Button>
+        <Flex justify="center" align="center" p="xl">
+          <Button onClick={connect}>Connect Wallet</Button>
+        </Flex>
       </Modal>
     </>
   );
