@@ -1,28 +1,29 @@
-import { atom, useRecoilValue } from "recoil";
 import { Container, Flex } from "@mantine/core";
 import { ReactElement } from "react";
 import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
 import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccordionItem";
 import { TextLg } from "components/TextVariants";
-import { Stream, useReceiverStreams, useSenderStreams } from "hooks/Streams";
-import {
-  SendingAndReceiving,
-  sendingOrReceivingAtom,
-} from "components/SendingAndRecieving/SendingAndReceiving";
+import { useReceiverStreams, useSenderStreams } from "hooks/Streams";
+import { SendingAndReceiving } from "components/SendingAndRecieving/SendingAndReceiving";
 import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
-
-export const globalStreams = atom({
-  key: "globalStreams",
-  default: [] as Stream[],
-});
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import {
+  deserializeStream,
+  selectAllStreams,
+  StreamSerializable,
+} from "@/redux/streamsSlice";
 
 export const ManagePage = () => {
-  const streams = useRecoilValue(globalStreams);
+  const streams = useSelector(selectAllStreams);
   const sendingStreams = useSenderStreams();
   const receiverStreams = useReceiverStreams();
-  const sendingOrReceiving = useRecoilValue(sendingOrReceivingAtom);
+  const sendingOrReceiving = useSelector(
+    (state: RootState) => state.sendingOrReceiving.sendingOrReceiving,
+  );
   const isSending = sendingOrReceiving === "sending";
+
   const isMobile = useIsMobile();
 
   return (
@@ -39,14 +40,16 @@ export const ManagePage = () => {
           <CustomAccordion py={"xxl"}>
             {
               (isSending ? sendingStreams : receiverStreams)?.map(
-                (stream: Stream) => {
+                (stream: StreamSerializable) => {
+                  const convertedStream = deserializeStream(stream);
+
                   return (
                     <StreamAccordionItem
                       value={stream.sender_asset.bits}
-                      key={stream.streamId}
+                      key={stream.id}
                       isUserSender={isSending}
-                      stream={stream}
-                      streamId={stream.streamId}
+                      stream={convertedStream}
+                      streamId={stream.id}
                     />
                   );
                 },

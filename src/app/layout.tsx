@@ -7,7 +7,6 @@ import {
 } from "@fuels/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import { RecoilRoot } from "recoil";
 import { AppShell, ColorSchemeScript, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
@@ -19,7 +18,9 @@ import { Notifications } from "@mantine/notifications";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Header } from "@/components/Header/Header";
 import { useFetchStreams } from "hooks/Streams";
-import { useFetchCoins } from "hooks/useCoins";
+import { useFetchCoins } from "@/hooks/useCoins";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,10 +49,12 @@ export default function RootLayout({
             }}
           >
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
-              <RecoilRoot>
+              {/* <RecoilRoot> */}
+              <Provider store={store}>
                 <Notifications position="top-left" containerWidth="600px" />
                 <AppShellLayout>{children}</AppShellLayout>
-              </RecoilRoot>
+              </Provider>
+              {/* </RecoilRoot> */}
             </MantineProvider>
           </FuelProvider>
         </QueryClientProvider>

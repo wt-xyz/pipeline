@@ -3,36 +3,34 @@ import {
   BN,
   BigNumberish,
   BytesLike,
-  FunctionInvocationResult,
-  InvocationCallResult,
+  FunctionResult,
   sha256,
+  DryRunResult,
 } from "fuels";
-import { TokenStreamingAbi, TokenStreamingAbi__factory } from "../../types";
+import { TokenStreaming } from "../../types";
 import { useWallet } from "@fuels/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import {
-  parseDecimals,
-  stringAddressesToIdentityInputs,
-} from "@/utils/formatUtils";
+import { stringAddressesToIdentityInputs } from "@/utils/formatUtils";
 import {
   StreamConfigurationInput,
   StreamOutput,
   VaultInfoOutput,
-} from "../../types/contracts/TokenStreamingAbi";
+} from "../../types/TokenStreaming";
 import { Stream } from "./Streams";
 
 // TODO: change readonly interactions to simulate instead of call
 export const useTokenStreamingAbi = (
   contractId: AbstractAddress | string,
-): TokenStreamingAbi | undefined => {
+): TokenStreaming | undefined => {
   const wallet = useWallet();
 
   return useMemo(() => {
     if (!wallet.wallet) {
       return;
     }
-    return TokenStreamingAbi__factory.connect(contractId, wallet.wallet);
+
+    return new TokenStreaming(contractId, wallet.wallet);
   }, [contractId, wallet.wallet]);
 };
 
@@ -64,26 +62,28 @@ export const useCreateStream = (
         ]);
       if (!wallet.wallet?.provider) return;
       setIsLoading(true);
-      const response = await tokenContract?.functions
-        .create_stream(
-          senderShareRecipient,
-          receiverShareRecipient,
-          startTime,
-          stopTime,
-          streamSize,
-          configuration,
-        )
-        .callParams({
-          forward: [amount, token],
-        })
-        .txParams({
-          gasLimit: 1000000,
-          variableOutputs: 2,
-        })
-        .call()
-        .catch((e: Error) => {
-          setError(e.message);
-        });
+      const response = await (
+        await tokenContract?.functions
+          .create_stream(
+            senderShareRecipient,
+            receiverShareRecipient,
+            startTime,
+            stopTime,
+            streamSize,
+            configuration,
+          )
+          .callParams({
+            forward: [amount, token],
+          })
+          .txParams({
+            gasLimit: 1000000,
+            variableOutputs: 2,
+          })
+          .call()
+          .catch((e: Error) => {
+            setError(e.message);
+          })
+      )?.waitForResult();
 
       if (response?.transactionResult.isStatusFailure) {
         setIsLoading(false);
@@ -157,13 +157,15 @@ export const useDepositToStream = (
         return;
       }
 
-      const response = await tokenContract?.functions
-        .deposit(recipientIdentityInput, vaultSubId)
-        .callParams({
-          forward: [amount, stream.underlying_asset.bits],
-        })
-        .txParams({ variableOutputs: 1 })
-        .call();
+      const response = await (
+        await tokenContract?.functions
+          .deposit(recipientIdentityInput, vaultSubId)
+          .callParams({
+            forward: [amount, stream.underlying_asset.bits],
+          })
+          .txParams({ variableOutputs: 1 })
+          .call()
+      )?.waitForResult();
 
       setLoading(false);
 
@@ -206,32 +208,35 @@ export const useWithdrawFromStream = (
         recipientIdentityString,
       ]);
 
-      let response: void | FunctionInvocationResult<BN, void> | undefined =
-        undefined;
+      let response: void | FunctionResult<BN> | undefined = undefined;
 
       if (amount == undefined) {
-        response = await tokenContract?.functions
-          .withdraw(
-            recipientIdentityInput,
-            { bits: underlyingAsset },
-            // This could be any value, used to comply with vault standard
-            "0x0000000000000000000000000000000000000000000000000000000000000000",
-          )
-          .callParams({ forward: [1, shareToken] })
-          .txParams({ variableOutputs: 2 })
-          .call()
-          .catch((e) => {
-            setLoading(false);
-            setError(e.message);
-          });
+        response = await (
+          await tokenContract?.functions
+            .withdraw(
+              recipientIdentityInput,
+              { bits: underlyingAsset },
+              // This could be any value, used to comply with vault standard
+              "0x0000000000000000000000000000000000000000000000000000000000000000",
+            )
+            .callParams({ forward: [1, shareToken] })
+            .txParams({ variableOutputs: 2 })
+            .call()
+            .catch((e) => {
+              setLoading(false);
+              setError(e.message);
+            })
+        )?.waitForResult();
       } else {
         // TODO we need to get the SRC20 decimal value here
 
-        response = await tokenContract?.functions
-          .partial_withdraw_from_stream(recipientIdentityInput, amount)
-          .txParams({ variableOutputs: 2 })
-          .callParams({ forward: [1, shareToken] })
-          .call();
+        response = await (
+          await tokenContract?.functions
+            .partial_withdraw_from_stream(recipientIdentityInput, amount)
+            .txParams({ variableOutputs: 2 })
+            .callParams({ forward: [1, shareToken] })
+            .call()
+        )?.waitForResult();
       }
 
       setLoading(false);
@@ -270,10 +275,12 @@ export const usePartialWithdrawFromStream = (
       setLoading(true);
       const [recipient] = stringAddressesToIdentityInputs([recipientString]);
 
-      const response = await tokenContract?.functions
-        .partial_withdraw_from_stream(recipient, amount)
-        .callParams({ forward: [1, shareToken] })
-        .call();
+      const response = await (
+        await tokenContract?.functions
+          .partial_withdraw_from_stream(recipient, amount)
+          .callParams({ forward: [1, shareToken] })
+          .call()
+      )?.waitForResult();
 
       setLoading(false);
 
@@ -327,7 +334,7 @@ export const useMaxWithdrawable = (
     tokenContract?.functions
       .get_vault_info(stream.receiver_asset)
       .get()
-      .then((vaultInfo: InvocationCallResult<VaultInfoOutput>) => {
+      .then((vaultInfo: DryRunResult<VaultInfoOutput>) => {
         setVaultSubId(vaultInfo.value.vault_sub_id);
       })
       .catch((e) => {
@@ -364,7 +371,7 @@ export const useTotalVested = (
   const [totalVested, setTotalVested] = useState<BN | undefined>();
   useEffect(() => {
     tokenContract?.functions
-      .vested_amount(stream.streamId)
+      .vested_amount(stream.id)
       .get()
       .then((response) => {
         setTotalVested(response?.value);

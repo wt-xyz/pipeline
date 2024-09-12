@@ -1,25 +1,16 @@
-import { AbstractAddress, BN, CoinQuantity } from "fuels";
+import { AbstractAddress, BN } from "fuels";
 import { TOKEN_STREAMING_CONTRACT_ID } from "@/constants/constants";
-import { atom, useRecoilState, useRecoilValue } from "recoil";
 import { useTokenStreamingAbi } from "hooks/TokenStreamingAbi";
 import { useEffect } from "react";
 import { compact, isEqual, uniqBy } from "lodash";
-import { globalCoins } from "hooks/useCoins";
-import { TokenStreamingAbi } from "../../types";
-import {
-  AssetIdInput,
-  StreamOutput,
-} from "../../types/contracts/TokenStreamingAbi";
+import { TokenStreaming } from "../../types";
+import { AssetIdInput, StreamOutput } from "../../types/TokenStreaming";
+import { setStreams } from "@/redux/streamsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectAllCoins, CoinQuantityWithId } from "@/redux/coinsSlice";
+import { selectAllStreams } from "@/redux/streamsSlice";
 
-export const globalStreams = atom({
-  key: "globalStreams",
-  default: [] as Stream[],
-});
-
-const getStream = async (
-  tokenContract: TokenStreamingAbi,
-  shareToken: string,
-) => {
+const getStream = async (tokenContract: TokenStreaming, shareToken: string) => {
   try {
     const response = await tokenContract?.functions
       .get_stream_by_vault_share_id({ bits: shareToken })
@@ -30,45 +21,54 @@ const getStream = async (
   }
 };
 
-export type Stream = StreamOutput & { streamId: string };
+export type Stream = StreamOutput & { id: string };
+
 const getStreamResponses = async (
-  tokenContract: TokenStreamingAbi | undefined,
-  coins: CoinQuantity[],
-) => {
-  if (!tokenContract || coins.length === 0) return;
-  return uniqBy(
+  tokenContract: TokenStreaming | undefined,
+  coins: CoinQuantityWithId[],
+): Promise<Stream[]> => {
+  if (!tokenContract || coins.length === 0) return [];
+
+  const streams = uniqBy(
     compact(
       await Promise.all(
         coins
-          .filter((coin) => coin.amount.eq(new BN(1)))
+          .filter((coin) => new BN(coin.amount).eq(new BN(1)))
           .map(async (coin) => {
             const stream = (await getStream(tokenContract, coin.assetId))
               ?.value;
 
-            return stream
-              ? {
-                  ...stream[0],
-                  streamId: stream[1].toString(),
-                }
-              : undefined;
+            if (stream) {
+              return {
+                ...stream[0],
+                id: stream[1].toString(),
+              };
+            }
+
+            return undefined;
           }),
       ),
-    ) as Stream[],
-    "streamId",
+    ),
+    "id",
   );
+
+  return streams;
 };
 
 export const useRefreshStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
-  const [streams, setStreams] = useRecoilState(globalStreams);
   const tokenContract = useTokenStreamingAbi(contractId);
-  const coins = useRecoilValue(globalCoins);
+  const coins = useSelector(selectAllCoins);
+  const globalStreams = useSelector(selectAllStreams);
+  const dispatch = useDispatch();
 
   const refreshStreams = async () => {
     const newStreams = await getStreamResponses(tokenContract, coins);
-    if (newStreams && !isEqual(newStreams, streams)) {
-      setStreams(newStreams);
+    // console.log("refreshStreams - ", refreshStreams);
+
+    if (newStreams && !isEqual(newStreams, globalStreams)) {
+      dispatch(setStreams(newStreams));
     }
   };
 
@@ -79,53 +79,58 @@ export const useRefreshStreams = (
 
 export const useFetchStreams = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
-): Stream[] | undefined => {
-  const [streams, setStreams] = useRecoilState<Stream[]>(globalStreams);
-  const coins = useRecoilValue(globalCoins);
+): void => {
   const tokenContract = useTokenStreamingAbi(contractId);
+  const coins = useSelector(selectAllCoins);
+  // console.log("coins - ", coins);
+
+  const globalStreams = useSelector(selectAllStreams);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    getStreamResponses(tokenContract, coins).then((responseStreams) => {
-      if (responseStreams && !isEqual(responseStreams, streams)) {
-        setStreams(responseStreams);
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coins, tokenContract]);
+    if (tokenContract && coins.length) {
+      getStreamResponses(tokenContract, coins).then((responseStreams) => {
+        console.log("fetchStreams - ", responseStreams);
 
-  return streams;
+        if (responseStreams && !isEqual(responseStreams, globalStreams)) {
+          dispatch(setStreams(responseStreams));
+        }
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coins]);
 };
 
 export const isUserOwnerOfSenderAsset = (
   senderAsset: AssetIdInput,
-  userCoins: CoinQuantity[],
+  userCoins: CoinQuantityWithId[],
 ) => {
   return !!userCoins.find((coin) => coin.assetId === senderAsset.bits);
 };
 
 export const isUserOwnerOfReceiverAsset = (
   receiverAsset: AssetIdInput,
-  userCoins: CoinQuantity[],
+  userCoins: CoinQuantityWithId[],
 ) => {
   return !!userCoins.find((coin) => coin.assetId === receiverAsset.bits);
 };
 
 // TODO: this should be a recoil selector
 export const useSenderStreams = () => {
-  const streams = useRecoilValue(globalStreams);
-  const coins = useRecoilValue(globalCoins);
+  const globalStreams = useSelector(selectAllStreams);
+  const coins = useSelector(selectAllCoins);
 
-  return streams?.filter((stream) =>
+  return globalStreams?.filter((stream) =>
     isUserOwnerOfSenderAsset(stream.sender_asset, coins),
   );
 };
 
 // TODO: this should be a recoil selector
 export const useReceiverStreams = () => {
-  const streams = useRecoilValue(globalStreams);
-  const coins = useRecoilValue(globalCoins);
+  const globalStreams = useSelector(selectAllStreams);
+  const coins = useSelector(selectAllCoins);
 
-  return streams?.filter((stream) =>
+  return globalStreams?.filter((stream) =>
     isUserOwnerOfReceiverAsset(stream.receiver_asset, coins),
   );
 };

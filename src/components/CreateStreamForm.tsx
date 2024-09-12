@@ -24,11 +24,15 @@ import { BN } from "fuels";
 import Decimal from "decimal.js";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useRouter } from "next/navigation";
-import { useRecoilValue } from "recoil";
 import { IconSettings } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { timezoneAtom, TimezoneModal } from "./TimezoneModal";
+import { TimezoneModal } from "./TimezoneModal";
 import { SECONDS_PER_DAY } from "@/constants/constants";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { Option } from "../../types/contracts/common";
+import { CoinQuantity } from "fuels";
+import { CoinQuantityWithId } from "@/redux/coinsSlice";
 
 type FormValues = {
   token: string;
@@ -53,7 +57,7 @@ export const CreateStreamForm = () => {
   const wallet = useWallet();
   const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
-  const timezone = useRecoilValue(timezoneAtom);
+  const timezone = useSelector((state: RootState) => state.timezone.timezone);
 
   const { createStream, loading, error } = useCreateStream();
   const { showNotification } = useNotificationHook(
@@ -170,7 +174,7 @@ export const CreateStreamForm = () => {
                   </CustomLabelComponent>
                 }
                 placeholder="Pick Token"
-                data={coins.map((coin) => ({
+                data={coins.map((coin: CoinQuantityWithId) => ({
                   label: coin.assetId || "Unknown",
                   // label: coin.symbol || coin.address || 'Unknown', // Fallback to 'Unknown' if symbol is undefined
                   value: coin.assetId.toString(), // Assuming address is the desired value

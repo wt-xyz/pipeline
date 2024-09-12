@@ -33,6 +33,7 @@ import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BigNumberish, BN } from "fuels";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useDisclosure } from "@mantine/hooks";
+import { StreamSerializable } from "@/redux/streamsSlice";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -187,6 +188,7 @@ export const StreamAccordionItem = (props: StreamAccordionItemProps) => {
         : stream.receiver_asset;
 
       withdraw(account, stream.underlying_asset.bits, share_asset.bits, amount);
+
       showWithdrawalNotification();
       refreshStreams();
     },

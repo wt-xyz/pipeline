@@ -8,7 +8,7 @@ export default createConfig({
   privateKey:
     "0xde97d8624a438121b86a1956544bd72ed68cd69f2c99555b08b1e8c51ffd511c",
 
-  onFailure: (error) => {
+  onFailure: (_, error) => {
     if (error.message.includes("not enough coins to fit the target")) {
       console.log("Running 'yarn fuels deploy'...");
       execSync("yarn fuels deploy");

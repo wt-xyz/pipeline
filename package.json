@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "typegen": "yarn fuels typegen -i ./contracts/out/debug/**-abi.json -o ./types",
+    "typegen": "yarn fuels typegen -i ./contracts/**/out/debug/**-abi.json -o ./types",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -23,13 +23,15 @@
     "@mantine/form": "^7.8.1",
     "@mantine/hooks": "^7.8.1",
     "@mantine/notifications": "^7.9.2",
+    "@reduxjs/toolkit": "^2.2.7",
     "@tabler/icons-react": "^3.2.0",
     "@tanstack/react-query": "5.28.9",
     "dayjs": "^1.11.10",
-    "fuels": "^0.88.1",
+    "fuels": "^0.94.5",
     "next": "14.2.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-redux": "^9.1.2",
     "recoil": "^0.7.7"
   },
   "devDependencies": {

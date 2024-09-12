@@ -36,7 +36,7 @@ const streamReal: Stream = {
     is_cancellable: true,
     is_undercollateralized: false,
   },
-  streamId: "0",
+  id: "0",
   cancellation_time: undefined,
 };
 
@@ -60,7 +60,7 @@ const streamInsolvent: Stream = {
     is_cancellable: true,
     is_undercollateralized: true,
   },
-  streamId: "2",
+  id: "2",
   cancellation_time: undefined,
 };
 
@@ -105,7 +105,7 @@ export const Default = () => {
       onCancel={() => setIsCancelling(true)}
       stream={streamReal}
       isUserSender={isUserSender}
-      streamId={streamReal.streamId}
+      streamId={streamReal.id}
       toggle={() => setIsOpen(!isOpen)}
       onTopUp={() => setIsTopUp(true)}
       stats={{
@@ -130,7 +130,7 @@ export const WithCustomAccordion = () => {
         isCancelling={isCancelling1}
         onCancel={() => setIsCancelling1(true)}
         isUserSender={isUserSender}
-        streamId={streamReal.streamId}
+        streamId={streamReal.id}
         onTopUp={() => setIsTopUp(true)}
         stats={{
           maxWithdrawable: new BN("0x1ca35f0e00"),
@@ -143,7 +143,7 @@ export const WithCustomAccordion = () => {
         isCancelling={isCancelling2}
         onCancel={() => setIsCancelling2(true)}
         isUserSender={isUserSender}
-        streamId={streamReal.streamId}
+        streamId={streamReal.id}
         onTopUp={() => setIsTopUp(true)}
         stats={{
           maxWithdrawable: new BN("0x1ca35f0e00"),
@@ -169,7 +169,7 @@ export const Insolvent = () => {
       isUserSender={isUserSender}
       isCancelling={isCancelling}
       onCancel={() => setIsCancelling(true)}
-      streamId={streamInsolvent.streamId}
+      streamId={streamInsolvent.id}
       toggle={() => setIsOpen(!isOpen)}
       onTopUp={() => setIsTopUp(true)}
       stats={{
