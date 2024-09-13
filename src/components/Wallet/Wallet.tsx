@@ -2,7 +2,7 @@ import { useConnectUI, useAccount } from "@fuels/react";
 import { WalletView } from "./WalletView";
 import { useDisclosure } from "@mantine/hooks";
 import { Modal, Button, Flex } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export const Wallet = () => {
   const { connect, isConnecting, isLoading, isError, error } = useConnectUI();

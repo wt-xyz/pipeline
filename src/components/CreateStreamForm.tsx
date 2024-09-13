@@ -20,7 +20,7 @@ import { useCreateStream } from "@/hooks/TokenStreamingAbi";
 import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
 import { useConnectUI, useWallet } from "@fuels/react";
-import { AssetId, BN } from "fuels";
+import { BN } from "fuels";
 import Decimal from "decimal.js";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useRouter } from "next/navigation";

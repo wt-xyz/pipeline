@@ -4,7 +4,6 @@ import {
   BigNumberish,
   BytesLike,
   FunctionResult,
-  sha256,
   DryRunResult,
 } from "fuels";
 import { TokenStreaming } from "../../types";
@@ -103,17 +102,6 @@ export const useCreateStream = (
   return { createStream, loading, error, data };
 };
 
-// Take this string value, it is a decimal value. It needs to be converted to a u64 value
-// Then take the sha256 hash of that value
-const getVaultSubId = (streamId: string, role: "sender" | "receiver") => {
-  const streamIdBn = new BN(streamId, 10);
-  const preImage = role === "sender" ? streamIdBn.add(new BN(1)) : streamIdBn;
-  // convert preImage to u64 bytes
-  const preImageBytes = preImage.toBytes(16);
-  console.log({ preImageBytes });
-  return sha256(preImageBytes);
-};
-
 export const useDepositToStream = (
   contractId: AbstractAddress | string = TOKEN_STREAMING_CONTRACT_ID,
 ) => {
@@ -131,25 +119,9 @@ export const useDepositToStream = (
         recipient,
       ]);
 
-      console.log("before get_vault_info");
-      console.log({ stream });
-      try {
-        const vaultSubIdPromise = tokenContract?.functions
-          .get_vault_info(stream.sender_asset)
-          .get();
-      } catch (e) {
-        console.error(e);
-        setLoading(false);
-        setError("Vault not found");
-        return;
-      }
-
-      console.log("after get_vault_info");
-
       const vaultSubId = (
         await tokenContract?.functions.get_vault_info(stream.sender_asset).get()
       )?.value.vault_sub_id;
-      console.log("after get_vault_info");
 
       if (!vaultSubId) {
         setLoading(false);

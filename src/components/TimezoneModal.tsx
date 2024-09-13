@@ -1,13 +1,7 @@
 import { Modal, Select } from "@mantine/core";
-import { atom, useRecoilState } from "recoil";
 import { useDispatch, useSelector } from "react-redux";
 import { setTimezone } from "@/redux/timezoneSlice";
 import { RootState } from "@/redux/store";
-
-export const timezoneAtom = atom<string | undefined>({
-  key: "timezone",
-  default: Intl.DateTimeFormat().resolvedOptions().timeZone,
-});
 
 export const TimezoneModal = ({
   opened,

@@ -31,7 +31,7 @@ export const Primary = () => {
         label={"second Item"}
       />
       <>
-        {items.map((item, index) => (
+        {items.map((_, index) => (
           <CustomAccordionItem
             key={index}
             value={`sm${index}`}
