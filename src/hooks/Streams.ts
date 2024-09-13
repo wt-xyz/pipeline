@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { compact, isEqual, uniqBy } from "lodash";
 import { TokenStreaming } from "../../types";
 import { AssetIdInput, StreamOutput } from "../../types/TokenStreaming";
-import { setStreams } from "@/redux/streamsSlice";
+import { serializeStream, setStreams } from "@/redux/streamsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllCoins, CoinQuantityWithId } from "@/redux/coinsSlice";
 import { selectAllStreams } from "@/redux/streamsSlice";
@@ -68,7 +68,7 @@ export const useRefreshStreams = (
     // console.log("refreshStreams - ", refreshStreams);
 
     if (newStreams && !isEqual(newStreams, globalStreams)) {
-      dispatch(setStreams(newStreams));
+      dispatch(setStreams(newStreams.map(serializeStream)));
     }
   };
 
@@ -90,10 +90,8 @@ export const useFetchStreams = (
   useEffect(() => {
     if (tokenContract && coins.length) {
       getStreamResponses(tokenContract, coins).then((responseStreams) => {
-        console.log("fetchStreams - ", responseStreams);
-
         if (responseStreams && !isEqual(responseStreams, globalStreams)) {
-          dispatch(setStreams(responseStreams));
+          dispatch(setStreams(responseStreams.map(serializeStream)));
         }
       });
     }

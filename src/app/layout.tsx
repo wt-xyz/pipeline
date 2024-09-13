@@ -1,10 +1,6 @@
 "use client";
 import { FuelProvider } from "@fuels/react";
-import {
-  FuelWalletConnector,
-  FuelWalletDevelopmentConnector,
-  FueletWalletConnector,
-} from "@fuels/connectors";
+import { defaultConnectors } from "@fuels/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AppShell, ColorSchemeScript, MantineProvider } from "@mantine/core";
@@ -23,6 +19,7 @@ import { Provider } from "react-redux";
 import { store } from "@/redux/store";
 
 const inter = Inter({ subsets: ["latin"] });
+const fuelsConfig = defaultConnectors({ devMode: true });
 
 export default function RootLayout({
   children,
@@ -39,15 +36,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <QueryClientProvider client={queryClient}>
-          <FuelProvider
-            fuelConfig={{
-              connectors: [
-                new FuelWalletConnector(),
-                new FuelWalletDevelopmentConnector(),
-                new FueletWalletConnector(),
-              ],
-            }}
-          >
+          <FuelProvider fuelConfig={{ connectors: fuelsConfig }}>
             <MantineProvider defaultColorScheme={"dark"} theme={theme}>
               {/* <RecoilRoot> */}
               <Provider store={store}>
