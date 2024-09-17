@@ -1,10 +1,21 @@
-// enum for the different types of vesting curves
-enum VestingCurve {
-    Linear {
-        start_time: u64,
-        end_time: u64,
-    },
-    PiecewiseLinear {
-        breakpoints: Vec<(u64, u64)>,
-    },
+library;
+
+pub struct LinearVestingCurve {
+    pub start_time: u64,
+    pub end_time: u64,
+}
+
+pub struct Breakpoint {
+    pub duration_percentage_e6: u64,
+    pub vested_percentage_e6: u64,
+}
+
+pub struct PiecewiseLinearVestingCurve {
+    pub breakpoint_count: u8,
+    pub breakpoints: [Breakpoint; 64],
+}
+
+pub enum VestingCurve {
+    Linear: LinearVestingCurve,
+    PiecewiseLinear: PiecewiseLinearVestingCurve,
 }
