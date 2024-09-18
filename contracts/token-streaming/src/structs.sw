@@ -1,10 +1,10 @@
 library;
 
+use libraries::structs::VestingCurve;
+
 // STRUCTS
 pub struct Stream {
     pub deposit: u64,
-    // This rate needs to be multiplied by 10^10 to preserve precision, 
-    pub rate_per_second_e_10: u256,
     pub stream_size: u64,
     pub vested_withdrawn_amount: u64,
     pub start_time: u64,
@@ -14,6 +14,7 @@ pub struct Stream {
     pub sender_asset: AssetId,
     pub cancellation_time: Option<u64>,
     pub configuration: StreamConfiguration,
+    pub vesting_curve_id: b256,
 }
 
 pub enum SenderOrReceiver {
@@ -34,4 +35,5 @@ pub struct VaultInfo {
 pub struct StreamConfiguration {
     pub is_cancellable: bool,
     pub is_undercollateralized: bool,
+    pub vesting_curve: VestingCurve,
 }

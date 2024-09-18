@@ -3,11 +3,6 @@ name = "core"
 source = "path+from-root-4BB20845430AF9CF"
 
 [[package]]
-name = "libraries"
-source = "path+from-root-4E30BBE9DCFC2948"
-dependencies = ["std"]
-
-[[package]]
 name = "standards"
 source = "git+https://github.com/FuelLabs/sway-standards?tag=v0.4.4#a001d3c248595112aae67e5633a06ef9bc0536ae"
 dependencies = ["std"]
@@ -21,16 +16,6 @@ dependencies = ["core"]
 name = "token-streaming"
 source = "member"
 dependencies = [
-    "libraries",
-    "standards",
-    "std",
-]
-
-[[package]]
-name = "vesting-curves"
-source = "member"
-dependencies = [
-    "libraries",
     "standards",
     "std",
 ]

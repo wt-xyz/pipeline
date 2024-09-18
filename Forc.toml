@@ -1,2 +1,2 @@
 [workspace]
-members = ["contracts/token-streaming"]
+members = ["./contracts/token-streaming", "./contracts/vesting_curves"]

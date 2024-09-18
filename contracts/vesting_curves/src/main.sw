@@ -1,9 +1,16 @@
 contract;
 
-mod structs;
-
 use std::{hash::*};
-use ::structs::*;
+use libraries::{
+    interface::VestingCurveRegistry,
+    structs::{
+        VestingCurve,
+        LinearVestingCurve,
+        PiecewiseLinearVestingCurve,
+        Breakpoint
+    }
+};
+
 
 impl Hash for VestingCurve {
     fn hash(self, ref mut state: Hasher) {
@@ -30,17 +37,6 @@ impl Hash for VestingCurve {
             },
         }
     }
-}
-
-abi VestingCurveRegistry {
-    #[storage(read)]
-    fn vested_percentage_e6(curve_id: b256, duration_percentage_e6: u64) -> u64;
-
-    #[storage(read, write)]
-    fn register_vesting_curve(curve: VestingCurve) -> b256;
-
-    #[storage(read)]
-    fn get_vesting_curve(curve_id: b256) -> VestingCurve;
 }
 
 storage {
@@ -108,7 +104,7 @@ impl VestingCurveRegistry for Contract {
                 let total_section_duration_e6 = end_of_section.duration_percentage_e6 - start_of_section.duration_percentage_e6;
 
                 // get the percentage vesting that should happen the section that is vested
-                let total_vested_percentage_in_section_e6 = end_of_section.vested_percentage_e6 - start_of_section.percentage_vested_e6;
+                let total_vested_percentage_in_section_e6 = end_of_section.vested_percentage_e6 - start_of_section.vested_percentage_e6;
 
                 // calculate the vested percentage in the section
                 let vested_percentage_in_section_e6 = (completed_duration_in_section_e6 * total_vested_percentage_in_section_e6) / total_section_duration_e6;

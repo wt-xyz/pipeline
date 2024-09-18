@@ -8,9 +8,14 @@ mod constants;
 
 use ::events::{CancelStream, CreateStream};
 use ::structs::{SenderOrReceiver, Stream, VaultInfo, StreamConfiguration};
+use libraries::{
+    interface::VestingCurveRegistry,
+    structs::VestingCurve
+};
+
 use ::errors::{Error};
 use ::interface::Pipeline;
-use ::constants::E10; 
+use ::constants::{E10, E6}; 
 // Standard interfaces
 
 use standards::{
@@ -27,6 +32,9 @@ use std::{
     call_frames::{
         msg_asset_id,
     },
+    convert::{
+        TryFrom
+    },
     constants::{
         ZERO_B256,
     },
@@ -42,6 +50,11 @@ use std::{
     string::String,
     primitive_conversions::u64::*
 };
+
+configurable {
+    // vesting curve registry contract address
+    VESTING_CURVE_REGISTRY: ContractId = ContractId::zero(),
+}
 
 storage {
     // SRC-20 related storage
@@ -169,10 +182,8 @@ impl Pipeline for Contract {
 
         require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit);
 
-        let delta = stop_time - start_time;
-
-        // calculate the rate per second
-        let rate_per_second_e_10 = (stream_size.as_u256() * E10.as_u256()) / delta.as_u256();
+        let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
+        let vesting_curve_id = vesting_curve_registry.register_vesting_curve(configuration.vesting_curve);
 
         // get and increment stream id
         let stream_id = storage.total_assets.try_read().unwrap_or(0);
@@ -234,13 +245,14 @@ impl Pipeline for Contract {
           underlying_asset,
           start_time,
           stop_time,
+          configuration,
           deposit,
           stream_size,
+          vesting_curve_id,
         });
 
         // create new stream
         let stream = Stream {
-            rate_per_second_e_10,
             sender_asset: sender_share_asset,
             receiver_asset: receiver_share_asset,
             deposit,
@@ -251,6 +263,7 @@ impl Pipeline for Contract {
             vested_withdrawn_amount: 0,
             cancellation_time: None,
             configuration,
+            vesting_curve_id,
         };
 
         // add stream to storage
@@ -634,6 +647,24 @@ fn delta_of(stream: Stream, block_timestamp: u64) -> u64 {
     }
 }
 
+/// Returns the percentage of the stream duration that has passed
+///
+/// # Arguments
+///
+/// * `stream` - The stream to calculate the percentage for
+/// * `block_timestamp` - The current block timestamp
+///
+/// # Returns
+///
+/// The percentage of the stream duration that has passed as a u64
+fn percentage_of_stream_duration_e6(stream: Stream, block_timestamp: u64) -> u64 {
+    let delta = delta_of(stream, block_timestamp);
+    let duration = stream.stop_time - stream.start_time;
+    let percentage_e6 = (delta.as_u256() * E6.as_u256()) / duration.as_u256();
+    percentage_e6.try_into().unwrap()
+}
+
+
 /// Returns the balance of a given vault
 /// If the vault is a sender, the balance is the remaining unvested balance that can be withdrawn on cancellation
 /// If the vault is a receiver, the balance is the remaining vested balance that can be withdrawn
@@ -668,17 +699,30 @@ fn balance_of(vault_share_asset_id: AssetId) -> u64 {
   }
 }
 
+// fn get_vesting_curve_registry() -> ContractCaller<VestingCurveRegistry> {
+//    abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into())
+// }
+
+
+/// Returns the vested amount of a given stream
+///
+/// # Arguments
+///
+/// * `stream` - The stream to calculate the vested amount for
+///
+/// # Returns
+///
 fn vested_amount(stream: Stream) -> u64 {
   let block_timestamp = timestamp();
-  let delta = delta_of(stream, block_timestamp);
 
-  // NOTE: This is a workaround for the rounding issue in the division
-  // Due to unfortunate autorounding even with high precision we need to overwrite the value with the total stream size
-  if(block_timestamp > stream.stop_time){
-    return stream.stream_size;
-  }
+  let duration_percentage_e6 = percentage_of_stream_duration_e6(stream, block_timestamp);
 
-  u64::try_from(((delta.as_u256() * stream.rate_per_second_e_10) / E10.as_u256())).unwrap()
+  let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
+  //let vesting_curve_registry = get_vesting_curve_registry();
+
+  let vested_percentage_e6 = vesting_curve_registry.vested_percentage_e6(stream.vesting_curve_id, duration_percentage_e6);
+
+  (stream.stream_size * vested_percentage_e6) / E6
 }
 
 

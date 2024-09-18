@@ -1,5 +1,7 @@
 library;
 
+use ::structs::StreamConfiguration;
+
 // EVENTS
 pub struct CancelStream {
     pub stream_id: u64,
@@ -21,4 +23,5 @@ pub struct CreateStream {
     pub stream_size: u64,
     pub start_time: u64,
     pub stop_time: u64,
+    pub configuration: StreamConfiguration,
 }

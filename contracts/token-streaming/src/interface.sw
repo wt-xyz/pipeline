@@ -40,7 +40,7 @@ abi Pipeline {
     /// * `stop_time` - The time at which the stream will stop
     /// * `vesting_curve` - The vesting curve to use for the stream
     #[storage(read, write), payable]
-    fn create_stream(sender_share_recipient: Identity, receiver_share_recipient: Identity, start_time: u64, stop_time: u64, vesting_curve_contract: ContractId, deposit: u64, configuration: StreamConfiguration) -> u64;
+    fn create_stream(sender_share_recipient: Identity, receiver_share_recipient: Identity, start_time: u64, stop_time: u64, deposit: u64, configuration: StreamConfiguration) -> u64;
 
     /// Withdraws a specified number of tokens from a stream
     ///
