@@ -24,4 +24,5 @@ pub struct CreateStream {
     pub start_time: u64,
     pub stop_time: u64,
     pub configuration: StreamConfiguration,
+    pub vesting_curve_id: b256,
 }

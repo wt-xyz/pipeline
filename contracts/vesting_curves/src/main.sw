@@ -1,11 +1,15 @@
 contract;
 
+mod errors;
+
+use ::errors::Error;
+
 use std::{hash::*};
 use libraries::{
+    constants::E6,
     interface::VestingCurveRegistry,
     structs::{
         VestingCurve,
-        LinearVestingCurve,
         PiecewiseLinearVestingCurve,
         Breakpoint
     }
@@ -15,11 +19,9 @@ use libraries::{
 impl Hash for VestingCurve {
     fn hash(self, ref mut state: Hasher) {
         match self {
-            VestingCurve::Linear(LinearVestingCurve { start_time, end_time }) => {
+            VestingCurve::Linear => {
                 // Add a prefix hash for Linear variant
                 "LinearVestingCurve".hash(state);
-                start_time.hash(state);
-                end_time.hash(state);
             },
             VestingCurve::PiecewiseLinear(PiecewiseLinearVestingCurve { breakpoint_count, breakpoints }) => {
                 // Add a prefix hash for PiecewiseLinear variant
@@ -58,66 +60,75 @@ impl VestingCurveRegistry for Contract {
     }
 
     #[storage(read)]
+    fn vested_amount(curve_id: b256, total_amount: u64, start_time: u64, end_time: u64, current_time: u64) -> u64 {
+        let duration_percentage_e6 = (current_time - start_time) * E6 / (end_time - start_time);
+        let vested_percentage_e6 = vested_percentage_e6(curve_id, duration_percentage_e6);
+        (total_amount * vested_percentage_e6) / E6
+    }
+
+
+    #[storage(read)]
     fn vested_percentage_e6(curve_id: b256, duration_percentage_e6: u64) -> u64 {
-        // get the curve from the registry
-        let curve = storage.vesting_curve_registry.get(curve_id).try_read();
-        if curve.is_none() {
-            
-        }
-
-        let curve = curve.unwrap();
-        // calculate the vested percentage
-
-        match curve {
-            VestingCurve::Linear(LinearVestingCurve { start_time, end_time }) => {
-                // calculate the vested percentage
-                let vested_percentage = duration_percentage_e6 / (end_time - start_time);
-                vested_percentage
-            },
-            VestingCurve::PiecewiseLinear(PiecewiseLinearVestingCurve { breakpoint_count, breakpoints }) => {
-                // calculate the vested percentage
-                // first step is to find the correct breakpoint
-                // first find the last breakpoint that is less than or equal to than the duration_percentage_e10
-                let breakpoint = find_previous_breakpoint(breakpoints, breakpoint_count, duration_percentage_e6);
-
-                // Then calculate the vested percentage between the start and end breakpoint
-                if breakpoint.is_none() {
-                    return 0;
-                }
-
-                let breakpoint = breakpoint.unwrap();
-                let breakpoint_index = u8::try_from(breakpoint.1).unwrap();
-
-                // if it is the last breakpoint, return the vested_percentage_e6
-                if breakpoint_index == breakpoint_count - 1 {
-                    return breakpoint.0.vested_percentage_e6;
-                }
-
-                // get the start and end of the section
-                let start_of_section = breakpoint.0;
-                let end_of_section = breakpoints[u64::from(breakpoint_index) + 1];
-
-                // first get the duration of the section that is completed
-                let completed_duration_in_section_e6 = duration_percentage_e6 - start_of_section.duration_percentage_e6;
-
-                // get the total duration of the section
-                let total_section_duration_e6 = end_of_section.duration_percentage_e6 - start_of_section.duration_percentage_e6;
-
-                // get the percentage vesting that should happen the section that is vested
-                let total_vested_percentage_in_section_e6 = end_of_section.vested_percentage_e6 - start_of_section.vested_percentage_e6;
-
-                // calculate the vested percentage in the section
-                let vested_percentage_in_section_e6 = (completed_duration_in_section_e6 * total_vested_percentage_in_section_e6) / total_section_duration_e6;
-
-                // add the vested percentage of the section to the total vested percentage
-                start_of_section.vested_percentage_e6 + vested_percentage_in_section_e6
-            }
-        }
+        vested_percentage_e6(curve_id, duration_percentage_e6)
     }
 
     #[storage(read)]
     fn get_vesting_curve(curve_id: b256) -> VestingCurve {
         storage.vesting_curve_registry.get(curve_id).try_read().unwrap()
+    }
+}
+
+#[storage(read)]
+fn vested_percentage_e6(curve_id: b256, duration_percentage_e6: u64) -> u64 {
+    // get the curve from the registry
+    let curve = storage.vesting_curve_registry.get(curve_id).try_read();
+    require(curve.is_some(), Error::VestingCurveNotFound);
+
+    let curve = curve.unwrap();
+    // calculate the vested percentage
+
+    match curve {
+        VestingCurve::Linear => {
+            duration_percentage_e6
+        },
+        VestingCurve::PiecewiseLinear(PiecewiseLinearVestingCurve { breakpoint_count, breakpoints }) => {
+            // calculate the vested percentage
+            // first step is to find the correct breakpoint
+            // first find the last breakpoint that is less than or equal to than the duration_percentage_e6
+            let breakpoint = find_previous_breakpoint(breakpoints, breakpoint_count, duration_percentage_e6);
+
+            // Then calculate the vested percentage between the start and end breakpoint
+            if breakpoint.is_none() {
+                return 0;
+            }
+
+            let breakpoint = breakpoint.unwrap();
+            let breakpoint_index = u8::try_from(breakpoint.1).unwrap();
+
+            // if it is the last breakpoint, return the vested_percentage_e6
+            if breakpoint_index == breakpoint_count - 1 {
+                return breakpoint.0.vested_percentage_e6;
+            }
+
+            // get the start and end of the section
+            let start_of_section = breakpoint.0;
+            let end_of_section = breakpoints[u64::from(breakpoint_index) + 1];
+
+            // first get the duration of the section that is completed
+            let completed_duration_in_section_e6 = duration_percentage_e6 - start_of_section.duration_percentage_e6;
+
+            // get the total duration of the section
+            let total_section_duration_e6 = end_of_section.duration_percentage_e6 - start_of_section.duration_percentage_e6;
+
+            // get the percentage vesting that should happen the section that is vested
+            let total_vested_percentage_in_section_e6 = end_of_section.vested_percentage_e6 - start_of_section.vested_percentage_e6;
+
+            // calculate the vested percentage in the section
+            let vested_percentage_in_section_e6 = (completed_duration_in_section_e6 * total_vested_percentage_in_section_e6) / total_section_duration_e6;
+
+            // add the vested percentage of the section to the total vested percentage
+            start_of_section.vested_percentage_e6 + vested_percentage_in_section_e6
+        }
     }
 }
 

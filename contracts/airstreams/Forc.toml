@@ -1,0 +1,11 @@
+[project]
+authors = ["Wishart Torgersrud Consulting"]
+entry = "main.sw"
+license = "MIT"
+name = "airstreams"
+
+[dependencies]
+standards = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.4.4" }
+libraries = { path = "../libraries" }
+sway_libs = {git = "https://github.com/FuelLabs/sway-libs", tag = "v0.22.0"}
+

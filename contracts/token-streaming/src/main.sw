@@ -4,7 +4,6 @@ mod events;
 mod structs;
 mod errors;
 mod interface;
-mod constants;
 
 use ::events::{CancelStream, CreateStream};
 use ::structs::{SenderOrReceiver, Stream, VaultInfo, StreamConfiguration};
@@ -15,7 +14,6 @@ use libraries::{
 
 use ::errors::{Error};
 use ::interface::Pipeline;
-use ::constants::{E10, E6}; 
 // Standard interfaces
 
 use standards::{
@@ -647,24 +645,6 @@ fn delta_of(stream: Stream, block_timestamp: u64) -> u64 {
     }
 }
 
-/// Returns the percentage of the stream duration that has passed
-///
-/// # Arguments
-///
-/// * `stream` - The stream to calculate the percentage for
-/// * `block_timestamp` - The current block timestamp
-///
-/// # Returns
-///
-/// The percentage of the stream duration that has passed as a u64
-fn percentage_of_stream_duration_e6(stream: Stream, block_timestamp: u64) -> u64 {
-    let delta = delta_of(stream, block_timestamp);
-    let duration = stream.stop_time - stream.start_time;
-    let percentage_e6 = (delta.as_u256() * E6.as_u256()) / duration.as_u256();
-    percentage_e6.try_into().unwrap()
-}
-
-
 /// Returns the balance of a given vault
 /// If the vault is a sender, the balance is the remaining unvested balance that can be withdrawn on cancellation
 /// If the vault is a receiver, the balance is the remaining vested balance that can be withdrawn
@@ -699,11 +679,6 @@ fn balance_of(vault_share_asset_id: AssetId) -> u64 {
   }
 }
 
-// fn get_vesting_curve_registry() -> ContractCaller<VestingCurveRegistry> {
-//    abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into())
-// }
-
-
 /// Returns the vested amount of a given stream
 ///
 /// # Arguments
@@ -715,14 +690,9 @@ fn balance_of(vault_share_asset_id: AssetId) -> u64 {
 fn vested_amount(stream: Stream) -> u64 {
   let block_timestamp = timestamp();
 
-  let duration_percentage_e6 = percentage_of_stream_duration_e6(stream, block_timestamp);
-
   let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
-  //let vesting_curve_registry = get_vesting_curve_registry();
 
-  let vested_percentage_e6 = vesting_curve_registry.vested_percentage_e6(stream.vesting_curve_id, duration_percentage_e6);
-
-  (stream.stream_size * vested_percentage_e6) / E6
+  vesting_curve_registry.vested_amount(stream.vesting_curve_id, stream.stream_size, stream.start_time, stream.stop_time, block_timestamp)
 }
 
 

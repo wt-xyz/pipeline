@@ -1,10 +1,5 @@
 library;
 
-pub struct LinearVestingCurve {
-    pub start_time: u64,
-    pub end_time: u64,
-}
-
 pub struct Breakpoint {
     pub duration_percentage_e6: u64,
     pub vested_percentage_e6: u64,
@@ -16,6 +11,6 @@ pub struct PiecewiseLinearVestingCurve {
 }
 
 pub enum VestingCurve {
-    Linear: LinearVestingCurve,
+    Linear: (),
     PiecewiseLinear: PiecewiseLinearVestingCurve,
 }
