@@ -2,6 +2,7 @@
 
 mod utils;
 
+use abigen_bindings::pipeline_mod::libraries::structs::VestingCurve;
 use utils::*;
 
 use std::time::Duration;
@@ -24,7 +25,7 @@ async fn cancel_stream(
     let vault_info = instance
         .methods()
         .get_vault_info(sender_asset)
-        .simulate()
+        .simulate(Execution::StateReadOnly)
         .await?
         .value;
 
@@ -52,7 +53,9 @@ async fn cancel_stream(
             vault_info.vault_sub_id,
         )
         .call_params(call_params)?
-        .append_variable_outputs(1)
+        .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+        .determine_missing_contracts(Some(5))
+        .await?
         .call()
         .await?
         .value;
@@ -165,10 +168,12 @@ async fn cannot_cancel_stream_w_false_is_cancellable() -> Result<()> {
         Some(StreamConfiguration {
             is_undercollateralized: false,
             is_cancellable: false,
+            vesting_curve: VestingCurve::Linear,
         }),
     )
     .await;
 
+    println!("cancel_result: {:?}", &cancel_result);
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
         Some(fuels_core::types::errors::Error::Transaction(_))
@@ -193,6 +198,7 @@ async fn can_cancel_undercollateralized_stream() -> Result<()> {
         Some(StreamConfiguration {
             is_undercollateralized: true,
             is_cancellable: true,
+            vesting_curve: VestingCurve::Linear,
         }),
     )
     .await?;

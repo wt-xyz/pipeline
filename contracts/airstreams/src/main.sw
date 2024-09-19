@@ -49,10 +49,10 @@ use sway_libs::merkle::binary_proof::{leaf_digest, verify_proof};
 
 configurable {
     MERKLE_ROOT: b256 = ZERO_B256,
+    NUM_LEAVES: u64 = 0,
     ASSET: AssetId = AssetId::from(ZERO_B256),
     START_TIME: u64 = 0,
     END_TIME: u64 = 0,
-    NUM_LEAVES: u64 = 0,
     INITIAL_OWNER: Option<Identity> = Option::None,
     VESTING_CURVE_REGISTRY_ID: ContractId = ContractId::zero(),
     VESTING_CURVE: VestingCurve = VestingCurve::Linear,

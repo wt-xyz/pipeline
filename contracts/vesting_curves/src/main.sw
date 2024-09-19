@@ -15,6 +15,9 @@ use libraries::{
     }
 };
 
+trait Verify {
+    fn verify(self) -> bool;
+}
 
 impl Hash for VestingCurve {
     fn hash(self, ref mut state: Hasher) {
@@ -41,6 +44,41 @@ impl Hash for VestingCurve {
     }
 }
 
+impl Verify for VestingCurve {
+    fn verify(self) -> bool {
+        match self {
+            VestingCurve::Linear => {
+                true
+            },
+            VestingCurve::PiecewiseLinear(PiecewiseLinearVestingCurve { breakpoint_count, breakpoints }) => {
+                let mut i = 0;
+                while i < u64::from(breakpoint_count) {
+                    let breakpoint = breakpoints[i];
+                    if i > 0 {
+                        // the duration percentage and vesting percentage must be non-decreasing
+                        let previous_breakpoint = breakpoints[i - 1];
+                        if breakpoint.duration_percentage_e6 < previous_breakpoint.duration_percentage_e6 {
+                            return false;
+                        }
+                        if breakpoint.vested_percentage_e6 < previous_breakpoint.vested_percentage_e6 {
+                            return false;
+                        }
+                    }
+
+                    if breakpoint.duration_percentage_e6 > 100 * E6 {
+                        return false;
+                    }
+                    if breakpoint.vested_percentage_e6 > 100 * E6 {
+                        return false;
+                    }
+                    i += 1;
+                }
+                true
+            },
+        }
+    }
+}
+
 storage {
     vesting_curve_registry: StorageMap<b256, VestingCurve> = StorageMap {},
 }
@@ -54,6 +92,7 @@ impl VestingCurveRegistry for Contract {
         let curve_hash = sha256(curve);
         let existing_curve = storage.vesting_curve_registry.get(curve_hash).try_read();
         if existing_curve.is_none() {
+            require(curve.verify(), Error::InvalidVestingCurve);
             storage.vesting_curve_registry.insert(curve_hash, curve);
         }
         curve_hash
@@ -61,15 +100,15 @@ impl VestingCurveRegistry for Contract {
 
     #[storage(read)]
     fn vested_amount(curve_id: b256, total_amount: u64, start_time: u64, end_time: u64, current_time: u64) -> u64 {
-        let duration_percentage_e6 = (current_time - start_time) * E6 / (end_time - start_time);
-        let vested_percentage_e6 = vested_percentage_e6(curve_id, duration_percentage_e6);
-        (total_amount * vested_percentage_e6) / E6
+        let curve = get_curve(curve_id);
+        vested_amount(curve, total_amount, start_time, end_time, current_time)
     }
 
 
     #[storage(read)]
     fn vested_percentage_e6(curve_id: b256, duration_percentage_e6: u64) -> u64 {
-        vested_percentage_e6(curve_id, duration_percentage_e6)
+        let curve = get_curve(curve_id);
+        vested_percentage_e6(curve, duration_percentage_e6)
     }
 
     #[storage(read)]
@@ -78,20 +117,23 @@ impl VestingCurveRegistry for Contract {
     }
 }
 
-#[storage(read)]
-fn vested_percentage_e6(curve_id: b256, duration_percentage_e6: u64) -> u64 {
-    // get the curve from the registry
-    let curve = storage.vesting_curve_registry.get(curve_id).try_read();
-    require(curve.is_some(), Error::VestingCurveNotFound);
+fn vested_amount(curve: VestingCurve, total_amount: u64, start_time: u64, end_time: u64, current_time: u64) -> u64 {
+    let duration_percentage_e6 = (current_time - start_time) * E6 / (end_time - start_time);
+    let vested_percentage_e6 = vested_percentage_e6(curve, duration_percentage_e6);
+    (total_amount * vested_percentage_e6) / E6
+}
 
-    let curve = curve.unwrap();
-    // calculate the vested percentage
-
-    match curve {
+fn vested_percentage_e6(curve: VestingCurve, duration_percentage_e6: u64) -> u64 {
+    let percentage = match curve {
         VestingCurve::Linear => {
             duration_percentage_e6
         },
         VestingCurve::PiecewiseLinear(PiecewiseLinearVestingCurve { breakpoint_count, breakpoints }) => {
+            // at end of stream always return 100%
+            if duration_percentage_e6 == 100 * E6 {
+                return 100 * E6;
+            }
+
             // calculate the vested percentage
             // first step is to find the correct breakpoint
             // first find the last breakpoint that is less than or equal to than the duration_percentage_e6
@@ -129,7 +171,20 @@ fn vested_percentage_e6(curve_id: b256, duration_percentage_e6: u64) -> u64 {
             // add the vested percentage of the section to the total vested percentage
             start_of_section.vested_percentage_e6 + vested_percentage_in_section_e6
         }
+    };
+    // percentage can never be greater than 100%
+    if percentage > 100 * E6 {
+        return 100 * E6;
     }
+    percentage
+}
+
+#[storage(read)]
+fn get_curve(curve_id: b256) -> VestingCurve {
+    let curve = storage.vesting_curve_registry.get(curve_id).try_read();
+    require(curve.is_some(), Error::VestingCurveNotFound);
+
+    curve.unwrap()
 }
 
 // // Find the largest value in the vector that is less than or equal to the target
@@ -161,4 +216,133 @@ fn find_previous_breakpoint(breakpoints: [Breakpoint; 64], breakpoint_count: u8,
     }
 
     result
+}
+
+#[test]
+fn test_linear_vesting_curve_percentage() {
+    let curve = VestingCurve::Linear;
+    let duration_percentage_e6 = 1 * E6;
+    let vested_percentage_e6 = vested_percentage_e6(curve, duration_percentage_e6);
+    assert_eq(vested_percentage_e6, duration_percentage_e6);
+}
+
+#[test]
+fn test_linear_vesting_curve_amount() {
+    let curve = VestingCurve::Linear;
+    let total_amount = 1 * E6;
+    let start_time = 0;
+    let end_time = 1 * E6;
+    let current_time = 500_000;
+    let vested_amount = vested_amount(curve, total_amount, start_time, end_time, current_time);
+    assert_eq(vested_amount, 500_000);
+}
+
+fn default_breakpoints() -> [Breakpoint; 64] {
+    [Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 0 }; 64]
+}
+
+fn create_piecewise_linear_vesting_curve(_breakpoints: Vec<Breakpoint>) -> VestingCurve {
+    let breakpoint_count = _breakpoints.len();
+    let mut breakpoints = default_breakpoints();
+
+    let mut i = 0;
+    while i < breakpoint_count {
+        breakpoints[i] = _breakpoints.get(i).unwrap();
+        i += 1;
+    }
+
+    let curve = PiecewiseLinearVestingCurve {
+        breakpoint_count: u8::try_from(breakpoint_count).unwrap(),
+        breakpoints: breakpoints,
+    };
+
+    VestingCurve::PiecewiseLinear(curve)
+}
+
+
+fn piecewise_linear_vesting_curve_percentage_test_helper(
+    _breakpoints: Vec<Breakpoint>,
+    duration_percentage_e6: u64,
+    expected_vested_percentage_e6: u64,
+) {
+    let curve = create_piecewise_linear_vesting_curve(_breakpoints);
+    let vested_percentage_e6 = vested_percentage_e6(curve, duration_percentage_e6);
+    assert_eq(vested_percentage_e6, expected_vested_percentage_e6);
+}
+
+#[test]
+fn piecewise_linear_vesting_curve_verify_descending_duration() {
+    let mut breakpoints_vector = Vec::new();
+
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 0 });
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 50 * E6, vested_percentage_e6: 25 * E6});
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 49 * E6, vested_percentage_e6: 100 * E6});
+
+    let curve = create_piecewise_linear_vesting_curve(breakpoints_vector);
+    assert(!curve.verify());
+}
+
+#[test]
+fn piecewise_linear_vesting_curve_verify_descending_vesting() {
+    let mut breakpoints_vector = Vec::new();
+
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 0 });
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 50 * E6, vested_percentage_e6: 25 * E6});
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 100 * E6, vested_percentage_e6: 24 * E6});
+
+    let curve = create_piecewise_linear_vesting_curve(breakpoints_vector);
+
+    let duration_percentage_e6 = 0;
+
+    assert(!curve.verify());
+}
+
+#[test]
+fn piecewise_linear_vesting_curve_simple_linear() {
+    let mut breakpoints_vector = Vec::new();
+
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 0 });
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 100 * E6, vested_percentage_e6: 100 * E6});
+
+    let duration_1 = 50 * E6;
+    let vested_1 = 50 * E6;
+
+    piecewise_linear_vesting_curve_percentage_test_helper(breakpoints_vector, duration_1, vested_1);
+}
+
+#[test]
+fn piecewise_linear_vesting_curve_verify_2_vesting_cliffs_then_linear() {
+    let mut breakpoints_vector = Vec::new();
+
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 0 });
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 10 * E6});
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 30 * E6, vested_percentage_e6: 10 * E6});
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 30 * E6, vested_percentage_e6: 30 * E6});
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 100 * E6, vested_percentage_e6: 100 * E6});
+
+    let duration_1 = 0;
+    let duration_2 = 29_999_999;
+    let duration_3 = 30 * E6;
+    let duration_4 = 40 * E6;
+    let vested_1 = 10 * E6;
+    let vested_2 = 10 * E6;
+    let vested_3 = 30 * E6;
+    let vested_4 = 40 * E6;
+
+
+    piecewise_linear_vesting_curve_percentage_test_helper(breakpoints_vector, duration_1, vested_1);
+    piecewise_linear_vesting_curve_percentage_test_helper(breakpoints_vector, duration_2, vested_2);
+    piecewise_linear_vesting_curve_percentage_test_helper(breakpoints_vector, duration_3, vested_3);
+}
+
+#[test]
+fn piecewise_linear_vesting_curve_no_100() {
+    let mut breakpoints_vector = Vec::new();
+
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 0, vested_percentage_e6: 0 });
+    breakpoints_vector.push(Breakpoint { duration_percentage_e6: 100 * E6, vested_percentage_e6: 90 * E6});
+
+    let duration_percentage_e6 = 100 * E6;
+    let expected_vested_percentage_e6 = 100 * E6;
+    piecewise_linear_vesting_curve_percentage_test_helper(breakpoints_vector, duration_percentage_e6, expected_vested_percentage_e6);
 }

@@ -39,7 +39,7 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
     let vault_info = instance
         .methods()
         .get_vault_info(receiver_asset)
-        .simulate()
+        .simulate(Execution::StateReadOnly)
         .await?
         .value;
 
@@ -60,7 +60,9 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
             vault_info.vault_sub_id,
         )
         .call_params(call_params)?
-        .append_variable_outputs(1)
+        .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
+        .determine_missing_contracts(Some(5))
+        .await?
         .call()
         .await?
         .value;
@@ -90,6 +92,8 @@ async fn get_withdrawable_depositable_managed_assets(
     let max_withdrawable = instance
         .methods()
         .max_withdrawable(underlying_asset, vault_id)
+        .determine_missing_contracts(Some(5))
+        .await?
         .call()
         .await?
         .value
@@ -98,6 +102,8 @@ async fn get_withdrawable_depositable_managed_assets(
     let max_depositable = instance
         .methods()
         .max_depositable(wallet_address, underlying_asset, vault_id)
+        .determine_missing_contracts(Some(5))
+        .await?
         .call()
         .await?
         .value
@@ -146,14 +152,14 @@ async fn can_call_max_functions_on_stream() -> Result<()> {
     let vault_info_receiver = instance
         .methods()
         .get_vault_info(receiver_asset)
-        .simulate()
+        .simulate(Execution::StateReadOnly)
         .await?
         .value;
 
     let vault_info_sender = instance
         .methods()
         .get_vault_info(sender_asset)
-        .simulate()
+        .simulate(Execution::StateReadOnly)
         .await?
         .value;
 

@@ -2,6 +2,7 @@
 
 use std::time::Duration;
 
+use abigen_bindings::pipeline_mod::libraries::structs::VestingCurve;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use fuels::{
@@ -14,10 +15,16 @@ use tai64::Tai64N;
 pub const DEFAULT_START_OFFSET: Duration = Duration::from_secs(60);
 
 // Load abi from json
-abigen!(Contract(
-    name = "Pipeline",
-    abi = "contracts/token-streaming/out/debug/token-streaming-abi.json"
-));
+abigen!(
+    Contract(
+        name = "Pipeline",
+        abi = "contracts/token-streaming/out/debug/token-streaming-abi.json",
+    ),
+    Contract(
+        name = "VestingCurve",
+        abi = "contracts/vesting_curves/out/debug/vesting-curves-abi.json"
+    )
+);
 
 pub async fn get_contract_instance(
 ) -> Result<(Pipeline<WalletUnlocked>, ContractId, Vec<WalletUnlocked>)> {
@@ -36,12 +43,26 @@ pub async fn get_contract_instance(
 
     let sender_wallet = wallets.pop().context("Missing sender wallet")?;
 
-    let id = Contract::load_from(
-        "./out/debug/token-streaming.bin",
+    let vesting_curve_id = Contract::load_from(
+        "../vesting_curves/out/debug/vesting-curves.bin",
         LoadConfiguration::default(),
     )?
     .deploy(&deployment_wallet, TxPolicies::default())
     .await?;
+
+    let configurables = PipelineConfigurables::default()
+        .with_VESTING_CURVE_REGISTRY(vesting_curve_id.clone().into())?;
+
+    println!("vesting_curve_id: {:?}", &vesting_curve_id);
+
+    let id = Contract::load_from(
+        "./out/debug/token-streaming.bin",
+        LoadConfiguration::default().with_configurables(configurables),
+    )?
+    .deploy(&deployment_wallet, TxPolicies::default())
+    .await?;
+
+    println!("id: {:?}", id);
 
     let instance = Pipeline::new(id.clone(), sender_wallet);
 
@@ -76,10 +97,13 @@ pub async fn create_stream(
             configuration.unwrap_or(StreamConfiguration {
                 is_undercollateralized: false,
                 is_cancellable: true,
+                vesting_curve: VestingCurve::Linear,
             }),
         )
         .call_params(call_params)?
-        .append_variable_outputs(2)
+        .with_variable_output_policy(VariableOutputPolicy::Exactly(2))
+        .determine_missing_contracts(Some(5))
+        .await?
         .call()
         .await?;
 

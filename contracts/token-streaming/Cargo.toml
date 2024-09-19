@@ -19,3 +19,4 @@ fuels-core.workspace = true
 rstest.workspace = true
 tokio.workspace = true
 assert_matches = "1.5.0"
+time.workspace = true
