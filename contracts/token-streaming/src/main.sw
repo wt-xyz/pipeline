@@ -173,12 +173,12 @@ impl Pipeline for Contract {
         let deposit = msg_amount();
 
         // no stop time before start time
-        require(start_time < stop_time, Error::InvalidDates);
+        require(start_time < stop_time, Error::InvalidDates((start_time, stop_time)));
 
         // no zero stream_size
         require(stream_size > 0, Error::ZeroDeposit);
 
-        require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit);
+        require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit((deposit, stream_size)));
 
         let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
         let vesting_curve_id = vesting_curve_registry.register_vesting_curve(configuration.vesting_curve);
@@ -385,14 +385,14 @@ impl SRC6 for Contract {
 
         // check that the asset is correct
         let deposit_asset = msg_asset_id();
-        require(deposit_asset == stream.underlying_asset, Error::InvalidAsset);
+        require(deposit_asset == stream.underlying_asset, Error::InvalidAsset((deposit_asset, stream.underlying_asset)));
 
         // make the deposit
         let deposited_amount = msg_amount();
 
         let deposit_allowance = stream.stream_size - stream.deposit;
 
-        require(deposit_allowance >= deposited_amount, Error::IncorrectDeposit);
+        require(deposit_allowance >= deposited_amount, Error::IncorrectDeposit((deposited_amount, deposit_allowance)));
 
         // EFFECTS
         stream.deposit = stream.deposit + deposited_amount;
@@ -543,7 +543,7 @@ pub fn mint(
 pub fn burn(asset_id: AssetId, vault_sub_id: SubId, amount: u64) {
     require(
         std::context::this_balance(asset_id) >= amount,
-        Error::NotEnoughCoins,
+        Error::NotEnoughCoins((std::context::this_balance(asset_id), amount)),
     );
     // If we pass the check above, we can assume it is safe to unwrap.
     let supply = storage.total_supply.get(asset_id).try_read().unwrap();
@@ -588,7 +588,7 @@ fn get_sender_or_receiver(share_asset_id: AssetId) -> Option<SenderOrReceiver> {
 fn get_stream(stream_id: u64) -> Stream {
     // get the stream from the storage structure
     let stream = storage.streams.get(stream_id).try_read();
-    require(stream.is_some(), Error::StreamDoesNotExist);
+    require(stream.is_some(), Error::StreamDoesNotExist(stream_id));
     return stream.unwrap();
 }
 
@@ -604,7 +604,7 @@ fn get_vault_info(vault_asset_id: AssetId) -> VaultInfo {
     require(
         vault_info
             .is_some(),
-        Error::VaultDoesNotExist,
+        Error::VaultDoesNotExist(vault_asset_id),
     );
     return vault_info.unwrap();
 }
@@ -745,7 +745,7 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
     require(
         vault_share_asset == stream
             .receiver_asset,
-        Error::NotReceiver,
+        Error::NotReceiver((vault_share_asset, stream.receiver_asset)),
     );
 
     require(shares == 1, Error::InsufficientShares);
@@ -753,11 +753,11 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
     // get the receiver balance of the stream
     let receiver_balance = balance_of(vault_share_asset);
 
+    // ensure that the amount is less than or equal to the receiver balance
     require(
         amount <= receiver_balance,
-        Error::InsufficientBalance,
+        Error::InsufficientBalance((receiver_balance, amount)),
     );
-    // ensure that the amount is less than or equal to the receiver balance
 
     // EFFECTS
     // Add withdrawn amount to stream
@@ -806,6 +806,7 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
 
     let mut stream = get_stream(sender_vault_info.stream_id);
 
+
     require(
       stream.configuration.is_cancellable,
       Error::NotCancellable
@@ -815,7 +816,7 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
         stream
             .cancellation_time
             .is_none(),
-        Error::StreamAlreadyCancelled,
+        Error::StreamAlreadyCancelled(stream.cancellation_time.unwrap()),
     );
 
     let receiver_share_asset = stream.receiver_asset;
@@ -823,7 +824,7 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
     require(
         sender_share_asset == stream
             .sender_asset,
-        Error::NotSender,
+        Error::NotSender((sender_share_asset, stream.sender_asset)),
     );
     require(shares == 1, Error::InsufficientShares);
 
