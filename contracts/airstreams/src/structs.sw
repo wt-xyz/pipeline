@@ -10,3 +10,8 @@ pub enum SignatureType {
     FUEL: FuelSignatureType,
     EVM: EVMSignatureType,
 }
+
+pub struct Allocation {
+    pub identity: b256,
+    pub amount: u64,
+}

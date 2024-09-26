@@ -6,11 +6,7 @@ mod events;
 mod errors;
 mod personal_sign;
 
-use structs::{
-    EVMSignatureType,
-    FuelSignatureType,
-    SignatureType,
-};
+use structs::{Allocation, EVMSignatureType, FuelSignatureType, SignatureType};
 use ::interface::AirstreamAbi;
 use ::events::{
     ClaimEvent,
@@ -19,13 +15,9 @@ use ::events::{
     OwnershipTransferInitiatedEvent,
     PauseChangeEvent,
 };
-use ::errors::{AccessError, VerificationError, InputError};
+use ::errors::{AccessError, InputError, VerificationError};
 use ::personal_sign::personal_sign_hash;
-use libraries::{
-    interface::VestingCurveRegistry,
-    constants::E6,
-    structs::VestingCurve,
-};
+use libraries::{constants::E6, interface::VestingCurveRegistry, structs::VestingCurve,};
 use std::{
     address::Address,
     asset::transfer,
@@ -45,7 +37,14 @@ use std::{
     },
     vm::evm::ecr::ec_recover_evm_address,
 };
-use sway_libs::merkle::binary_proof::{leaf_digest, verify_proof};
+use sway_libs::{merkle::binary_proof::{leaf_digest, verify_proof}, reentrancy::*,};
+
+impl Hash for Allocation {
+    fn hash(self, ref mut state: Hasher) {
+        self.identity.hash(state);
+        self.amount.hash(state);
+    }
+}
 
 configurable {
     MERKLE_ROOT: b256 = ZERO_B256,
@@ -78,19 +77,30 @@ impl AirstreamAbi for Contract {
         recipient: Identity,
         signature_type: SignatureType,
     ) -> u64 {
-
         can_claim();
+        // although the only cross-contract call is to the vesting curve registry,
+        // we can increase safety slightly by guarding against reentrancy
+        // at the cost of a small performance hit
+        reentrancy_guard();
 
         // Contract should not be paused, not past the end date, and the tree_index should be unclaimed
         // Check the validity of the signatures based on type
         match signature_type {
-            SignatureType::EVM(EVMSignatureType{witness_index}) => {
+            SignatureType::EVM(EVMSignatureType { witness_index }) => {
                 // recover the signer address from the signature
                 // signature is personal signed hash of tx_id signed by the evm connector signer
                 let witness_data = tx_witness_data(witness_index);
-                require(witness_data.is_some(), VerificationError::InvalidWitnessIndex);
+                require(
+                    witness_data
+                        .is_some(),
+                    VerificationError::InvalidWitnessIndex(witness_index),
+                );
                 let recovered_identity = ec_recover_evm_address(witness_data.unwrap(), personal_sign_hash(tx_id())).unwrap();
-                require(identity == recovered_identity.into(), VerificationError::IncorrectAccount);
+                require(
+                    identity == recovered_identity
+                        .into(),
+                    VerificationError::IncorrectAccount((identity, recovered_identity)),
+                );
             }
             SignatureType::FUEL => {
                 // verify the regular fuel signature
@@ -102,12 +112,15 @@ impl AirstreamAbi for Contract {
                         contract_id.into()
                     }
                 };
-                require(identity == sender_b256, VerificationError::IncorrectAccount);
+                require(identity == sender_b256, VerificationError::IncorrectAccount((identity, sender_b256)));
             }
         }
 
         // Verify the merkle proof
-        let leaf_hash = _get_leaf_hash(identity, claim_amount);
+        let leaf_hash = sha256(Allocation {
+            identity,
+            amount: total_claim_amount,
+        });
 
         let merkle_proof_result = verify_proof(
             tree_index,
@@ -123,16 +136,30 @@ impl AirstreamAbi for Contract {
 
         let vesting_curve_id = storage.vesting_curve_id.read();
         let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY_ID.into());
-        let vested_amount = vesting_curve_registry.vested_amount(vesting_curve_id, total_claim_amount, timestamp(), START_TIME, END_TIME);
+        let vested_amount = vesting_curve_registry.vested_amount(
+            vesting_curve_id,
+            total_claim_amount,
+            timestamp(),
+            START_TIME,
+            END_TIME,
+        );
 
-        require(vested_amount >= previous_claim_amount, InputError::InvalidVestedAmount);
+        require(
+            vested_amount >= previous_claim_amount,
+            InputError::InvalidVestedAmount((vested_amount, previous_claim_amount)),
+        );
 
         let remaining_vested_amount = vested_amount - previous_claim_amount;
 
-        require(remaining_vested_amount >= claim_amount, InputError::InvalidClaimAmount);
+        require(
+            remaining_vested_amount >= claim_amount,
+            InputError::InvalidClaimAmount((claim_amount, remaining_vested_amount)),
+        );
 
         // mark the index as partially claimed
-        storage.claims.insert(tree_index, previous_claim_amount + claim_amount);
+        storage
+            .claims
+            .insert(tree_index, previous_claim_amount + claim_amount);
 
         // Transfer the funds to the recipient
         transfer(recipient, ASSET, claim_amount);
@@ -157,7 +184,13 @@ impl AirstreamAbi for Contract {
     fn percentage_vested_e6() -> u64 {
         let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY_ID.into());
         let vesting_curve_id = storage.vesting_curve_id.read();
-        vesting_curve_registry.vested_amount(vesting_curve_id, 100*E6, timestamp(), START_TIME, END_TIME)
+        vesting_curve_registry.vested_amount(
+            vesting_curve_id,
+            100 * E6,
+            timestamp(),
+            START_TIME,
+            END_TIME,
+        )
     }
 
     fn end_time() -> u64 {
@@ -178,7 +211,7 @@ impl AirstreamAbi for Contract {
         // Require that new_owner is not 0 address
         require(
             new_owner != Identity::Address(Address::from(ZERO_B256)),
-            InputError::InvalidOwner,
+            InputError::InvalidOwner(new_owner),
         );
 
         storage.pending_owner.write(Some(new_owner));
@@ -188,7 +221,7 @@ impl AirstreamAbi for Contract {
         })
     }
     #[storage(read, write)]
-    fn confirm_transfer_ownership(){
+    fn confirm_transfer_ownership() {
         // only the pending owner can confirm the transfer
         only_pending_owner();
 
@@ -240,6 +273,7 @@ impl AirstreamAbi for Contract {
     fn initialize() {
         // initialize can only be called once
         only_uninitialized();
+        storage.is_initialized.write(true);
 
         // get the vesting curve_id from the vesting curve registry
         let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY_ID.into());
@@ -248,7 +282,6 @@ impl AirstreamAbi for Contract {
 
         // Copy the initial owner and signer values to storage
         storage.owner.write(INITIAL_OWNER);
-        storage.is_initialized.write(true);
     }
 }
 
@@ -258,9 +291,9 @@ fn _owner() -> Option<Identity> {
 }
 
 #[storage(read)]
-fn can_claim(){
+fn can_claim() {
     require(!_is_paused(), AccessError::Paused);
-    require(_is_airdrop_active(), AccessError::AirdropDone);
+    require(_is_airdrop_active(), AccessError::AirdropDone(timestamp(), END_TIME));
 }
 
 #[storage(read)]
@@ -269,15 +302,19 @@ fn only_owner() {
         _owner()
             .unwrap() == msg_sender()
             .unwrap(),
-        AccessError::CallerNotOwner,
+        AccessError::CallerNotOwner((msg_sender().unwrap(), _owner().unwrap())),
     )
 }
 
 #[storage(read)]
 fn only_pending_owner() {
     require(
-        storage.pending_owner.read().unwrap() == msg_sender().unwrap(),
-        AccessError::CallerNotPendingOwner,
+        storage
+            .pending_owner
+            .read()
+            .unwrap() == msg_sender()
+            .unwrap(),
+        AccessError::CallerNotPendingOwner((msg_sender().unwrap(), storage.pending_owner.read().unwrap().unwrap())),
     )
 }
 
@@ -299,9 +336,4 @@ fn _is_paused() -> bool {
 fn _is_airdrop_active() -> bool {
     let current_timestamp = timestamp();
     current_timestamp <= END_TIME
-}
-
-fn _get_leaf_hash(identity: b256, amount: u64) -> b256 {
-    let leaf_params = (identity, amount);
-    sha256(leaf_params)
 }
