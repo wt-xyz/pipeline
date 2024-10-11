@@ -13,7 +13,7 @@ use fuels::{
 // Receiver can fully withdraw from streams
 #[tokio::test]
 async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let receiver_wallet = instance.account().clone();
 
@@ -50,6 +50,17 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
 
     fast_forward_time(provider, duration / 2).await?;
 
+    let stream_expected_balance = instance
+        .methods()
+        .max_withdrawable(underlying_asset, vault_info.vault_sub_id)
+        .determine_missing_contracts(Some(5))
+        .await?
+        .call()
+        .await?
+        .value;
+
+    assert!(stream_expected_balance.unwrap() > 0);
+
     let call_params = CallParameters::new(1, receiver_asset, 50_000);
 
     let amount_withdrawn = instance
@@ -66,6 +77,7 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
         .call()
         .await?
         .value;
+
 
     let receiver_balance = receiver_wallet.get_asset_balance(&underlying_asset).await?;
 
@@ -122,7 +134,7 @@ async fn get_withdrawable_depositable_managed_assets(
 #[tokio::test]
 #[ignore = "This test is failing, due to fuels rs updates"]
 async fn can_call_max_functions_on_stream() -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;

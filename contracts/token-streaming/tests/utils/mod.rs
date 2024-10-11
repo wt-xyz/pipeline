@@ -8,6 +8,7 @@ use chrono::{DateTime, Utc};
 use fuels::{
     accounts::provider,
     prelude::*,
+    programs::contract::Regular,
     types::{ContractId, Identity},
 };
 use tai64::Tai64N;
@@ -26,8 +27,12 @@ abigen!(
     )
 );
 
-pub async fn get_contract_instance(
-) -> Result<(Pipeline<WalletUnlocked>, ContractId, Vec<WalletUnlocked>)> {
+pub async fn get_contract_instance() -> Result<(
+    Pipeline<WalletUnlocked>,
+    ContractId,
+    Vec<WalletUnlocked>,
+    ContractId,
+)> {
     // Launch a local network and deploy the contract
     let mut wallets = launch_custom_provider_and_get_wallets(
         WalletsConfig::new(
@@ -53,8 +58,6 @@ pub async fn get_contract_instance(
     let configurables = PipelineConfigurables::default()
         .with_VESTING_CURVE_REGISTRY(vesting_curve_id.clone().into())?;
 
-    println!("vesting_curve_id: {:?}", &vesting_curve_id);
-
     let id = Contract::load_from(
         "./out/debug/token-streaming.bin",
         LoadConfiguration::default().with_configurables(configurables),
@@ -62,11 +65,9 @@ pub async fn get_contract_instance(
     .deploy(&deployment_wallet, TxPolicies::default())
     .await?;
 
-    println!("id: {:?}", id);
-
     let instance = Pipeline::new(id.clone(), sender_wallet);
 
-    Ok((instance, id.into(), wallets))
+    Ok((instance, id.into(), wallets, vesting_curve_id.into()))
 }
 
 pub async fn create_stream(
@@ -109,7 +110,9 @@ pub async fn create_stream(
 
     let stream_id = stream_creation_result.value;
 
-    let stream = instance.methods().get_stream(stream_id).call().await?.value;
+    let stream_result = instance.methods().get_stream(stream_id).call().await;
+
+    let stream = stream_result?.value;
 
     Ok((stream_id, stream))
 }

@@ -180,6 +180,8 @@ impl Pipeline for Contract {
 
         require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit((deposit, stream_size)));
 
+
+
         let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
         let vesting_curve_id = vesting_curve_registry.register_vesting_curve(configuration.vesting_curve);
 
@@ -278,6 +280,7 @@ impl Pipeline for Contract {
 
         // mint the sender token
         mint(sender_share_recipient, sender_share_asset, sender_sub_id, 1);
+
         stream_id
     }
 
@@ -692,7 +695,9 @@ fn vested_amount(stream: Stream) -> u64 {
 
   let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
 
-  vesting_curve_registry.vested_amount(stream.vesting_curve_id, stream.stream_size, stream.start_time, stream.stop_time, block_timestamp)
+  let vested_amount = vesting_curve_registry.vested_amount(stream.vesting_curve_id, stream.stream_size, stream.start_time, stream.stop_time, block_timestamp);
+
+  return vested_amount;
 }
 
 
@@ -804,20 +809,26 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
 
     let sender_vault_info = get_vault_info(sender_share_asset);
 
-    let mut stream = get_stream(sender_vault_info.stream_id);
 
+    let mut stream = get_stream(sender_vault_info.stream_id);
 
     require(
       stream.configuration.is_cancellable,
       Error::NotCancellable
     );
 
-    require(
-        stream
-            .cancellation_time
-            .is_none(),
-        Error::StreamAlreadyCancelled(stream.cancellation_time.unwrap()),
-    );
+    // This is an ugly hack, but for some reason when doing the following: which should be functionally equivalent:
+    // require(stream.cancellation_time.is_none(), Error::StreamAlreadyCancelled(stream.cancellation_time.unwrap()));
+    // the program reverts with a 0 when it is none as if
+    // It seems as though the unwrap of cancellation time is being evaluated prior to the require statement evaluating to false;
+
+    match stream.cancellation_time {
+        Some(_cancellation_time) => {
+            // this requirement greater than 0 is just a sanity check
+            require(_cancellation_time > 0, Error::StreamAlreadyCancelled(_cancellation_time));
+        },
+        None => {},
+    }
 
     let receiver_share_asset = stream.receiver_asset;
 
@@ -828,15 +839,17 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
     );
     require(shares == 1, Error::InsufficientShares);
 
-    // get the balances of the stream
-    let sender_balance = balance_of(sender_share_asset);
-    let receiver_balance = balance_of(receiver_share_asset);
-
     // Mark the vaults as cancelled
     stream.cancellation_time = Some(timestamp());
     storage.streams.insert(sender_vault_info.stream_id, stream);
 
+
+
     // INTERACTIONS
+    // get the balances of the stream
+    let sender_balance = balance_of(sender_share_asset);
+    let receiver_balance = balance_of(receiver_share_asset);
+
     // send the appropriate amount of tokens to the sender
     if (sender_balance > 0){
         transfer(unvested_recipient, stream.underlying_asset, sender_balance);

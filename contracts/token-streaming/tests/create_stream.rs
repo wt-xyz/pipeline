@@ -17,7 +17,7 @@ const SECS_IN_A_DAY: u64 = 86_400;
 #[tokio::test]
 // create a stream
 async fn can_create_stream() -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -59,7 +59,7 @@ async fn can_create_stream() -> Result<()> {
 
 #[tokio::test]
 async fn can_create_multiple_streams() -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -99,7 +99,7 @@ async fn can_create_multiple_streams() -> Result<()> {
 
 #[tokio::test]
 async fn can_get_name_and_symbol() -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -158,7 +158,7 @@ async fn can_get_name_and_symbol() -> Result<()> {
 
 #[tokio::test]
 async fn cannot_create_fully_collateralized_stream_without_full_deposit() -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -182,7 +182,7 @@ async fn cannot_create_fully_collateralized_stream_without_full_deposit() -> Res
 
     assert_matches!(
         create_stream_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Transaction(_))
+        Some(fuels::types::errors::Error::Transaction(_))
     );
 
     Ok(())
@@ -198,7 +198,7 @@ async fn can_create_undercollateralized_stream(
     #[case] stream_size: u64,
     #[case] deposit: u64,
 ) -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, _, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -227,13 +227,13 @@ async fn can_create_undercollateralized_stream(
 
 #[rstest]
 #[case::one_more(100_000, 100_001)]
-#[case::small_size(1, 1_000_000_000)]
+#[case::small_size(1, 100_000)]
 #[tokio::test]
 async fn cannot_create_undercollateralized_stream_with_invalid_params(
     #[case] stream_size: u64,
     #[case] deposit: u64,
 ) -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, _, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -257,9 +257,12 @@ async fn cannot_create_undercollateralized_stream_with_invalid_params(
     )
     .await;
 
+    let error = create_stream_result.unwrap_err();
+    let raw_error = error.downcast_ref::<Error>();
+
     assert_matches!(
-        create_stream_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Transaction(_))
+        raw_error,
+        Some(fuels::types::errors::Error::Transaction(_))
     );
 
     Ok(())
@@ -277,7 +280,7 @@ async fn can_create_streams_in_past(
     #[case] duration: u64,
     #[case] expected_portion: f32,
 ) -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, _, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -343,7 +346,7 @@ async fn can_get_accurate_solvency_report(
     #[case] duration_denominator: u32,
     #[case] should_be_solvent: bool,
 ) -> Result<()> {
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, _) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, _, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;

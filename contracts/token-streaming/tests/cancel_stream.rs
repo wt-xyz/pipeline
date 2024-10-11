@@ -12,6 +12,8 @@ use assert_matches::assert_matches;
 use fuels::{prelude::*, types::Identity};
 use tai64::Tai64N;
 
+const GAS_USED_FOR_TX: u64 = 1;
+
 async fn cancel_stream(
     instance: &Pipeline<WalletUnlocked>,
     stream: &Stream,
@@ -19,6 +21,7 @@ async fn cancel_stream(
     sender_wallet: &WalletUnlocked,
     use_receiver_share: bool,
     cancellation_time_offset: Duration,
+    vesting_curve_contract_id: ContractId,
 ) -> Result<(u64, u64, u64, Stream)> {
     let sender_asset = stream.sender_asset;
 
@@ -54,8 +57,7 @@ async fn cancel_stream(
         )
         .call_params(call_params)?
         .with_variable_output_policy(VariableOutputPolicy::Exactly(1))
-        .determine_missing_contracts(Some(5))
-        .await?
+        .with_contract_ids(&[vesting_curve_contract_id.into()])
         .call()
         .await?
         .value;
@@ -85,7 +87,7 @@ async fn cancel_stream_test(
     // create a stream
     // cancel the stream
     // check that the stream was updated with a cancellation time
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_curve_contract_id) = get_contract_instance().await?;
 
     let sender_wallet = instance.account().clone();
 
@@ -108,6 +110,8 @@ async fn cancel_stream_test(
     .await;
 
     let stream_info = stream_creation_result?;
+    
+    println!("stream_info: {:?} \n", stream_info);
 
     let (previous_sender_balance, amount_withdrawn, current_sender_balance, stream) =
         cancel_stream(
@@ -117,6 +121,7 @@ async fn cancel_stream_test(
             &sender_wallet,
             use_receiver_share,
             cancellation_time_offset,
+            vesting_curve_contract_id,
         )
         .await?;
 
@@ -126,7 +131,7 @@ async fn cancel_stream_test(
     // confirm that the amount withdrawn is equal to the change in balance
     assert_eq!(
         current_sender_balance,
-        previous_sender_balance + amount_withdrawn
+        previous_sender_balance + amount_withdrawn - GAS_USED_FOR_TX
     );
 
     Ok(())
@@ -176,7 +181,7 @@ async fn cannot_cancel_stream_w_false_is_cancellable() -> Result<()> {
     println!("cancel_result: {:?}", &cancel_result);
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Transaction(_))
+        Some(fuels::types::errors::Error::Transaction(_))
     );
 
     Ok(())
@@ -222,8 +227,8 @@ async fn cannot_cancel_unstarted_stream_w_out_token() -> Result<()> {
     .await;
 
     assert_matches!(
-        cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
+        cancel_result.unwrap_err().downcast_ref::<Error>(),
+        Some(fuels::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())
@@ -264,7 +269,7 @@ async fn cannot_cancel_started_stream_w_out_token() -> Result<()> {
 
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())
@@ -305,7 +310,7 @@ async fn cannot_cancel_completed_stream_w_out_token() -> Result<()> {
 
     assert_matches!(
         cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())
@@ -318,7 +323,7 @@ async fn cannot_cancel_already_cancelled_stream() -> Result<()> {
     let cancellation_time_offset = start_time_offset + Duration::from_secs(1);
     let second_cancellation_time_offset = cancellation_time_offset + Duration::from_secs(1);
 
-    let (instance, _id, wallets) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_curve_contract_id) = get_contract_instance().await?;
 
     let sender_wallet = instance.account().clone();
 
@@ -345,6 +350,7 @@ async fn cannot_cancel_already_cancelled_stream() -> Result<()> {
         &sender_wallet,
         false,
         cancellation_time_offset,
+        vesting_curve_contract_id,
     )
     .await?;
 
@@ -356,12 +362,13 @@ async fn cannot_cancel_already_cancelled_stream() -> Result<()> {
         &sender_wallet,
         false,
         second_cancellation_time_offset,
+        vesting_curve_contract_id,
     )
     .await;
 
     assert_matches!(
         second_cancel_result.unwrap_err().downcast_ref(),
-        Some(fuels_core::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
+        Some(fuels::types::errors::Error::Provider(s)) if s.contains("not enough coins to fit the target")
     );
 
     Ok(())

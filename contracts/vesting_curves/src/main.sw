@@ -89,6 +89,7 @@ impl VestingCurveRegistry for Contract {
     fn register_vesting_curve(curve: VestingCurve) -> b256 {
         // if the curve already exists, return the existing id
         // hash the curve and check if it exists in the registry
+        log(131313);
         let curve_hash = sha256(curve);
         let existing_curve = storage.vesting_curve_registry.get(curve_hash).try_read();
         if existing_curve.is_none() {
@@ -118,8 +119,12 @@ impl VestingCurveRegistry for Contract {
 }
 
 fn vested_amount(curve: VestingCurve, total_amount: u64, start_time: u64, end_time: u64, current_time: u64) -> u64 {
+    if (current_time < start_time) {
+        return 0;
+    }
     let duration_percentage_e6 = (current_time - start_time) * E6 / (end_time - start_time);
     let vested_percentage_e6 = vested_percentage_e6(curve, duration_percentage_e6);
+
     (total_amount * vested_percentage_e6) / E6
 }
 
