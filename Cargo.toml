@@ -7,7 +7,7 @@ authors = ["Wishart Torgersrud (WT) Consulting"]
 license = "Apache-2.0"
 repository = "https://github.com/wt-xyz/token-streaming"
 edition = "2021"
-rust-version = "1.76"
+rust-version = "1.81"
 
 [workspace.dependencies]
 fuels = { version = "0.66.4", features = ["fuel-core-lib"] }
