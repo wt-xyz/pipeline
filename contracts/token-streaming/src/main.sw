@@ -166,122 +166,9 @@ impl Pipeline for Contract {
         stream_size: u64,
         configuration: StreamConfiguration,
     ) -> u64 {
+
+        create_stream(sender_share_recipient, receiver_share_recipient, start_time, stop_time, stream_size, configuration)
         // get the asset_id
-        let underlying_asset = msg_asset_id();
-
-        // get the amount of coins sent
-        let deposit = msg_amount();
-
-        // no stop time before start time
-        require(start_time < stop_time, Error::InvalidDates((start_time, stop_time)));
-
-        // no zero stream_size
-        require(stream_size > 0, Error::ZeroDeposit);
-
-        require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit((deposit, stream_size)));
-
-
-
-        let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
-        let vesting_curve_id = vesting_curve_registry.register_vesting_curve(configuration.vesting_curve);
-
-        // get and increment stream id
-        let stream_id = storage.total_assets.try_read().unwrap_or(0);
-
-        // create two new vaults, one for the sender tokens and one for the receiver token
-        let receiver_sub_id = sha256(stream_id);
-        let receiver_share_asset = vault_asset_id(receiver_sub_id);
-
-        let receiver_vault_info = VaultInfo {
-            vault_sub_id: receiver_sub_id,
-            asset: receiver_share_asset,
-            stream_id: stream_id,
-            sender_or_receiver: SenderOrReceiver::Receiver,
-        };
-        storage
-            .vault_info
-            .insert(receiver_share_asset, receiver_vault_info);
-
-        // Sender vault id will be odd
-        let sender_sub_id = sha256(stream_id + 1);
-        let sender_share_asset = vault_asset_id(sender_sub_id);
-        let sender_vault_info = VaultInfo {
-            vault_sub_id: sender_sub_id,
-            asset: sender_share_asset,
-            stream_id: stream_id,
-            sender_or_receiver: SenderOrReceiver::Sender,
-        };
-        storage
-            .vault_info
-            .insert(sender_share_asset, sender_vault_info);
-
-        // log a deposit of all of the tokens into the sender vault
-        log(Deposit {
-            caller: msg_sender().unwrap(),
-            receiver: sender_share_recipient,
-            underlying_asset: underlying_asset,
-            vault_sub_id: sender_sub_id,
-            deposited_amount: deposit,
-            minted_shares: 1,
-        });
-
-        // log a deposit of all of the tokens into the receiver vault
-        // This is always 0 as the receiver starts with no assets
-        log(Deposit {
-            caller: msg_sender().unwrap(),
-            receiver: receiver_share_recipient,
-            underlying_asset: underlying_asset,
-            vault_sub_id: receiver_sub_id,
-            deposited_amount: 0,
-            minted_shares: 1,
-        });
-
-        log(CreateStream {
-          stream_id: stream_id,
-          sender: sender_share_recipient,
-          receiver: receiver_share_recipient,
-          sender_asset: sender_share_asset,
-          receiver_asset: receiver_share_asset,
-          underlying_asset,
-          start_time,
-          stop_time,
-          configuration,
-          deposit,
-          stream_size,
-          vesting_curve_id,
-        });
-
-        // create new stream
-        let stream = Stream {
-            sender_asset: sender_share_asset,
-            receiver_asset: receiver_share_asset,
-            deposit,
-            stream_size,
-            underlying_asset: underlying_asset,
-            start_time,
-            stop_time,
-            vested_withdrawn_amount: 0,
-            cancellation_time: None,
-            configuration,
-            vesting_curve_id,
-        };
-
-        // add stream to storage
-        storage.streams.insert(stream_id, stream);
-
-        // INTERACTIONS
-        // mint the receiver token
-        mint(
-            receiver_share_recipient,
-            receiver_share_asset,
-            receiver_sub_id,
-            1,
-        );
-
-        // mint the sender token
-        mint(sender_share_recipient, sender_share_asset, sender_sub_id, 1);
-
-        stream_id
     }
 
     /// Returns the underlying asset of a given vault by its share asset
@@ -520,6 +407,125 @@ impl SRC6 for Contract {
         Some(balance_of(share_asset))
     }
 
+}
+
+#[storage(read, write)]
+fn create_stream(sender_share_recipient: Identity, receiver_share_recipient: Identity, start_time: u64, stop_time: u64, stream_size: u64, configuration: StreamConfiguration) -> u64 {
+        let underlying_asset = msg_asset_id();
+
+        // get the amount of coins sent
+        let deposit = msg_amount();
+
+        // no stop time before start time
+        require(start_time < stop_time, Error::InvalidDates((start_time, stop_time)));
+
+        // no zero stream_size
+        require(stream_size > 0, Error::ZeroDeposit);
+
+        require(stream_size == deposit || configuration.is_undercollateralized && deposit <= stream_size , Error::IncorrectDeposit((deposit, stream_size)));
+
+
+
+        let vesting_curve_registry = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into());
+        let vesting_curve_id = vesting_curve_registry.register_vesting_curve(configuration.vesting_curve);
+
+        // get and increment stream id
+        let stream_id = storage.total_assets.try_read().unwrap_or(0);
+
+        // create two new vaults, one for the sender tokens and one for the receiver token
+        let receiver_sub_id = sha256(stream_id);
+        let receiver_share_asset = vault_asset_id(receiver_sub_id);
+
+        let receiver_vault_info = VaultInfo {
+            vault_sub_id: receiver_sub_id,
+            asset: receiver_share_asset,
+            stream_id: stream_id,
+            sender_or_receiver: SenderOrReceiver::Receiver,
+        };
+        storage
+            .vault_info
+            .insert(receiver_share_asset, receiver_vault_info);
+
+        // Sender vault id will be odd
+        let sender_sub_id = sha256(stream_id + 1);
+        let sender_share_asset = vault_asset_id(sender_sub_id);
+        let sender_vault_info = VaultInfo {
+            vault_sub_id: sender_sub_id,
+            asset: sender_share_asset,
+            stream_id: stream_id,
+            sender_or_receiver: SenderOrReceiver::Sender,
+        };
+        storage
+            .vault_info
+            .insert(sender_share_asset, sender_vault_info);
+
+        // log a deposit of all of the tokens into the sender vault
+        log(Deposit {
+            caller: msg_sender().unwrap(),
+            receiver: sender_share_recipient,
+            underlying_asset: underlying_asset,
+            vault_sub_id: sender_sub_id,
+            deposited_amount: deposit,
+            minted_shares: 1,
+        });
+
+        // log a deposit of all of the tokens into the receiver vault
+        // This is always 0 as the receiver starts with no assets
+        log(Deposit {
+            caller: msg_sender().unwrap(),
+            receiver: receiver_share_recipient,
+            underlying_asset: underlying_asset,
+            vault_sub_id: receiver_sub_id,
+            deposited_amount: 0,
+            minted_shares: 1,
+        });
+
+        log(CreateStream {
+          stream_id: stream_id,
+          sender: sender_share_recipient,
+          receiver: receiver_share_recipient,
+          sender_asset: sender_share_asset,
+          receiver_asset: receiver_share_asset,
+          underlying_asset,
+          start_time,
+          stop_time,
+          configuration,
+          deposit,
+          stream_size,
+          vesting_curve_id,
+        });
+
+        // create new stream
+        let stream = Stream {
+            sender_asset: sender_share_asset,
+            receiver_asset: receiver_share_asset,
+            deposit,
+            stream_size,
+            underlying_asset: underlying_asset,
+            start_time,
+            stop_time,
+            vested_withdrawn_amount: 0,
+            cancellation_time: None,
+            configuration,
+            vesting_curve_id,
+        };
+
+        // add stream to storage
+        storage.streams.insert(stream_id, stream);
+
+        // INTERACTIONS
+        // mint the receiver token
+        mint(
+            receiver_share_recipient,
+            receiver_share_asset,
+            receiver_sub_id,
+            1,
+        );
+
+        // mint the sender token
+        mint(sender_share_recipient, sender_share_asset, sender_sub_id, 1);
+
+        stream_id
 }
 
 #[storage(read, write)]
