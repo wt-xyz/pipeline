@@ -11,7 +11,7 @@ use fuels::{
     programs::contract::Regular,
     types::{ContractId, Identity},
 };
-use tai64::Tai64N;
+use tai64::{Tai64, Tai64N};
 
 pub const DEFAULT_START_OFFSET: Duration = Duration::from_secs(60);
 
@@ -170,4 +170,21 @@ pub async fn fast_forward_time(
     provider.produce_blocks(3, date_time).await?;
 
     Ok(())
+}
+
+pub fn datetime_to_tai64n(date_time: DateTime<Utc>) -> Tai64N {
+    Tai64N::from(Tai64::from_unix(date_time.timestamp()))
+}
+
+pub fn tai64n_to_datetime(value: Tai64N) -> DateTime<Utc> {
+    DateTime::from_timestamp(value.0.to_unix(), value.1).unwrap()
+}
+
+pub fn try_tai64n_to_datetime(value: Tai64N) -> Result<DateTime<Utc>> {
+    DateTime::from_timestamp(value.0.to_unix(), value.1)
+        .context("Failed to convert Tai64N to DateTime<Utc>")
+}
+
+pub fn taiu64_to_tai64n(value: u64) -> Tai64N {
+    Tai64N::from(Tai64 { 0: value })
 }
