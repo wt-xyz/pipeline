@@ -80,6 +80,7 @@ pub async fn create_stream(
     duration: Duration,
     stream_size: Option<u64>,
     configuration: Option<StreamConfiguration>,
+    vesting_contract_id: ContractId,
 ) -> Result<(u64, Stream)> {
     let sender_wallet_address = Identity::Address(sender_wallet.address().into());
     let receiver_wallet_address = Identity::Address(receiver_wallet.address().into());
@@ -103,8 +104,7 @@ pub async fn create_stream(
         )
         .call_params(call_params)?
         .with_variable_output_policy(VariableOutputPolicy::Exactly(2))
-        .determine_missing_contracts(Some(5))
-        .await?
+        .with_contract_ids(&[vesting_contract_id.into()])
         .call()
         .await?;
 

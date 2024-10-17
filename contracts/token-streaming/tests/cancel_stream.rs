@@ -87,7 +87,7 @@ async fn cancel_stream_test(
     // create a stream
     // cancel the stream
     // check that the stream was updated with a cancellation time
-    let (instance, _id, wallets, vesting_curve_contract_id) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let sender_wallet = instance.account().clone();
 
@@ -106,11 +106,12 @@ async fn cancel_stream_test(
         duration,
         None,
         configuration,
+        vesting_contract_id,
     )
     .await;
 
     let stream_info = stream_creation_result?;
-    
+
     println!("stream_info: {:?} \n", stream_info);
 
     let (previous_sender_balance, amount_withdrawn, current_sender_balance, stream) =
@@ -121,7 +122,7 @@ async fn cancel_stream_test(
             &sender_wallet,
             use_receiver_share,
             cancellation_time_offset,
-            vesting_curve_contract_id,
+            vesting_contract_id,
         )
         .await?;
 
@@ -340,6 +341,7 @@ async fn cannot_cancel_already_cancelled_stream() -> Result<()> {
         duration,
         None,
         None,
+        vesting_curve_contract_id,
     )
     .await?;
 

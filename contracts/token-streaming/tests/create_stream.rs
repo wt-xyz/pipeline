@@ -17,7 +17,7 @@ const SECS_IN_A_DAY: u64 = 86_400;
 #[tokio::test]
 // create a stream
 async fn can_create_stream() -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -32,6 +32,7 @@ async fn can_create_stream() -> Result<()> {
         duration,
         None,
         None,
+        vesting_contract_id,
     )
     .await?;
 
@@ -59,7 +60,7 @@ async fn can_create_stream() -> Result<()> {
 
 #[tokio::test]
 async fn can_create_multiple_streams() -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -74,6 +75,7 @@ async fn can_create_multiple_streams() -> Result<()> {
         duration,
         None,
         None,
+        vesting_contract_id,
     )
     .await?;
 
@@ -87,6 +89,7 @@ async fn can_create_multiple_streams() -> Result<()> {
         duration,
         None,
         None,
+        vesting_contract_id,
     )
     .await?;
 
@@ -99,7 +102,7 @@ async fn can_create_multiple_streams() -> Result<()> {
 
 #[tokio::test]
 async fn can_get_name_and_symbol() -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -114,6 +117,7 @@ async fn can_get_name_and_symbol() -> Result<()> {
         duration,
         None,
         None,
+        vesting_contract_id,
     )
     .await?;
 
@@ -158,7 +162,7 @@ async fn can_get_name_and_symbol() -> Result<()> {
 
 #[tokio::test]
 async fn cannot_create_fully_collateralized_stream_without_full_deposit() -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -177,6 +181,7 @@ async fn cannot_create_fully_collateralized_stream_without_full_deposit() -> Res
             is_cancellable: true,
             vesting_curve: VestingCurve::Linear,
         }),
+        vesting_contract_id,
     )
     .await;
 
@@ -198,7 +203,7 @@ async fn can_create_undercollateralized_stream(
     #[case] stream_size: u64,
     #[case] deposit: u64,
 ) -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, _, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -219,6 +224,7 @@ async fn can_create_undercollateralized_stream(
         duration,
         Some(stream_size),
         configuration,
+        vesting_contract_id,
     )
     .await?;
 
@@ -233,7 +239,7 @@ async fn cannot_create_undercollateralized_stream_with_invalid_params(
     #[case] stream_size: u64,
     #[case] deposit: u64,
 ) -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, _, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -254,16 +260,14 @@ async fn cannot_create_undercollateralized_stream_with_invalid_params(
         duration,
         Some(stream_size),
         configuration,
+        vesting_contract_id,
     )
     .await;
 
     let error = create_stream_result.unwrap_err();
     let raw_error = error.downcast_ref::<Error>();
 
-    assert_matches!(
-        raw_error,
-        Some(fuels::types::errors::Error::Transaction(_))
-    );
+    assert_matches!(raw_error, Some(fuels::types::errors::Error::Transaction(_)));
 
     Ok(())
 }
@@ -280,7 +284,7 @@ async fn can_create_streams_in_past(
     #[case] duration: u64,
     #[case] expected_portion: f32,
 ) -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, amount, start_time, _, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -299,6 +303,7 @@ async fn can_create_streams_in_past(
         duration,
         None,
         None,
+        vesting_contract_id,
     )
     .await?;
 
@@ -317,8 +322,7 @@ async fn can_create_streams_in_past(
     let max_withdrawable = instance
         .methods()
         .max_withdrawable(underlying_asset, vault_id_receiver)
-        .determine_missing_contracts(Some(5))
-        .await?
+        .with_contract_ids(&[vesting_contract_id.into()])
         .call()
         .await?
         .value
@@ -337,7 +341,6 @@ async fn can_create_streams_in_past(
 #[case::half_collateralized_insolvent_two_third(1_000_000, 500_000, 2, 3, false)]
 #[case::under_half_collateralized_insolvent_half(1_000_000, 499_998, 1, 2, false)]
 #[case::fully_collateralized_solvent_tenth(1, 1, 1, 10, true)]
-#[ignore = "Broken fuels rs, resulting in OutOfGas for subtraction OP"]
 #[tokio::test]
 async fn can_get_accurate_solvency_report(
     #[case] stream_size: u64,
@@ -346,7 +349,7 @@ async fn can_get_accurate_solvency_report(
     #[case] duration_denominator: u32,
     #[case] should_be_solvent: bool,
 ) -> Result<()> {
-    let (instance, _id, wallets, _) = get_contract_instance().await?;
+    let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
     let (sender_wallet, receiver_wallet, _, start_time, duration, underlying_asset) =
         get_default_stream_values(wallets)?;
@@ -367,6 +370,7 @@ async fn can_get_accurate_solvency_report(
         duration,
         Some(stream_size),
         configuration,
+        vesting_contract_id,
     )
     .await?;
 
@@ -377,7 +381,12 @@ async fn can_get_accurate_solvency_report(
     )
     .await?;
 
-    let is_solvent_result = instance.methods().is_solvent(stream_id).call().await;
+    let is_solvent_result = instance
+        .methods()
+        .is_solvent(stream_id)
+        .with_contract_ids(&[vesting_contract_id.into()])
+        .call()
+        .await;
 
     let is_solvent = is_solvent_result?.value;
 
