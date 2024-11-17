@@ -747,6 +747,7 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
     // get the amount of shares sent
     let shares = msg_amount();
 
+
     let vault_info = get_vault_info(vault_share_asset);
 
     // get the stream
@@ -776,6 +777,7 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
 
     storage.streams.insert(vault_info.stream_id, stream);
 
+    // require(false, Error::ZeroDeposit);
     // INTERACTIONS
     // transfer the amount to the receiver
     transfer(receiver, stream.underlying_asset, amount);
@@ -790,6 +792,7 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
         withdrawn_amount: amount,
         burned_shares: 1,
     });
+
 
     amount
 }

@@ -6,7 +6,7 @@ mod events;
 mod errors;
 mod personal_sign;
 
-use structs::{Allocation, EVMSignatureType, FuelSignatureType, SignatureType};
+use ::structs::{Allocation, EVMSignatureType, FuelSignatureType, SignatureType};
 use ::interface::AirstreamAbi;
 use ::events::{
     ClaimEvent,
@@ -99,7 +99,7 @@ impl AirstreamAbi for Contract {
                 require(
                     identity == recovered_identity
                         .into(),
-                    VerificationError::IncorrectAccount((identity, recovered_identity)),
+                    VerificationError::IncorrectAccount((identity, recovered_identity.into())),
                 );
             }
             SignatureType::FUEL => {
@@ -112,7 +112,10 @@ impl AirstreamAbi for Contract {
                         contract_id.into()
                     }
                 };
-                require(identity == sender_b256, VerificationError::IncorrectAccount((identity, sender_b256)));
+                require(
+                    identity == sender_b256,
+                    VerificationError::IncorrectAccount((identity, sender_b256)),
+                );
             }
         }
 
@@ -293,7 +296,10 @@ fn _owner() -> Option<Identity> {
 #[storage(read)]
 fn can_claim() {
     require(!_is_paused(), AccessError::Paused);
-    require(_is_airdrop_active(), AccessError::AirdropDone(timestamp(), END_TIME));
+    require(
+        _is_airdrop_active(),
+        AccessError::AirdropDone((timestamp(), END_TIME)),
+    );
 }
 
 #[storage(read)]
@@ -314,7 +320,7 @@ fn only_pending_owner() {
             .read()
             .unwrap() == msg_sender()
             .unwrap(),
-        AccessError::CallerNotPendingOwner((msg_sender().unwrap(), storage.pending_owner.read().unwrap().unwrap())),
+        AccessError::CallerNotPendingOwner((msg_sender().unwrap(), storage.pending_owner.read())),
     )
 }
 

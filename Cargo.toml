@@ -1,5 +1,5 @@
 [workspace]
-members = ["contracts/token-streaming", "contracts/vesting_curves"]
+members = ["contracts/token-streaming", "contracts/vesting-curves", "contracts/airstreams", "packages/catalyst-merkle"]
 resolver = "2"
 
 [workspace.package]
@@ -15,3 +15,6 @@ tokio = { version = "1.12", features = ["rt", "macros"] }
 anyhow = "1.0.81"
 rstest = "0.18.2"
 time="0.3.36"
+fuel-merkle = "0.58.2"
+serde = { version = "1.0.215", features = ["derive"] }
+hex = "0.4.3"

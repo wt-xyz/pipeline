@@ -1,0 +1,17 @@
+[package]
+name = "catalyst-merkle"
+description = "Merkle tree implementations for Catalyst style merkle trees"
+version = "0.1.0"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+fuels.workspace = true
+fuel-merkle.workspace = true
+serde.workspace = true
+sha2 = "0.10.8"
+hex.workspace = true

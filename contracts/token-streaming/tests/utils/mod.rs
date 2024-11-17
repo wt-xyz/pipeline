@@ -23,7 +23,7 @@ abigen!(
     ),
     Contract(
         name = "VestingCurve",
-        abi = "contracts/vesting_curves/out/debug/vesting-curves-abi.json"
+        abi = "contracts/vesting-curves/out/debug/vesting-curves-abi.json"
     )
 );
 
@@ -49,7 +49,7 @@ pub async fn get_contract_instance() -> Result<(
     let sender_wallet = wallets.pop().context("Missing sender wallet")?;
 
     let vesting_curve_id = Contract::load_from(
-        "../vesting_curves/out/debug/vesting-curves.bin",
+        "../vesting-curves/out/debug/vesting-curves.bin",
         LoadConfiguration::default(),
     )?
     .deploy(&deployment_wallet, TxPolicies::default())
