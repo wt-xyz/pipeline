@@ -6,7 +6,7 @@ mod events;
 mod errors;
 mod personal_sign;
 
-use ::structs::{Allocation, EVMSignatureType, FuelSignatureType, SignatureType};
+use ::structs::{Allocation, EVMSignatureType, SignatureType};
 use ::interface::AirstreamAbi;
 use ::events::{
     ClaimEvent,
@@ -42,7 +42,7 @@ use sway_libs::{merkle::binary_proof::{leaf_digest, verify_proof}, reentrancy::*
 impl Hash for Allocation {
     fn hash(self, ref mut state: Hasher) {
         self.identity.hash(state);
-        self.amount.hash(state);
+        u256::from(self.amount).hash(state);
     }
 }
 
@@ -86,7 +86,7 @@ impl AirstreamAbi for Contract {
         // Contract should not be paused, not past the end date, and the tree_index should be unclaimed
         // Check the validity of the signatures based on type
         match signature_type {
-            SignatureType::EVM(EVMSignatureType { witness_index }) => {
+            SignatureType::Evm(EVMSignatureType { witness_index }) => {
                 // recover the signer address from the signature
                 // signature is personal signed hash of tx_id signed by the evm connector signer
                 let witness_data = tx_witness_data(witness_index);
@@ -102,7 +102,7 @@ impl AirstreamAbi for Contract {
                     VerificationError::IncorrectAccount((identity, recovered_identity.into())),
                 );
             }
-            SignatureType::FUEL => {
+            SignatureType::Fuel => {
                 // verify the regular fuel signature
                 let sender_b256: b256 = match (msg_sender().unwrap()) {
                     Identity::Address(address) => {
