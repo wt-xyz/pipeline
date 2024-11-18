@@ -7,7 +7,7 @@ mod errors;
 mod personal_sign;
 
 use ::structs::{Allocation, EVMSignatureType, SignatureType};
-use ::interface::AirstreamAbi;
+use ::interface::{AirstreamAbi};
 use ::events::{
     ClaimEvent,
     ClawbackEvent,
@@ -21,6 +21,7 @@ use libraries::{constants::E6, interface::VestingCurveRegistry, structs::Vesting
 use std::{
     address::Address,
     asset::transfer,
+    b512::B512,
     block::timestamp,
     constants::ZERO_B256,
     context::this_balance,

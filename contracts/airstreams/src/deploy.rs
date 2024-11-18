@@ -38,38 +38,38 @@ struct DeployParams {
 }
 
 // TODO make this generic over the contract deployment trait
-struct AirstreamContract {
-    contract_id: ContractId,
-    instance: Airstreams<WalletUnlocked>,
+pub struct AirstreamContract {
+    pub contract_id: ContractId,
+    pub instance: Airstreams<WalletUnlocked>,
 }
 
-struct VestingCurveRegistryContract {
-    contract_id: ContractId,
-    instance: VestingCurveRegistry<WalletUnlocked>,
+pub struct VestingCurveRegistryContract {
+    pub contract_id: ContractId,
+    pub instance: VestingCurveRegistry<WalletUnlocked>,
 }
 
 pub struct Deployment {
     // airstreams contract id
-    airstream: AirstreamContract,
+    pub airstream: AirstreamContract,
     // vesting curve registry id
-    vesting_curve_registry: VestingCurveRegistryContract,
+    pub vesting_curve_registry: VestingCurveRegistryContract,
     // deployment configurables
     // Some overlap from deploy params, but some values are derived
-    configurables: DeploymentConfigurables,
+    pub configurables: DeploymentConfigurables,
     // deploy params
-    params: DeployParams,
+    pub params: DeployParams,
 }
 
 pub struct DeploymentConfigurables {
-    vesting_curve_registry_id: ContractId,
-    start_time: u64,
-    end_time: u64,
-    asset_id: AssetId,
-    owner: Identity,
-    vesting_curve: VestingCurve,
-    merkle_root: Bits256,
-    num_leaves: u64,
-    merkle_tree: MerkleTree,
+    pub vesting_curve_registry_id: ContractId,
+    pub start_time: u64,
+    pub end_time: u64,
+    pub asset_id: AssetId,
+    pub owner: Identity,
+    pub vesting_curve: VestingCurve,
+    pub merkle_root: Bits256,
+    pub num_leaves: u64,
+    pub merkle_tree: MerkleTree,
 }
 
 pub struct DeploymentBuilder {
@@ -282,7 +282,7 @@ async fn test_deployment() -> Result<()> {
 /// Test proof generation
 #[cfg(test)]
 #[tokio::test]
-async fn test_proof_generation() -> Result<()> {
+async fn test_proof_generation_fuel_address() -> Result<()> {
     let wallet = launch_provider_and_get_wallet().await?;
 
     let total_claim_amount = 1000;

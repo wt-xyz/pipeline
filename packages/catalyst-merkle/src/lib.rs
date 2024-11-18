@@ -1,9 +1,11 @@
 use std::str::FromStr;
 
+use anyhow::Result;
 use fuel_merkle::common::Bytes32;
-use fuels::types::{bech32::Bech32Address, Address, Bits256, U256};
+use fuels::types::{bech32::Bech32Address, Bits256, U256};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::string::String;
 
 pub use fuel_merkle::binary::in_memory::MerkleTree;
 
@@ -61,13 +63,21 @@ impl AirstreamMerkleTree {
     }
 }
 
-fn hex_str_to_bytes(hex: &str) -> Result<Bits256, &'static str> {
-    println!("hex: {}", hex);
+pub fn hex_str_to_bytes(hex: &str) -> Result<Bits256> {
+    // to_lowercase
+    let hex = hex.to_lowercase();
+
     if hex.len() % 2 != 0 {
-        return Err("Hexadecimal string must have an even length");
+        anyhow::bail!("Hexadecimal string must have an even length");
     }
 
-    let b256 = Bits256::from_hex_str(hex).map_err(|_| "Invalid hexadecimal digit")?;
+    // strip the 0x prefix if it exists
+    let hex = hex.strip_prefix("0x").unwrap_or(&hex);
+
+    // extend the hex string to 64 characters with trailing zeros
+    let padded_hex = format!("{:0>64}", hex);
+
+    let b256 = Bits256::from_hex_str(&padded_hex)?;
     Ok(b256)
 }
 

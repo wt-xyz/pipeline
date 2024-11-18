@@ -1,7 +1,4 @@
-use fuels::{
-    prelude::*,
-    types::{AssetId, ContractId, Identity},
-};
+pub mod eth_signer;
 
 pub fn test_fn() {
     println!("test_fn");

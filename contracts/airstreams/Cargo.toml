@@ -24,10 +24,11 @@ fuel-merkle.workspace = true
 serde.workspace = true
 sha2 = "0.10.8"
 hex.workspace = true
+alloy = {version="0.6.4", features=["full"]}
 
 [[test]]
-name = "tests"
-path = "tests/mod.rs"
+name = "integration-tests"
+path = "tests/claim.rs"
 
 [lib]
 path = "src/lib.rs"
