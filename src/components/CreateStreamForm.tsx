@@ -27,11 +27,9 @@ import { useRouter } from "next/navigation";
 import { IconSettings } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { TimezoneModal } from "./TimezoneModal";
-import { SECONDS_PER_DAY } from "@/constants/constants";
+import { BASE_ASSET_ID, SECONDS_PER_DAY } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { Option } from "../../types/contracts/common";
-import { CoinQuantity } from "fuels";
 import { CoinQuantityWithId } from "@/redux/coinsSlice";
 
 type FormValues = {
@@ -86,11 +84,10 @@ export const CreateStreamForm = () => {
       },
     },
     initialValues: {
-      token: "",
-      recipient:
-        "fuel15mssspz9pg2t3yf2dls4d6mvsc9jgc8mtc3na5jp6n8q840mxy3srhn4q8",
+      token: BASE_ASSET_ID,
+      recipient: "",
       dates: [new Date(), new Date(Date.now() + 1000 * SECONDS_PER_DAY * 7)],
-      streamSize: 123,
+      streamSize: 1,
       deposit: 0,
       undercollateralized: false,
       cancellable: true,
@@ -175,7 +172,10 @@ export const CreateStreamForm = () => {
                 }
                 placeholder="Pick Token"
                 data={coins.map((coin: CoinQuantityWithId) => ({
-                  label: coin.assetId || "Unknown",
+                  label:
+                    coin.assetId === BASE_ASSET_ID
+                      ? "Eth"
+                      : coin.assetId.toString() || "Unknown",
                   // label: coin.symbol || coin.address || 'Unknown', // Fallback to 'Unknown' if symbol is undefined
                   value: coin.assetId.toString(), // Assuming address is the desired value
                 }))}

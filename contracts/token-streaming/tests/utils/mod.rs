@@ -2,25 +2,37 @@
 
 use std::time::Duration;
 
+use abigen_bindings::pipeline_mod::libraries::structs::VestingCurve;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use fuels::{
     accounts::provider,
     prelude::*,
+    programs::contract::Regular,
     types::{ContractId, Identity},
 };
-use tai64::Tai64N;
+use tai64::{Tai64, Tai64N};
 
 pub const DEFAULT_START_OFFSET: Duration = Duration::from_secs(60);
 
 // Load abi from json
-abigen!(Contract(
-    name = "Pipeline",
-    abi = "contracts/token-streaming/out/debug/token-streaming-abi.json"
-));
+abigen!(
+    Contract(
+        name = "Pipeline",
+        abi = "contracts/token-streaming/out/debug/token-streaming-abi.json",
+    ),
+    Contract(
+        name = "VestingCurve",
+        abi = "contracts/vesting-curves/out/debug/vesting-curves-abi.json"
+    )
+);
 
-pub async fn get_contract_instance(
-) -> Result<(Pipeline<WalletUnlocked>, ContractId, Vec<WalletUnlocked>)> {
+pub async fn get_contract_instance() -> Result<(
+    Pipeline<WalletUnlocked>,
+    ContractId,
+    Vec<WalletUnlocked>,
+    ContractId,
+)> {
     // Launch a local network and deploy the contract
     let mut wallets = launch_custom_provider_and_get_wallets(
         WalletsConfig::new(
@@ -36,16 +48,26 @@ pub async fn get_contract_instance(
 
     let sender_wallet = wallets.pop().context("Missing sender wallet")?;
 
+    let vesting_curve_id = Contract::load_from(
+        "../vesting-curves/out/debug/vesting-curves.bin",
+        LoadConfiguration::default(),
+    )?
+    .deploy(&deployment_wallet, TxPolicies::default())
+    .await?;
+
+    let configurables = PipelineConfigurables::default()
+        .with_VESTING_CURVE_REGISTRY(vesting_curve_id.clone().into())?;
+
     let id = Contract::load_from(
         "./out/debug/token-streaming.bin",
-        LoadConfiguration::default(),
+        LoadConfiguration::default().with_configurables(configurables),
     )?
     .deploy(&deployment_wallet, TxPolicies::default())
     .await?;
 
     let instance = Pipeline::new(id.clone(), sender_wallet);
 
-    Ok((instance, id.into(), wallets))
+    Ok((instance, id.into(), wallets, vesting_curve_id.into()))
 }
 
 pub async fn create_stream(
@@ -58,6 +80,7 @@ pub async fn create_stream(
     duration: Duration,
     stream_size: Option<u64>,
     configuration: Option<StreamConfiguration>,
+    vesting_contract_id: ContractId,
 ) -> Result<(u64, Stream)> {
     let sender_wallet_address = Identity::Address(sender_wallet.address().into());
     let receiver_wallet_address = Identity::Address(receiver_wallet.address().into());
@@ -76,16 +99,20 @@ pub async fn create_stream(
             configuration.unwrap_or(StreamConfiguration {
                 is_undercollateralized: false,
                 is_cancellable: true,
+                vesting_curve: VestingCurve::Linear,
             }),
         )
         .call_params(call_params)?
-        .append_variable_outputs(2)
+        .with_variable_output_policy(VariableOutputPolicy::Exactly(2))
+        .with_contract_ids(&[vesting_contract_id.into()])
         .call()
         .await?;
 
     let stream_id = stream_creation_result.value;
 
-    let stream = instance.methods().get_stream(stream_id).call().await?.value;
+    let stream_result = instance.methods().get_stream(stream_id).call().await;
+
+    let stream = stream_result?.value;
 
     Ok((stream_id, stream))
 }
@@ -143,4 +170,21 @@ pub async fn fast_forward_time(
     provider.produce_blocks(3, date_time).await?;
 
     Ok(())
+}
+
+pub fn datetime_to_tai64n(date_time: DateTime<Utc>) -> Tai64N {
+    Tai64N::from(Tai64::from_unix(date_time.timestamp()))
+}
+
+pub fn tai64n_to_datetime(value: Tai64N) -> DateTime<Utc> {
+    DateTime::from_timestamp(value.0.to_unix(), value.1).unwrap()
+}
+
+pub fn try_tai64n_to_datetime(value: Tai64N) -> Result<DateTime<Utc>> {
+    DateTime::from_timestamp(value.0.to_unix(), value.1)
+        .context("Failed to convert Tai64N to DateTime<Utc>")
+}
+
+pub fn taiu64_to_tai64n(value: u64) -> Tai64N {
+    Tai64N::from(Tai64 { 0: value })
 }

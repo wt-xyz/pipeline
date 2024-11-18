@@ -31,7 +31,7 @@ const streamsAdapter = createEntityAdapter<StreamSerializable>();
 // Define the initial state using the entity adapter's getInitialState method
 const initialState = streamsAdapter.getInitialState();
 
-const serializeStream = (stream: Stream): StreamSerializable => ({
+export const serializeStream = (stream: Stream): StreamSerializable => ({
   ...stream,
   deposit: stream.deposit.toString(),
   rate_per_second_e_10: stream.rate_per_second_e_10.toString(),
@@ -59,20 +59,17 @@ export const slice = createSlice({
   name: "streams",
   initialState,
   reducers: {
-    setStreams: (state, action: PayloadAction<Stream[]>) => {
+    setStreams: (state, action: PayloadAction<StreamSerializable[]>) => {
       // Convert BN properties to strings
-      const serializableStreams = action.payload.map(serializeStream);
-      streamsAdapter.setAll(state, serializableStreams);
+      streamsAdapter.setAll(state, action.payload);
     },
-    addStream: (state, action: PayloadAction<Stream>) => {
-      const serializableStream = serializeStream(action.payload);
-      streamsAdapter.addOne(state, serializableStream);
+    addStream: (state, action: PayloadAction<StreamSerializable>) => {
+      streamsAdapter.addOne(state, action.payload);
     },
-    updateStream: (state, action: PayloadAction<Stream>) => {
-      const serializableStream = serializeStream(action.payload);
+    updateStream: (state, action: PayloadAction<StreamSerializable>) => {
       streamsAdapter.updateOne(state, {
         id: action.payload.id,
-        changes: serializableStream,
+        changes: action.payload,
       });
     },
     removeStream: (state, action: PayloadAction<string>) => {

@@ -33,7 +33,6 @@ import { useMaxWithdrawable } from "@/hooks/TokenStreamingAbi";
 import { BigNumberish, BN } from "fuels";
 import { useNotificationHook } from "@/hooks/Notifications";
 import { useDisclosure } from "@mantine/hooks";
-import { StreamSerializable } from "@/redux/streamsSlice";
 
 type StreamAccordionItemProps = {
   value: string;
@@ -92,6 +91,7 @@ const SingleInputModal = ({
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="Enter value"
+          style={{ marginRight: "20px", marginBottom: "20px" }}
         />
         <Button
           onClick={() => {
@@ -264,12 +264,13 @@ export const StreamAccordionItemView = ({
 
 const TotalAmountComponent = ({ stream }: { stream: Stream }) => {
   return (
-    <Grid dir="row">
+    <Grid dir="row" style={{ width: "100%" }}>
       <Grid.Col span={4}>
         {/* TODO: get decimals from our hook: useCoinInfo */}
         <TextXxl c={"white"}>{formatDecimals(stream.stream_size)}</TextXxl>
         <TextMd c={"gray.7"}>Total Amount</TextMd>
       </Grid.Col>
+
       <Grid.Col span={4}>
         <TextXxl c={"gray.7"}>
           {/* TODO: change to symbol */}

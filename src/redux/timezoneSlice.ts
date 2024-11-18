@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Stream } from "@/hooks/Streams";
 
 // Define the type for your slice state
 type PipelineState = {

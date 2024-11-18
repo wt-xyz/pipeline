@@ -13,11 +13,7 @@
     "plugin:prettier/recommended",
     "plugin:storybook/recommended"
   ],
-  "plugins": [
-    "@typescript-eslint",
-    "eslint-plugin-react",
-    "react-hooks"
-  ],
+  "plugins": ["@typescript-eslint", "eslint-plugin-react", "react-hooks"],
   "settings": {
     "react": {
       "version": "detect"
@@ -25,10 +21,13 @@
   },
   "ignorePatterns": ["**/node_modules/**"],
   "rules": {
-    "@typescript-eslint/consistent-type-definitions": ["error","type"],
-    "@typescript-eslint/no-unused-expressions": ["error", { "allowTernary": true }],
+    "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      { "allowTernary": true }
+    ],
     "@typescript-eslint/no-unused-vars": "warn",
-    "no-unused-expressions": "off",
+    "no-unused-expressions": "warn",
     "prettier/prettier": [
       "error",
       {
@@ -40,7 +39,8 @@
     ],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": [
-      "warn", {
+      "warn",
+      {
         "additionalHooks": "(useRecoilCallback|useRecoilTransaction_UNSTABLE)"
       }
     ],

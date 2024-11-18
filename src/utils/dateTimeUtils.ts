@@ -20,7 +20,9 @@ export function convertTaiTimeBNToDate(input: BN) {
 }
 
 export function daysAwayFromTaiTimeBN(taiTime: BN): number {
-  return daysAway(convertTaiTimeBNToUnixTimeMilliseconds(taiTime).toNumber());
+  if (daysAway(convertTaiTimeBNToUnixTimeMilliseconds(taiTime).toNumber()) >= 0)
+    return daysAway(convertTaiTimeBNToUnixTimeMilliseconds(taiTime).toNumber());
+  else return 0;
 }
 
 export function daysAway(unixTimestamp: number): number {

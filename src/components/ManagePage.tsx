@@ -4,7 +4,7 @@ import { CustomAccordion } from "components/CustomAccordion/CustomAccordion";
 import { StreamAccordionItem } from "components/StreamItemAccordion/StreamAccordionItem";
 import { TextLg } from "components/TextVariants";
 import { useReceiverStreams, useSenderStreams } from "hooks/Streams";
-import { SendingAndReceiving } from "components/SendingAndRecieving/SendingAndReceiving";
+import { SendingAndReceiving } from "components/SendingAndReceiving/SendingAndReceiving";
 import { useIsMobile } from "hooks/useIsMobile";
 import { isEmpty } from "lodash";
 import { useSelector } from "react-redux";

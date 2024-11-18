@@ -1,0 +1,9 @@
+[project]
+authors = ["Wishart Torgersrud Consulting"]
+entry = "main.sw"
+license = "MIT"
+name = "vesting-curves"
+
+[dependencies]
+standards = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.4.4" }
+libraries = { path = "../libraries" }

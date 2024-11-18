@@ -38,6 +38,7 @@ abi Pipeline {
     /// * `receiver_share_recipient` - The identity that the receiver share will be sent to
     /// * `start_time` - The time at which the stream will start
     /// * `stop_time` - The time at which the stream will stop
+    /// * `vesting_curve` - The vesting curve to use for the stream
     #[storage(read, write), payable]
     fn create_stream(sender_share_recipient: Identity, receiver_share_recipient: Identity, start_time: u64, stop_time: u64, deposit: u64, configuration: StreamConfiguration) -> u64;
 
@@ -101,4 +102,3 @@ abi Pipeline {
     #[storage(read)]
     fn vested_amount(stream_id: u64) -> u64;
 }
-

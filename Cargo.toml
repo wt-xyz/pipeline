@@ -1,5 +1,5 @@
 [workspace]
-members = ["contracts/token-streaming"]
+members = ["contracts/token-streaming", "contracts/vesting-curves", "contracts/airstreams", "packages/catalyst-merkle"]
 resolver = "2"
 
 [workspace.package]
@@ -7,11 +7,14 @@ authors = ["Wishart Torgersrud (WT) Consulting"]
 license = "Apache-2.0"
 repository = "https://github.com/wt-xyz/token-streaming"
 edition = "2021"
-rust-version = "1.76"
+rust-version = "1.81"
 
 [workspace.dependencies]
-fuels = { version = "0.62.0", features = ["fuel-core-lib"] }
-fuels-core = "0.62.0"
+fuels = { version = "0.66.4", features = ["fuel-core-lib"] }
 tokio = { version = "1.12", features = ["rt", "macros"] }
-rstest = "0.18.2"
 anyhow = "1.0.81"
+rstest = "0.18.2"
+time="0.3.36"
+fuel-merkle = "0.58.2"
+serde = { version = "1.0.215", features = ["derive"] }
+hex = "0.4.3"
