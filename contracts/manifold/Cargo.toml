@@ -1,6 +1,6 @@
 [package]
-name = "airstreams"
-description = "Sway contracts for airstreams"
+name = "manifold"
+description = "Sway contracts for manifold"
 version = "0.1.0"
 authors.workspace = true
 license.workspace = true

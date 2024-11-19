@@ -1,5 +1,5 @@
 [[package]]
-name = "airstreams"
+name = "manifold"
 source = "member"
 dependencies = [
     "libraries",

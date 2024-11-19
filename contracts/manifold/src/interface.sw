@@ -2,7 +2,7 @@ library;
 
 use ::structs::SignatureType;
 
-abi AirstreamAbi {
+abi ManifoldAbi {
     /// Claim an airdrop allocation
     /// @param claim_amount - The amount to claim
     /// @param total_amount - The total amount of the airdrop (used to verify the merkle proof)

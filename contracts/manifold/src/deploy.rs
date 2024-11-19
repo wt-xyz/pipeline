@@ -1,4 +1,4 @@
-use catalyst_merkle::{AirstreamMerkleTree, MerkleTree, User};
+use catalyst_merkle::{ManifoldMerkleTree, MerkleTree, User};
 use chrono::{DateTime, Days, Utc};
 use fuels::{
     prelude::*,
@@ -8,8 +8,8 @@ use tai64::Tai64;
 
 abigen!(
     Contract(
-        name = "Airstreams",
-        abi = "contracts/airstreams/out/debug/airstreams-abi.json",
+        name = "Manifolds",
+        abi = "contracts/manifold/out/debug/manifold-abi.json",
     ),
     Contract(
         name = "VestingCurveRegistry",
@@ -38,9 +38,9 @@ struct DeployParams {
 }
 
 // TODO make this generic over the contract deployment trait
-pub struct AirstreamContract {
+pub struct ManifoldContract {
     pub contract_id: ContractId,
-    pub instance: Airstreams<WalletUnlocked>,
+    pub instance: Manifolds<WalletUnlocked>,
 }
 
 pub struct VestingCurveRegistryContract {
@@ -49,8 +49,8 @@ pub struct VestingCurveRegistryContract {
 }
 
 pub struct Deployment {
-    // airstreams contract id
-    pub airstream: AirstreamContract,
+    // manifold contract id
+    pub manifold: ManifoldContract,
     // vesting curve registry id
     pub vesting_curve_registry: VestingCurveRegistryContract,
     // deployment configurables
@@ -101,7 +101,7 @@ impl Default for DeploymentBuilder {
     }
 }
 
-/// Builder for deploying airstreams contracts
+/// Builder for deploying manifold contracts
 impl DeploymentBuilder {
     pub fn with_users(mut self, users: Vec<User>) -> Self {
         self.params.users = users;
@@ -142,7 +142,7 @@ impl DeploymentBuilder {
         // for deployment we need to do the following:
         // 1. deploy vesting curve registry if not provided
         // 2. calculate the merkle root of the allocations
-        // 3. deploy airstreams contract
+        // 3. deploy manifold contract
 
         // 1. Deploy vesting curve registry if not provided
         let vesting_curve_registry_id = match self.params.vesting_curve_registry_id {
@@ -160,7 +160,7 @@ impl DeploymentBuilder {
             VestingCurveRegistry::new(vesting_curve_registry_id, self.params.deployer.clone());
 
         // 2. Calculate the merkle root of the allocations
-        let merkle_tree = AirstreamMerkleTree::create_from_users(&self.params.users).tree;
+        let merkle_tree = ManifoldMerkleTree::create_from_users(&self.params.users).tree;
 
         let merkle_root = merkle_tree.root();
 
@@ -180,8 +180,8 @@ impl DeploymentBuilder {
             merkle_tree,
         };
 
-        // 3. Deploy airstreams contract
-        let airstreams_configurables = AirstreamsConfigurables::default()
+        // 3. Deploy manifold contract
+        let manifold_configurables = ManifoldsConfigurables::default()
             .with_VESTING_CURVE_REGISTRY_ID(vesting_curve_registry_id)?
             .with_START_TIME(deployment_configurables.start_time)?
             .with_END_TIME(deployment_configurables.end_time)?
@@ -191,17 +191,17 @@ impl DeploymentBuilder {
             .with_MERKLE_ROOT(deployment_configurables.merkle_root)?
             .with_NUM_LEAVES(deployment_configurables.num_leaves)?;
 
-        let airstreams_contract_id = Contract::load_from(
-            "./out/debug/airstreams.bin",
-            LoadConfiguration::default().with_configurables(airstreams_configurables),
+        let manifold_contract_id = Contract::load_from(
+            "./out/debug/manifold.bin",
+            LoadConfiguration::default().with_configurables(manifold_configurables),
         )?
         .deploy(&self.params.deployer, TxPolicies::default())
         .await?
         .into();
 
-        let instance = Airstreams::new(airstreams_contract_id, self.params.deployer.clone());
+        let instance = Manifolds::new(manifold_contract_id, self.params.deployer.clone());
 
-        // airstream contract must be initialized to register the vesting curve
+        // manifold contract must be initialized to register the vesting curve
         instance
             .methods()
             .initialize()
@@ -210,8 +210,8 @@ impl DeploymentBuilder {
             .await?;
 
         Ok(Deployment {
-            airstream: AirstreamContract {
-                contract_id: airstreams_contract_id,
+            manifold: ManifoldContract {
+                contract_id: manifold_contract_id,
                 instance,
             },
             vesting_curve_registry: VestingCurveRegistryContract {
@@ -253,7 +253,7 @@ async fn test_deployment() -> Result<()> {
         .await?;
 
     let owner = deployment
-        .airstream
+        .manifold
         .instance
         .methods()
         .owner()
@@ -265,7 +265,7 @@ async fn test_deployment() -> Result<()> {
     assert_eq!(owner, Identity::Address(wallet.address().into()));
 
     let claimed_amount = deployment
-        .airstream
+        .manifold
         .instance
         .methods()
         .amount_claimed(0)
@@ -275,7 +275,7 @@ async fn test_deployment() -> Result<()> {
 
     assert_eq!(claimed_amount, 0);
 
-    // Now you can use deployment.airstreams_id, deployment.instance, etc.
+    // Now you can use deployment.manifold_id, deployment.instance, etc.
     Ok(())
 }
 
@@ -307,7 +307,7 @@ async fn test_proof_generation_fuel_address() -> Result<()> {
 
     // should fail due to zero claim being transferred
     let result = deployment
-        .airstream
+        .manifold
         .instance
         .methods()
         .claim(

@@ -1,5 +1,5 @@
 [workspace]
-members = ["contracts/token-streaming", "contracts/vesting-curves", "contracts/airstreams", "packages/catalyst-merkle"]
+members = ["contracts/token-streaming", "contracts/vesting-curves", "contracts/manifold", "packages/catalyst-merkle"]
 resolver = "2"
 
 [workspace.package]
