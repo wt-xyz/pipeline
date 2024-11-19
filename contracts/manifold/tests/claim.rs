@@ -1,14 +1,14 @@
 mod utils;
 
 use crate::utils::eth_signer::EthSigner;
-use airstreams::deploy::DeploymentBuilder;
 use catalyst_merkle::{hex_str_to_bytes, User};
 use fuels::prelude::*;
 use fuels::types::{Bits256, Identity};
+use manifold::deploy::DeploymentBuilder;
 
 #[tokio::test]
 async fn test_proof_generation_fuel_address() -> Result<()> {
-    use airstreams::deploy::SignatureType;
+    use manifold::deploy::SignatureType;
 
     let wallet = launch_provider_and_get_wallet().await?;
 
@@ -34,7 +34,7 @@ async fn test_proof_generation_fuel_address() -> Result<()> {
 
     // should fail due to zero claim being transferred
     let result = deployment
-        .airstream
+        .manifold
         .instance
         .methods()
         .claim(
@@ -87,7 +87,7 @@ async fn test_claim_with_eth_signature() -> Result<()> {
     let proof = merkle_tree.prove(tree_index).unwrap();
 
     let call_handler = deployment
-        .airstream
+        .manifold
         .instance
         .methods()
         .claim(
@@ -97,7 +97,7 @@ async fn test_claim_with_eth_signature() -> Result<()> {
             tree_index,
             proof.1.into_iter().map(Bits256).collect(),
             recipient,
-            airstreams::deploy::SignatureType::Evm(airstreams::deploy::EVMSignatureType {
+            manifold::deploy::SignatureType::Evm(manifold::deploy::EVMSignatureType {
                 witness_index: 1,
             }),
         )
@@ -135,6 +135,29 @@ async fn test_claim_with_eth_signature() -> Result<()> {
         .unwrap()
         .to_string()
         .contains("failed transfer to address"));
+
+    Ok(())
+}
+
+// Test the claim at the end of the vesting period
+async fn test_claim() -> Result<()> {
+    let wallet = launch_provider_and_get_wallet().await?;
+
+    let eth_wallet = EthSigner::random();
+    let recipient = Identity::Address(wallet.address().into());
+    let identity_string = eth_wallet.address_string.clone();
+    let identity: Bits256 = hex_str_to_bytes(&identity_string).unwrap();
+    let total_claim_amount = 1000;
+    let claim_amount = 100;
+    let tree_index = 0;
+
+    let deployment = DeploymentBuilder::default()
+        .with_users(vec![User {
+            wallet_address_string: identity_string,
+            allocation: total_claim_amount,
+        }])
+        .deploy()
+        .await?;
 
     Ok(())
 }

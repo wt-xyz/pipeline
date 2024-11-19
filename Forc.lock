@@ -1,5 +1,14 @@
 [[package]]
-name = "airstreams"
+name = "core"
+source = "path+from-root-E94B90DC4BF55373"
+
+[[package]]
+name = "libraries"
+source = "path+from-root-A7F894A5C5CC26C0"
+dependencies = ["std"]
+
+[[package]]
+name = "manifold"
 source = "member"
 dependencies = [
     "libraries",
@@ -7,15 +16,6 @@ dependencies = [
     "std",
     "sway_libs",
 ]
-
-[[package]]
-name = "core"
-source = "path+from-root-E94B90DC4BF55373"
-
-[[package]]
-name = "libraries"
-source = "path+from-root-24E8A1A29C65D055"
-dependencies = ["std"]
 
 [[package]]
 name = "standards"

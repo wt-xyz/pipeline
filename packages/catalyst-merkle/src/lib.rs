@@ -51,11 +51,11 @@ impl From<&User> for Allocation {
     }
 }
 
-pub struct AirstreamMerkleTree {
+pub struct ManifoldMerkleTree {
     pub tree: MerkleTree,
 }
 
-impl AirstreamMerkleTree {
+impl ManifoldMerkleTree {
     pub fn create_from_users(users: &Vec<User>) -> Self {
         Self {
             tree: create_merkle_tree(users),
