@@ -11,6 +11,7 @@ use libraries::{
     interface::VestingCurveRegistry,
     structs::VestingCurve
 };
+use sway_libs::{reentrancy::*,};
 
 use ::errors::{Error};
 use ::interface::Pipeline;
@@ -411,6 +412,7 @@ impl SRC6 for Contract {
 
 #[storage(read, write)]
 fn create_stream(sender_share_recipient: Identity, receiver_share_recipient: Identity, start_time: u64, stop_time: u64, stream_size: u64, configuration: StreamConfiguration) -> u64 {
+        reentrancy_guard();
         let underlying_asset = msg_asset_id();
 
         // get the amount of coins sent
@@ -742,6 +744,7 @@ fn is_solvent(stream_id: u64) -> bool {
 #[payable]
 #[storage(read, write)]
 fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
+    reentrancy_guard();
     let vault_share_asset = msg_asset_id();
 
     // get the amount of shares sent
@@ -811,6 +814,7 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
 #[payable]
 #[storage(read, write)]
 fn cancel_stream(unvested_recipient: Identity) -> u64 {
+    reentrancy_guard();
     let sender_share_asset = msg_asset_id();
 
     // get the amount of shares sent
@@ -901,6 +905,7 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
 #[payable]
 #[storage(read, write)]
 fn full_withdraw_from_stream(receiver: Identity) -> u64 {
+    reentrancy_guard();
     let vault_share_asset = msg_asset_id();
     let amount = balance_of(vault_share_asset);
     partial_withdraw_from_stream(receiver, amount)

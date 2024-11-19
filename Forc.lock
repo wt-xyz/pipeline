@@ -47,6 +47,7 @@ dependencies = [
     "libraries",
     "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.4.4#a001d3c248595112aae67e5633a06ef9bc0536ae",
     "std",
+    "sway_libs",
 ]
 
 [[package]]
