@@ -328,7 +328,7 @@ export const CreateStreamForm = () => {
                     <DatePickerInput
                       clearable
                       valueFormat="MMMM DD, YYYY"
-                      placeholder="Select start date"
+                      placeholder="Select end date"
                       style={{ width: "100%" }}
                       {...form.getInputProps("endDate")}
                     />
