@@ -43,6 +43,7 @@ export const Header = () => {
         }
       >
         {[
+          { label: "Designer", path: "/designer" },
           { label: "Create Stream", path: "/create" },
           { label: "Manage Streams", path: "/manage" },
         ].map((button) => (
