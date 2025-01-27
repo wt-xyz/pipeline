@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Box,
   Button,
   Card,
   CardSection,
@@ -15,7 +16,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { DatePickerInput, DatesProvider } from "@mantine/dates";
+import { DatePickerInput, DatesProvider, TimeInput } from "@mantine/dates";
 import { useCreateStream } from "@/hooks/TokenStreamingAbi";
 import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
@@ -27,28 +28,48 @@ import { useRouter } from "next/navigation";
 import { IconSettings } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { TimezoneModal } from "./TimezoneModal";
-import { BASE_ASSET_ID, SECONDS_PER_DAY } from "@/constants/constants";
+import { BASE_ASSET_ID } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { CoinQuantityWithId } from "@/redux/coinsSlice";
+import { useRef } from "react";
+import { IconClock } from "@tabler/icons-react";
 
 type FormValues = {
   token: string;
   recipient: string;
-  dates: [Date | undefined, Date | undefined];
   streamSize: number;
   deposit: number;
   undercollateralized: boolean;
   cancellable: boolean;
+  startDate: Date | null;
+  endDate: Date | null;
+  startTime: string | null;
+  endTime: string | null;
 };
 
-function isDatesDefined(values: FormValues): values is Omit<
+function isDateAndTimeDefined(values: FormValues): values is Omit<
   FormValues,
-  "dates"
+  "startDate" | "endDate" | "startTime" | "endTime"
 > & {
-  dates: [Date, Date];
+  startDate: Date;
+  endDate: Date;
+  startTime: string;
+  endTime: string;
 } {
-  return values.dates.every((date) => date !== undefined);
+  return (
+    values.startDate !== null &&
+    values.startTime !== null &&
+    values.endDate !== null &&
+    values.endTime !== null
+  );
+}
+
+function combineDateAndTime(date: Date | string, time: string): Date {
+  const dateObj = new Date(date);
+  const [hours, minutes] = time.split(":");
+  dateObj.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  return dateObj;
 }
 
 export const CreateStreamForm = () => {
@@ -70,11 +91,6 @@ export const CreateStreamForm = () => {
     validate: {
       token: (value) => (value ? null : "Token is required"),
       recipient: (value) => (value ? null : "Recipient is required"),
-      dates: (value) =>
-        value.every((date) => date !== undefined)
-          ? null
-          : "Start and end time are required",
-      // endTime: (value) => (value ? null : "End time is required"),
       streamSize: (value) =>
         value > 0 ? null : "Amount must be greater than 0",
       deposit: (value, values) => {
@@ -82,15 +98,22 @@ export const CreateStreamForm = () => {
           ? null
           : "Deposit must be greater than 0";
       },
+      startDate: (value) => (value ? null : "Start date is required"),
+      endDate: (value) => (value ? null : "End date is required"),
+      startTime: (value) => (value ? null : "Start time is required"),
+      endTime: (value) => (value ? null : "End time is required"),
     },
     initialValues: {
       token: BASE_ASSET_ID,
       recipient: "",
-      dates: [new Date(), new Date(Date.now() + 1000 * SECONDS_PER_DAY * 7)],
       streamSize: 1,
       deposit: 0,
       undercollateralized: false,
       cancellable: true,
+      startDate: null,
+      endDate: null,
+      startTime: null,
+      endTime: null,
     },
   });
 
@@ -99,22 +122,50 @@ export const CreateStreamForm = () => {
 
   const router = useRouter();
 
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
+
+  const startDatePickerControl = (
+    <ActionIcon
+      variant="subtle"
+      color="gray"
+      onClick={() => startDateRef.current?.showPicker()}
+    >
+      <IconClock size={16} stroke={1.5} />
+    </ActionIcon>
+  );
+
+  const endDatePickerControl = (
+    <ActionIcon
+      variant="subtle"
+      color="gray"
+      onClick={() => endDateRef.current?.showPicker()}
+    >
+      <IconClock size={16} stroke={1.5} />
+    </ActionIcon>
+  );
+
   const handleSubmit = (values: FormValues) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    if (isDatesDefined(values) && wallet.wallet?.address) {
+    if (isDateAndTimeDefined(values) && wallet.wallet?.address) {
       const streamSizeBn = numberInputToDecimalBN(values.streamSize);
 
       const depositBn = values.undercollateralized
         ? numberInputToDecimalBN(values.deposit)
         : streamSizeBn;
 
+      const { startDate, startTime, endDate, endTime } = values;
+
+      const newStartDate = combineDateAndTime(startDate, startTime);
+      const mewEndDate = combineDateAndTime(endDate, endTime);
+
       createStream(
         values.token,
         depositBn,
         wallet.wallet.address.toB256(),
         values.recipient,
-        convertUnixTimeMillisecondsToTaiTime(new BN(values.dates[0].getTime())),
-        convertUnixTimeMillisecondsToTaiTime(new BN(values.dates[1].getTime())),
+        convertUnixTimeMillisecondsToTaiTime(new BN(newStartDate.getTime())),
+        convertUnixTimeMillisecondsToTaiTime(new BN(mewEndDate.getTime())),
         streamSizeBn,
         {
           is_undercollateralized: values.undercollateralized,
@@ -213,36 +264,87 @@ export const CreateStreamForm = () => {
               placeholder={"0x12345.."}
               {...form.getInputProps("recipient")}
             />
-            {/* TODO: add maximum and minimum dates */}
+
+            {/* Start date */}
             <DatesProvider settings={{ timezone: timezone }}>
-              <Flex direction="column">
-                <Flex direction="column" gap={3}>
-                  <DatePickerInput
-                    type="range"
-                    clearable
-                    label={
-                      <Flex align="center">
-                        <CustomLabelComponent
-                          icon={
-                            <ActionIcon
-                              onClick={openTzModal}
-                              variant="subtle"
-                              size="sm"
-                            >
-                              <IconSettings size={14} />
-                            </ActionIcon>
-                          }
-                        >
-                          Start and End Dates
-                        </CustomLabelComponent>
-                      </Flex>
+              <Box>
+                <Flex align="center" mb="sm">
+                  <CustomLabelComponent
+                    icon={
+                      <ActionIcon
+                        onClick={openTzModal}
+                        variant="subtle"
+                        size="sm"
+                      >
+                        <IconSettings size={14} />
+                      </ActionIcon>
                     }
-                    valueFormat="MMMM DD, YYYY"
-                    {...form.getInputProps("dates")}
-                  />
+                  >
+                    Start date
+                  </CustomLabelComponent>
                 </Flex>
-              </Flex>
+                <Flex direction="row">
+                  <Box flex={1} pr={10}>
+                    <DatePickerInput
+                      clearable
+                      valueFormat="MMMM DD, YYYY"
+                      placeholder="Select start date"
+                      style={{ width: "100%" }}
+                      {...form.getInputProps("startDate")}
+                    />
+                  </Box>
+
+                  <Box>
+                    <TimeInput
+                      ref={startDateRef}
+                      rightSection={startDatePickerControl}
+                      {...form.getInputProps("startTime")}
+                    />
+                  </Box>
+                </Flex>
+              </Box>
             </DatesProvider>
+
+            {/* End date */}
+            <DatesProvider settings={{ timezone: timezone }}>
+              <Box>
+                <Flex align="center" mb="sm">
+                  <CustomLabelComponent
+                    icon={
+                      <ActionIcon
+                        onClick={openTzModal}
+                        variant="subtle"
+                        size="sm"
+                      >
+                        <IconSettings size={14} />
+                      </ActionIcon>
+                    }
+                  >
+                    End date
+                  </CustomLabelComponent>
+                </Flex>
+                <Flex direction="row">
+                  <Box flex={1} pr={10}>
+                    <DatePickerInput
+                      clearable
+                      valueFormat="MMMM DD, YYYY"
+                      placeholder="Select end date"
+                      style={{ width: "100%" }}
+                      {...form.getInputProps("endDate")}
+                    />
+                  </Box>
+
+                  <Box>
+                    <TimeInput
+                      ref={endDateRef}
+                      rightSection={endDatePickerControl}
+                      {...form.getInputProps("endTime")}
+                    />
+                  </Box>
+                </Flex>
+              </Box>
+            </DatesProvider>
+
             {wallet.wallet ? (
               <Button type="submit" fz={"lg"}>
                 Create stream
