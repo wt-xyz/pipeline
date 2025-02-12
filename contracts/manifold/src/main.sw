@@ -1,10 +1,10 @@
 contract;
 
-mod structs;
-mod interface;
-mod events;
-mod errors;
-mod personal_sign;
+pub mod structs;
+pub mod interface;
+pub mod events;
+pub mod errors;
+pub mod personal_sign;
 
 use ::structs::{Allocation, EVMSignatureType, SignatureType};
 use ::interface::ManifoldAbi;

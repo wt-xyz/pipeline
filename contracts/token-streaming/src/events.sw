@@ -1,6 +1,6 @@
 library;
 
-use ::structs::StreamConfiguration;
+use ::structs::*;
 
 // EVENTS
 pub struct CancelStream {

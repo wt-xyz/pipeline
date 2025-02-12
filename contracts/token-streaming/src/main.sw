@@ -1,9 +1,9 @@
 contract;
 
-mod events;
-mod structs;
-mod errors;
-mod interface;
+pub mod events;
+pub mod structs;
+pub mod errors;
+pub mod interface;
 
 use ::events::{CancelStream, CreateStream};
 use ::structs::{SenderOrReceiver, Stream, VaultInfo, StreamConfiguration};
@@ -906,8 +906,52 @@ fn cancel_stream(unvested_recipient: Identity) -> u64 {
 #[storage(read, write)]
 fn full_withdraw_from_stream(receiver: Identity) -> u64 {
     reentrancy_guard();
+    
+    // 1. Minimize variable declarations
     let vault_share_asset = msg_asset_id();
-    let amount = balance_of(vault_share_asset);
-    partial_withdraw_from_stream(receiver, amount)
+    require(msg_amount() == 1, Error::InsufficientShares);
+
+    // 2. Combine reads and validations
+    let vault_info = get_vault_info(vault_share_asset);
+    let mut stream = get_stream(vault_info.stream_id);
+    require(vault_share_asset == stream.receiver_asset, Error::NotReceiver((vault_share_asset, stream.receiver_asset)));
+
+    // Direct calculation without balance_of
+    let vested_amount = abi(VestingCurveRegistry, VESTING_CURVE_REGISTRY.into())
+        .vested_amount(
+            stream.vesting_curve_id,
+            stream.stream_size,
+            stream.start_time,
+            stream.stop_time,
+            timestamp()
+        );
+
+    // Simpler calculation
+    let amount = if vested_amount > stream.deposit {
+        stream.deposit
+    } else {
+        vested_amount
+    };
+    let amount = amount - stream.vested_withdrawn_amount;
+    require(amount > 0, Error::InsufficientBalance((0, amount)));
+
+    // 5. Single state update
+    stream.vested_withdrawn_amount += amount;
+    storage.streams.insert(vault_info.stream_id, stream);
+
+    // 6. Batch operations
+    transfer(receiver, stream.underlying_asset, amount);
+    transfer(msg_sender().unwrap(), vault_share_asset, 1);
+
+    log(Withdraw {
+        caller: msg_sender().unwrap(),
+        receiver,
+        underlying_asset: stream.underlying_asset,
+        vault_sub_id: vault_info.vault_sub_id,
+        withdrawn_amount: amount,
+        burned_shares: 1,
+    });
+
+    amount
 }
 

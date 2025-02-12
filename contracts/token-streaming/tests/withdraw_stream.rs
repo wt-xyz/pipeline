@@ -12,7 +12,7 @@ use fuels::{
 
 // Receiver can fully withdraw from streams
 #[tokio::test]
-#[ignore = "This test is failing, due to fuels rs updates"]
+// #[ignore = "This test is failing, due to fuels rs updates"]
 async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
     let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 
@@ -48,23 +48,18 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
     // check the current balance of the underlying_token for receiver
     let receiver_current_balance = receiver_wallet.get_asset_balance(&underlying_asset).await?;
 
+    let vault_info = instance
+        .methods()
+        .get_vault_info(receiver_asset)
+        .simulate(Execution::StateReadOnly)
+        .await?
+        .value;
+
     let provider = receiver_wallet.try_provider()?;
 
     fast_forward_time(provider, duration / 2).await?;
 
-    let stream_expected_balance = instance
-        .methods()
-        .max_withdrawable(underlying_asset, vault_info.vault_sub_id)
-        .with_contract_ids(&[vesting_contract_id.into()])
-        .call()
-        .await?
-        .value;
-
-    assert!(stream_expected_balance.unwrap() > 0);
-
-    println!("stream_expected_balance: {:?}", stream_expected_balance);
-
-    let call_params = CallParameters::new(1, receiver_asset, 1_000_000);
+    let call_params = CallParameters::new(1, receiver_asset, 10_000_000);
 
     let amount_withdrawn = instance
         .methods()
@@ -94,6 +89,8 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
     let stream = instance.methods().get_stream(stream_id).call().await?.value;
 
     assert_eq!(stream.vested_withdrawn_amount, amount_withdrawn);
+
+    assert!(amount_withdrawn > 0);
 
     Ok(())
 }
@@ -126,6 +123,7 @@ async fn get_withdrawable_depositable_managed_assets(
     let managed_assets = instance
         .methods()
         .managed_assets(underlying_asset, vault_id)
+        .with_contract_ids(&[vesting_contract_id.into()])
         .call()
         .await?
         .value;
@@ -134,7 +132,6 @@ async fn get_withdrawable_depositable_managed_assets(
 }
 
 #[tokio::test]
-#[ignore = "This test is failing, due to fuels rs updates"]
 async fn can_call_max_functions_on_stream() -> Result<()> {
     let (instance, _id, wallets, vesting_contract_id) = get_contract_instance().await?;
 

@@ -1,6 +1,6 @@
 library;
 
-use ::structs::{Stream, VaultInfo, StreamConfiguration};
+use ::structs::*;
 
 /// ABI defining methods for a token streaming contract 
 /// 
