@@ -32,7 +32,7 @@ import { BASE_ASSET_ID } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { CoinQuantityWithId } from "@/redux/coinsSlice";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { IconClock } from "@tabler/icons-react";
 
 type FormValues = {
@@ -78,7 +78,7 @@ export const CreateStreamForm = () => {
   const { connect, isConnecting } = useConnectUI();
   const timezone = useSelector((state: RootState) => state.timezone.timezone);
 
-  const { createStream, loading, error } = useCreateStream();
+  const { createStream, loading, error, data } = useCreateStream();
   const { showNotification } = useNotificationHook(
     "Creating stream...",
     loading,
@@ -122,6 +122,18 @@ export const CreateStreamForm = () => {
 
   const router = useRouter();
 
+  useEffect(() => {
+    if (error != undefined) {
+      return;
+    }
+
+    if (data !== undefined) {
+      refreshCoins();
+      router.push("/manage");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, error, refreshCoins]);
+
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
@@ -145,7 +157,7 @@ export const CreateStreamForm = () => {
     </ActionIcon>
   );
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = async (values: FormValues) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (isDateAndTimeDefined(values) && wallet.wallet?.address) {
       const streamSizeBn = numberInputToDecimalBN(values.streamSize);
@@ -159,7 +171,7 @@ export const CreateStreamForm = () => {
       const newStartDate = combineDateAndTime(startDate, startTime);
       const mewEndDate = combineDateAndTime(endDate, endTime);
 
-      createStream(
+      await createStream(
         values.token,
         depositBn,
         wallet.wallet.address.toB256(),
@@ -171,11 +183,7 @@ export const CreateStreamForm = () => {
           is_undercollateralized: values.undercollateralized,
           is_cancellable: values.cancellable,
         },
-      ).then(() => {
-        // update the fetched streams
-        refreshCoins();
-        router.push("/manage");
-      });
+      );
       showNotification();
     }
   };
