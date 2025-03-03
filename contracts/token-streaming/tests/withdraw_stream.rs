@@ -68,6 +68,7 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
             underlying_asset,
             vault_info.vault_sub_id,
         )
+        .with_tx_policies(TxPolicies::default().with_script_gas_limit(100_000))
         .call_params(call_params)?
         .with_variable_output_policy(VariableOutputPolicy::Exactly(2))
         .with_contract_ids(&[vesting_contract_id.into()])
