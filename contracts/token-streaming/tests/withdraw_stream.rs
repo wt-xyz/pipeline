@@ -83,13 +83,18 @@ async fn receiver_can_fully_withdraw_from_stream() -> Result<()> {
     // confirm that the amount withdrawn is equal to the change in balance
     assert_eq!(
         receiver_balance,
-        receiver_current_balance + amount_withdrawn
+        receiver_current_balance - 1 + amount_withdrawn, // Don't forget to account for the 1 we sent with the call
+        "receiver balance is not equal to the current balance plus the amount withdrawn"
     );
 
     // check that the stream was updated
     let stream = instance.methods().get_stream(stream_id).call().await?.value;
 
-    assert_eq!(stream.vested_withdrawn_amount, amount_withdrawn);
+    assert_eq!(
+        stream.vested_withdrawn_amount,
+        amount_withdrawn,
+        "vested withdrawn amount is not equal to the amount withdrawn"
+    );
 
     assert!(amount_withdrawn > 0);
 
