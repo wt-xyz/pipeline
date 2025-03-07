@@ -32,8 +32,9 @@ import { BASE_ASSET_ID } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { CoinQuantityWithId } from "@/redux/coinsSlice";
-import { useRef } from "react";
 import { IconClock } from "@tabler/icons-react";
+import { fillBreakpointsTo64, generateBreakpoints } from "@/utils/stream-utils";
+import { useEffect, useRef } from "react";
 
 type FormValues = {
   token: string;
@@ -78,7 +79,7 @@ export const CreateStreamForm = () => {
   const { connect, isConnecting } = useConnectUI();
   const timezone = useSelector((state: RootState) => state.timezone.timezone);
 
-  const { createStream, loading, error } = useCreateStream();
+  const { createStream, loading, error, data } = useCreateStream();
   const { showNotification } = useNotificationHook(
     "Creating stream...",
     loading,
@@ -105,7 +106,8 @@ export const CreateStreamForm = () => {
     },
     initialValues: {
       token: BASE_ASSET_ID,
-      recipient: "",
+      recipient:
+        "0x953484f3B068BE749156cDcaBb6B4Fde2F96A19bEb6514ff729AE220C61848e0",
       streamSize: 1,
       deposit: 0,
       undercollateralized: false,
@@ -145,6 +147,18 @@ export const CreateStreamForm = () => {
     </ActionIcon>
   );
 
+  useEffect(() => {
+    if (error != undefined) {
+      return;
+    }
+
+    if (data !== undefined) {
+      refreshCoins();
+      router.push("/manage");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, error, refreshCoins]);
+
   const handleSubmit = (values: FormValues) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (isDateAndTimeDefined(values) && wallet.wallet?.address) {
@@ -157,7 +171,16 @@ export const CreateStreamForm = () => {
       const { startDate, startTime, endDate, endTime } = values;
 
       const newStartDate = combineDateAndTime(startDate, startTime);
-      const mewEndDate = combineDateAndTime(endDate, endTime);
+      const newEndDate = combineDateAndTime(endDate, endTime);
+
+      const vestingInfo = [
+        { dateTimeStamp: newStartDate.getTime(), vestedPercentage: "0" },
+        { dateTimeStamp: newEndDate.getTime(), vestedPercentage: "100" },
+      ];
+
+      const breakpoints = fillBreakpointsTo64(
+        generateBreakpoints(vestingInfo).breakpoints,
+      );
 
       createStream(
         values.token,
@@ -165,16 +188,21 @@ export const CreateStreamForm = () => {
         wallet.wallet.address.toB256(),
         values.recipient,
         convertUnixTimeMillisecondsToTaiTime(new BN(newStartDate.getTime())),
-        convertUnixTimeMillisecondsToTaiTime(new BN(mewEndDate.getTime())),
+        convertUnixTimeMillisecondsToTaiTime(new BN(newEndDate.getTime())),
         streamSizeBn,
         {
           is_undercollateralized: values.undercollateralized,
           is_cancellable: values.cancellable,
+          vesting_curve: {
+            Linear: [],
+            PiecewiseLinear: {
+              breakpoint_count: new BN(breakpoints.length),
+              breakpoints,
+            },
+          },
         },
       ).then(() => {
-        // update the fetched streams
         refreshCoins();
-        router.push("/manage");
       });
       showNotification();
     }
@@ -247,7 +275,7 @@ export const CreateStreamForm = () => {
                 <NumberInput
                   label={
                     <CustomLabelComponent>
-                      How much do you to deposit initially?
+                      How much do you want to deposit initially?
                     </CustomLabelComponent>
                   }
                   placeholder={"100"}
@@ -366,13 +394,13 @@ export const CreateStreamForm = () => {
   );
 };
 
-const CustomCardSection = (
+export const CustomCardSection = (
   props: CardSectionProps & React.HTMLAttributes<HTMLDivElement>,
 ) => {
   return <CardSection inheritPadding withBorder py="md" {...props} />;
 };
 
-const CustomLabelComponent = ({
+export const CustomLabelComponent = ({
   icon,
   children,
   ...props
@@ -384,7 +412,7 @@ const CustomLabelComponent = ({
   </Flex>
 );
 
-const numberInputToDecimalBN = (amount: number): BN => {
+export const numberInputToDecimalBN = (amount: number): BN => {
   // FIXME use fetched decimals const DECIMALS = 9;
   const DECIMALS = 9;
 
