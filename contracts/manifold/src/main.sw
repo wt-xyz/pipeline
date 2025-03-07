@@ -1,6 +1,6 @@
 contract;
 
-mod structs;
+pub mod structs;
 mod interface;
 mod events;
 mod errors;

@@ -3,6 +3,7 @@ import coinsSlice from "./coinsSlice";
 import streamsSlice from "./streamsSlice";
 import sendingOrReceivingSlice from "./sendingOrReceivingSlice";
 import timezoneSlice from "./timezoneSlice";
+import vestingSlice from "./vestingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     streams: streamsSlice,
     sendingOrReceiving: sendingOrReceivingSlice,
     timezone: timezoneSlice,
+    vesting: vestingSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -22,3 +24,5 @@ export const store = configureStore({
 
 // Define the RootState type based on the store
 export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatch = typeof store.dispatch;

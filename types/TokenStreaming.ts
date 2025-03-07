@@ -20,1864 +20,1955 @@ import type {
   FunctionFragment,
   InvokeFunction,
   StdString,
-} from "fuels";
+} from 'fuels';
 
 import type { Option, Enum } from "./common";
 
-export enum ErrorInput {
-  NonExistentStream = "NonExistentStream",
-  InvalidDates = "InvalidDates",
-  DateTooEarly = "DateTooEarly",
-  SelfAddress = "SelfAddress",
-  ZeroAddress = "ZeroAddress",
-  ZeroDeposit = "ZeroDeposit",
-  StreamDoesNotExist = "StreamDoesNotExist",
-  VaultDoesNotExist = "VaultDoesNotExist",
-  NotReceiver = "NotReceiver",
-  InsufficientBalance = "InsufficientBalance",
-  InsufficientShares = "InsufficientShares",
-  StreamAlreadyCancelled = "StreamAlreadyCancelled",
-  NotSender = "NotSender",
-  NotEnoughCoins = "NotEnoughCoins",
-  DepositsBlocked = "DepositsBlocked",
-  InvalidAsset = "InvalidAsset",
-  IncorrectDeposit = "IncorrectDeposit",
-  NotCancellable = "NotCancellable",
-}
-export enum ErrorOutput {
-  NonExistentStream = "NonExistentStream",
-  InvalidDates = "InvalidDates",
-  DateTooEarly = "DateTooEarly",
-  SelfAddress = "SelfAddress",
-  ZeroAddress = "ZeroAddress",
-  ZeroDeposit = "ZeroDeposit",
-  StreamDoesNotExist = "StreamDoesNotExist",
-  VaultDoesNotExist = "VaultDoesNotExist",
-  NotReceiver = "NotReceiver",
-  InsufficientBalance = "InsufficientBalance",
-  InsufficientShares = "InsufficientShares",
-  StreamAlreadyCancelled = "StreamAlreadyCancelled",
-  NotSender = "NotSender",
-  NotEnoughCoins = "NotEnoughCoins",
-  DepositsBlocked = "DepositsBlocked",
-  InvalidAsset = "InvalidAsset",
-  IncorrectDeposit = "IncorrectDeposit",
-  NotCancellable = "NotCancellable",
-}
-export type IdentityInput = Enum<{
-  Address: AddressInput;
-  ContractId: ContractIdInput;
-}>;
-export type IdentityOutput = Enum<{
-  Address: AddressOutput;
-  ContractId: ContractIdOutput;
-}>;
-export enum SenderOrReceiverInput {
-  Sender = "Sender",
-  Receiver = "Receiver",
-}
-export enum SenderOrReceiverOutput {
-  Sender = "Sender",
-  Receiver = "Receiver",
-}
+export type ErrorInput = Enum<{ NonExistentStream: BigNumberish, InvalidDates: [BigNumberish, BigNumberish], DateTooEarly: [BigNumberish, BigNumberish], SelfAddress: AddressInput, ZeroAddress: [], ZeroDeposit: [], StreamDoesNotExist: BigNumberish, VaultDoesNotExist: AssetIdInput, NotReceiver: [AssetIdInput, AssetIdInput], InsufficientBalance: [BigNumberish, BigNumberish], InsufficientShares: [], StreamAlreadyCancelled: BigNumberish, NotSender: [AssetIdInput, AssetIdInput], NotEnoughCoins: [BigNumberish, BigNumberish], DepositsBlocked: [], InvalidAsset: [AssetIdInput, AssetIdInput], IncorrectDeposit: [BigNumberish, BigNumberish], NotCancellable: [] }>;
+export type ErrorOutput = Enum<{ NonExistentStream: BN, InvalidDates: [BN, BN], DateTooEarly: [BN, BN], SelfAddress: AddressOutput, ZeroAddress: [], ZeroDeposit: [], StreamDoesNotExist: BN, VaultDoesNotExist: AssetIdOutput, NotReceiver: [AssetIdOutput, AssetIdOutput], InsufficientBalance: [BN, BN], InsufficientShares: [], StreamAlreadyCancelled: BN, NotSender: [AssetIdOutput, AssetIdOutput], NotEnoughCoins: [BN, BN], DepositsBlocked: [], InvalidAsset: [AssetIdOutput, AssetIdOutput], IncorrectDeposit: [BN, BN], NotCancellable: [] }>;
+export type IdentityInput = Enum<{ Address: AddressInput, ContractId: ContractIdInput }>;
+export type IdentityOutput = Enum<{ Address: AddressOutput, ContractId: ContractIdOutput }>;
+export enum SenderOrReceiverInput { Sender = 'Sender', Receiver = 'Receiver' };
+export enum SenderOrReceiverOutput { Sender = 'Sender', Receiver = 'Receiver' };
+export type VestingCurveInput = Enum<{ Linear: [], PiecewiseLinear: PiecewiseLinearVestingCurveInput }>;
+export type VestingCurveOutput = Enum<{ Linear: [], PiecewiseLinear: PiecewiseLinearVestingCurveOutput }>;
 
 export type AddressInput = { bits: string };
 export type AddressOutput = AddressInput;
 export type AssetIdInput = { bits: string };
 export type AssetIdOutput = AssetIdInput;
-export type CancelStreamInput = {
-  stream_id: BigNumberish;
-  sender_asset: AssetIdInput;
-  receiver_asset: AssetIdInput;
-  unvested_recipient: IdentityInput;
-  unvested_balance: BigNumberish;
-  vested_balance: BigNumberish;
-};
-export type CancelStreamOutput = {
-  stream_id: BN;
-  sender_asset: AssetIdOutput;
-  receiver_asset: AssetIdOutput;
-  unvested_recipient: IdentityOutput;
-  unvested_balance: BN;
-  vested_balance: BN;
-};
+export type BreakpointInput = { duration_percentage_e6: BigNumberish, vested_percentage_e6: BigNumberish };
+export type BreakpointOutput = { duration_percentage_e6: BN, vested_percentage_e6: BN };
+export type CancelStreamInput = { stream_id: BigNumberish, sender_asset: AssetIdInput, receiver_asset: AssetIdInput, unvested_recipient: IdentityInput, unvested_balance: BigNumberish, vested_balance: BigNumberish };
+export type CancelStreamOutput = { stream_id: BN, sender_asset: AssetIdOutput, receiver_asset: AssetIdOutput, unvested_recipient: IdentityOutput, unvested_balance: BN, vested_balance: BN };
 export type ContractIdInput = { bits: string };
 export type ContractIdOutput = ContractIdInput;
-export type CreateStreamInput = {
-  stream_id: BigNumberish;
-  sender: IdentityInput;
-  underlying_asset: AssetIdInput;
-  receiver: IdentityInput;
-  receiver_asset: AssetIdInput;
-  sender_asset: AssetIdInput;
-  deposit: BigNumberish;
-  stream_size: BigNumberish;
-  start_time: BigNumberish;
-  stop_time: BigNumberish;
-};
-export type CreateStreamOutput = {
-  stream_id: BN;
-  sender: IdentityOutput;
-  underlying_asset: AssetIdOutput;
-  receiver: IdentityOutput;
-  receiver_asset: AssetIdOutput;
-  sender_asset: AssetIdOutput;
-  deposit: BN;
-  stream_size: BN;
-  start_time: BN;
-  stop_time: BN;
-};
-export type DepositInput = {
-  caller: IdentityInput;
-  receiver: IdentityInput;
-  underlying_asset: AssetIdInput;
-  vault_sub_id: string;
-  deposited_amount: BigNumberish;
-  minted_shares: BigNumberish;
-};
-export type DepositOutput = {
-  caller: IdentityOutput;
-  receiver: IdentityOutput;
-  underlying_asset: AssetIdOutput;
-  vault_sub_id: string;
-  deposited_amount: BN;
-  minted_shares: BN;
-};
-export type StreamInput = {
-  deposit: BigNumberish;
-  rate_per_second_e_10: BigNumberish;
-  stream_size: BigNumberish;
-  vested_withdrawn_amount: BigNumberish;
-  start_time: BigNumberish;
-  stop_time: BigNumberish;
-  underlying_asset: AssetIdInput;
-  receiver_asset: AssetIdInput;
-  sender_asset: AssetIdInput;
-  cancellation_time: Option<BigNumberish>;
-  configuration: StreamConfigurationInput;
-};
-export type StreamOutput = {
-  deposit: BN;
-  rate_per_second_e_10: BN;
-  stream_size: BN;
-  vested_withdrawn_amount: BN;
-  start_time: BN;
-  stop_time: BN;
-  underlying_asset: AssetIdOutput;
-  receiver_asset: AssetIdOutput;
-  sender_asset: AssetIdOutput;
-  cancellation_time: Option<BN>;
-  configuration: StreamConfigurationOutput;
-};
-export type StreamConfigurationInput = {
-  is_cancellable: boolean;
-  is_undercollateralized: boolean;
-};
-export type StreamConfigurationOutput = StreamConfigurationInput;
-export type VaultInfoInput = {
-  vault_sub_id: string;
-  asset: AssetIdInput;
-  stream_id: BigNumberish;
-  sender_or_receiver: SenderOrReceiverInput;
-};
-export type VaultInfoOutput = {
-  vault_sub_id: string;
-  asset: AssetIdOutput;
-  stream_id: BN;
-  sender_or_receiver: SenderOrReceiverOutput;
-};
-export type WithdrawInput = {
-  caller: IdentityInput;
-  receiver: IdentityInput;
-  underlying_asset: AssetIdInput;
-  vault_sub_id: string;
-  withdrawn_amount: BigNumberish;
-  burned_shares: BigNumberish;
-};
-export type WithdrawOutput = {
-  caller: IdentityOutput;
-  receiver: IdentityOutput;
-  underlying_asset: AssetIdOutput;
-  vault_sub_id: string;
-  withdrawn_amount: BN;
-  burned_shares: BN;
-};
+export type CreateStreamInput = { stream_id: BigNumberish, sender: IdentityInput, underlying_asset: AssetIdInput, receiver: IdentityInput, receiver_asset: AssetIdInput, sender_asset: AssetIdInput, deposit: BigNumberish, stream_size: BigNumberish, start_time: BigNumberish, stop_time: BigNumberish, configuration: StreamConfigurationInput, vesting_curve_id: string };
+export type CreateStreamOutput = { stream_id: BN, sender: IdentityOutput, underlying_asset: AssetIdOutput, receiver: IdentityOutput, receiver_asset: AssetIdOutput, sender_asset: AssetIdOutput, deposit: BN, stream_size: BN, start_time: BN, stop_time: BN, configuration: StreamConfigurationOutput, vesting_curve_id: string };
+export type DepositInput = { caller: IdentityInput, receiver: IdentityInput, underlying_asset: AssetIdInput, vault_sub_id: string, deposited_amount: BigNumberish, minted_shares: BigNumberish };
+export type DepositOutput = { caller: IdentityOutput, receiver: IdentityOutput, underlying_asset: AssetIdOutput, vault_sub_id: string, deposited_amount: BN, minted_shares: BN };
+export type PiecewiseLinearVestingCurveInput = { breakpoint_count: BigNumberish, breakpoints: [BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput, BreakpointInput] };
+export type PiecewiseLinearVestingCurveOutput = { breakpoint_count: number, breakpoints: [BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput, BreakpointOutput] };
+export type StreamInput = { deposit: BigNumberish, stream_size: BigNumberish, vested_withdrawn_amount: BigNumberish, start_time: BigNumberish, stop_time: BigNumberish, underlying_asset: AssetIdInput, receiver_asset: AssetIdInput, sender_asset: AssetIdInput, cancellation_time: Option<BigNumberish>, configuration: StreamConfigurationInput, vesting_curve_id: string };
+export type StreamOutput = { deposit: BN, stream_size: BN, vested_withdrawn_amount: BN, start_time: BN, stop_time: BN, underlying_asset: AssetIdOutput, receiver_asset: AssetIdOutput, sender_asset: AssetIdOutput, cancellation_time: Option<BN>, configuration: StreamConfigurationOutput, vesting_curve_id: string };
+export type StreamConfigurationInput = { is_cancellable: boolean, is_undercollateralized: boolean, vesting_curve: VestingCurveInput };
+export type StreamConfigurationOutput = { is_cancellable: boolean, is_undercollateralized: boolean, vesting_curve: VestingCurveOutput };
+export type VaultInfoInput = { vault_sub_id: string, asset: AssetIdInput, stream_id: BigNumberish, sender_or_receiver: SenderOrReceiverInput };
+export type VaultInfoOutput = { vault_sub_id: string, asset: AssetIdOutput, stream_id: BN, sender_or_receiver: SenderOrReceiverOutput };
+export type WithdrawInput = { caller: IdentityInput, receiver: IdentityInput, underlying_asset: AssetIdInput, vault_sub_id: string, withdrawn_amount: BigNumberish, burned_shares: BigNumberish };
+export type WithdrawOutput = { caller: IdentityOutput, receiver: IdentityOutput, underlying_asset: AssetIdOutput, vault_sub_id: string, withdrawn_amount: BN, burned_shares: BN };
+
+export type TokenStreamingConfigurables = Partial<{
+  VESTING_CURVE_REGISTRY: ContractIdInput;
+}>;
 
 const abi = {
-  programType: "contract",
-  specVersion: "1",
-  encodingVersion: "1",
-  concreteTypes: [
+  "programType": "contract",
+  "specVersion": "1",
+  "encodingVersion": "1",
+  "concreteTypes": [
     {
-      type: "(struct structs::Stream, u64)",
-      concreteTypeId:
-        "800caa6c99d66f54b0a15eab9fb6b734b32f32cb0cdffbb1ad7ea8918c67824b",
-      metadataTypeId: 1,
+      "type": "(struct structs::Stream, u64)",
+      "concreteTypeId": "800caa6c99d66f54b0a15eab9fb6b734b32f32cb0cdffbb1ad7ea8918c67824b",
+      "metadataTypeId": 1
     },
     {
-      type: "b256",
-      concreteTypeId:
-        "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
+      "type": "b256",
+      "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
     },
     {
-      type: "bool",
-      concreteTypeId:
-        "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+      "type": "bool",
+      "concreteTypeId": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903"
     },
     {
-      type: "enum errors::Error",
-      concreteTypeId:
-        "4b640168969ec78e1ff09a1a9ccc8234ffaf1b016e862a4251e06348e490b3d3",
-      metadataTypeId: 2,
+      "type": "enum errors::Error",
+      "concreteTypeId": "4b640168969ec78e1ff09a1a9ccc8234ffaf1b016e862a4251e06348e490b3d3",
+      "metadataTypeId": 5
     },
     {
-      type: "enum std::identity::Identity",
-      concreteTypeId:
-        "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      metadataTypeId: 3,
+      "type": "enum std::identity::Identity",
+      "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+      "metadataTypeId": 7
     },
     {
-      type: "enum std::option::Option<struct std::string::String>",
-      concreteTypeId:
-        "7c06d929390a9aeeb8ffccf8173ac0d101a9976d99dda01cce74541a81e75ac0",
-      metadataTypeId: 4,
-      typeArguments: [
-        "9a7f1d3e963c10e0a4ea70a8e20a4813d1dc5682e28f74cb102ae50d32f7f98c",
-      ],
+      "type": "enum std::option::Option<struct std::string::String>",
+      "concreteTypeId": "7c06d929390a9aeeb8ffccf8173ac0d101a9976d99dda01cce74541a81e75ac0",
+      "metadataTypeId": 8,
+      "typeArguments": [
+        "9a7f1d3e963c10e0a4ea70a8e20a4813d1dc5682e28f74cb102ae50d32f7f98c"
+      ]
     },
     {
-      type: "enum std::option::Option<u64>",
-      concreteTypeId:
-        "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
-      metadataTypeId: 4,
-      typeArguments: [
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      ],
+      "type": "enum std::option::Option<u64>",
+      "concreteTypeId": "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
+      "metadataTypeId": 8,
+      "typeArguments": [
+        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+      ]
     },
     {
-      type: "enum std::option::Option<u8>",
-      concreteTypeId:
-        "2da102c46c7263beeed95818cd7bee801716ba8303dddafdcd0f6c9efda4a0f1",
-      metadataTypeId: 4,
-      typeArguments: [
-        "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b",
-      ],
+      "type": "enum std::option::Option<u8>",
+      "concreteTypeId": "2da102c46c7263beeed95818cd7bee801716ba8303dddafdcd0f6c9efda4a0f1",
+      "metadataTypeId": 8,
+      "typeArguments": [
+        "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b"
+      ]
     },
     {
-      type: "struct events::CancelStream",
-      concreteTypeId:
-        "5ca25893d78611148f75b9155f0b5354c2522be49e759c61ad1302c095156c4f",
-      metadataTypeId: 8,
+      "type": "struct events::CancelStream",
+      "concreteTypeId": "5ca25893d78611148f75b9155f0b5354c2522be49e759c61ad1302c095156c4f",
+      "metadataTypeId": 12
     },
     {
-      type: "struct events::CreateStream",
-      concreteTypeId:
-        "5fc5830ea73ef668eb92ed0f7fb0796448cba480e0dc5f37eb8f140d0aa6ebd3",
-      metadataTypeId: 9,
+      "type": "struct events::CreateStream",
+      "concreteTypeId": "5fc5830ea73ef668eb92ed0f7fb0796448cba480e0dc5f37eb8f140d0aa6ebd3",
+      "metadataTypeId": 13
     },
     {
-      type: "struct standards::src6::Deposit",
-      concreteTypeId:
-        "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe",
-      metadataTypeId: 10,
+      "type": "struct standards::src6::Deposit",
+      "concreteTypeId": "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe",
+      "metadataTypeId": 16
     },
     {
-      type: "struct standards::src6::Withdraw",
-      concreteTypeId:
-        "62f4c0381c91a38c86105e821a8ca8ac17a3ade26028b8a79505970cd1387e0f",
-      metadataTypeId: 11,
+      "type": "struct standards::src6::Withdraw",
+      "concreteTypeId": "62f4c0381c91a38c86105e821a8ca8ac17a3ade26028b8a79505970cd1387e0f",
+      "metadataTypeId": 17
     },
     {
-      type: "struct std::asset_id::AssetId",
-      concreteTypeId:
-        "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      metadataTypeId: 13,
+      "type": "struct std::asset_id::AssetId",
+      "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+      "metadataTypeId": 19
     },
     {
-      type: "struct std::string::String",
-      concreteTypeId:
-        "9a7f1d3e963c10e0a4ea70a8e20a4813d1dc5682e28f74cb102ae50d32f7f98c",
-      metadataTypeId: 17,
+      "type": "struct std::contract_id::ContractId",
+      "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
+      "metadataTypeId": 22
     },
     {
-      type: "struct structs::Stream",
-      concreteTypeId:
-        "2fc70be102f6a3116aa31f712ff405cc277d9fea84cd5ac04a293cf67726cf26",
-      metadataTypeId: 18,
+      "type": "struct std::string::String",
+      "concreteTypeId": "9a7f1d3e963c10e0a4ea70a8e20a4813d1dc5682e28f74cb102ae50d32f7f98c",
+      "metadataTypeId": 23
     },
     {
-      type: "struct structs::StreamConfiguration",
-      concreteTypeId:
-        "58b4973c1857df712b201c13a08dbe4802f324272e0a25ddcde7ddae250c6eb3",
-      metadataTypeId: 19,
+      "type": "struct structs::Stream",
+      "concreteTypeId": "2fc70be102f6a3116aa31f712ff405cc277d9fea84cd5ac04a293cf67726cf26",
+      "metadataTypeId": 24
     },
     {
-      type: "struct structs::VaultInfo",
-      concreteTypeId:
-        "1761fd6bd4bd729038b54ecb9f5ae556f5c7c4175e40e830cfda239a8099e8e1",
-      metadataTypeId: 20,
+      "type": "struct structs::StreamConfiguration",
+      "concreteTypeId": "58b4973c1857df712b201c13a08dbe4802f324272e0a25ddcde7ddae250c6eb3",
+      "metadataTypeId": 25
     },
     {
-      type: "u64",
-      concreteTypeId:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "type": "struct structs::VaultInfo",
+      "concreteTypeId": "1761fd6bd4bd729038b54ecb9f5ae556f5c7c4175e40e830cfda239a8099e8e1",
+      "metadataTypeId": 26
     },
     {
-      type: "u8",
-      concreteTypeId:
-        "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b",
+      "type": "u64",
+      "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
     },
+    {
+      "type": "u8",
+      "concreteTypeId": "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b"
+    }
   ],
-  metadataTypes: [
+  "metadataTypes": [
     {
-      type: "()",
-      metadataTypeId: 0,
+      "type": "()",
+      "metadataTypeId": 0
     },
     {
-      type: "(_, _)",
-      metadataTypeId: 1,
-      components: [
+      "type": "(_, _)",
+      "metadataTypeId": 1,
+      "components": [
         {
-          name: "__tuple_element",
-          typeId: 18,
+          "name": "__tuple_element",
+          "typeId": 24
         },
         {
-          name: "__tuple_element",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "__tuple_element",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
+    },
+    {
+      "type": "(_, _)",
+      "metadataTypeId": 2,
+      "components": [
+        {
+          "name": "__tuple_element",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
+        {
+          "name": "__tuple_element",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
+    },
+    {
+      "type": "(_, _)",
+      "metadataTypeId": 3,
+      "components": [
+        {
+          "name": "__tuple_element",
+          "typeId": 19
+        },
+        {
+          "name": "__tuple_element",
+          "typeId": 19
+        }
+      ]
+    },
+    {
+      "type": "[_; 64]",
+      "metadataTypeId": 4,
+      "components": [
+        {
+          "name": "__array_element",
+          "typeId": 14
+        }
+      ]
+    },
+    {
+      "type": "enum errors::Error",
+      "metadataTypeId": 5,
+      "components": [
+        {
+          "name": "NonExistentStream",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "InvalidDates",
+          "typeId": 2
+        },
+        {
+          "name": "DateTooEarly",
+          "typeId": 2
+        },
+        {
+          "name": "SelfAddress",
+          "typeId": 18
+        },
+        {
+          "name": "ZeroAddress",
+          "typeId": 0
+        },
+        {
+          "name": "ZeroDeposit",
+          "typeId": 0
+        },
+        {
+          "name": "StreamDoesNotExist",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "VaultDoesNotExist",
+          "typeId": 19
+        },
+        {
+          "name": "NotReceiver",
+          "typeId": 3
+        },
+        {
+          "name": "InsufficientBalance",
+          "typeId": 2
+        },
+        {
+          "name": "InsufficientShares",
+          "typeId": 0
+        },
+        {
+          "name": "StreamAlreadyCancelled",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "NotSender",
+          "typeId": 3
+        },
+        {
+          "name": "NotEnoughCoins",
+          "typeId": 2
+        },
+        {
+          "name": "DepositsBlocked",
+          "typeId": 0
+        },
+        {
+          "name": "InvalidAsset",
+          "typeId": 3
+        },
+        {
+          "name": "IncorrectDeposit",
+          "typeId": 2
+        },
+        {
+          "name": "NotCancellable",
+          "typeId": 0
+        }
+      ]
+    },
+    {
+      "type": "enum libraries::structs::VestingCurve",
+      "metadataTypeId": 6,
+      "components": [
+        {
+          "name": "Linear",
+          "typeId": 0
+        },
+        {
+          "name": "PiecewiseLinear",
+          "typeId": 15
+        }
+      ]
+    },
+    {
+      "type": "enum std::identity::Identity",
+      "metadataTypeId": 7,
+      "components": [
+        {
+          "name": "Address",
+          "typeId": 18
+        },
+        {
+          "name": "ContractId",
+          "typeId": 22
+        }
+      ]
+    },
+    {
+      "type": "enum std::option::Option",
+      "metadataTypeId": 8,
+      "components": [
+        {
+          "name": "None",
+          "typeId": 0
+        },
+        {
+          "name": "Some",
+          "typeId": 10
+        }
       ],
+      "typeParameters": [
+        10
+      ]
     },
     {
-      type: "enum errors::Error",
-      metadataTypeId: 2,
-      components: [
+      "type": "enum structs::SenderOrReceiver",
+      "metadataTypeId": 9,
+      "components": [
         {
-          name: "NonExistentStream",
-          typeId: 0,
+          "name": "Sender",
+          "typeId": 0
         },
         {
-          name: "InvalidDates",
-          typeId: 0,
-        },
-        {
-          name: "DateTooEarly",
-          typeId: 0,
-        },
-        {
-          name: "SelfAddress",
-          typeId: 0,
-        },
-        {
-          name: "ZeroAddress",
-          typeId: 0,
-        },
-        {
-          name: "ZeroDeposit",
-          typeId: 0,
-        },
-        {
-          name: "StreamDoesNotExist",
-          typeId: 0,
-        },
-        {
-          name: "VaultDoesNotExist",
-          typeId: 0,
-        },
-        {
-          name: "NotReceiver",
-          typeId: 0,
-        },
-        {
-          name: "InsufficientBalance",
-          typeId: 0,
-        },
-        {
-          name: "InsufficientShares",
-          typeId: 0,
-        },
-        {
-          name: "StreamAlreadyCancelled",
-          typeId: 0,
-        },
-        {
-          name: "NotSender",
-          typeId: 0,
-        },
-        {
-          name: "NotEnoughCoins",
-          typeId: 0,
-        },
-        {
-          name: "DepositsBlocked",
-          typeId: 0,
-        },
-        {
-          name: "InvalidAsset",
-          typeId: 0,
-        },
-        {
-          name: "IncorrectDeposit",
-          typeId: 0,
-        },
-        {
-          name: "NotCancellable",
-          typeId: 0,
-        },
-      ],
+          "name": "Receiver",
+          "typeId": 0
+        }
+      ]
     },
     {
-      type: "enum std::identity::Identity",
-      metadataTypeId: 3,
-      components: [
-        {
-          name: "Address",
-          typeId: 12,
-        },
-        {
-          name: "ContractId",
-          typeId: 16,
-        },
-      ],
+      "type": "generic T",
+      "metadataTypeId": 10
     },
     {
-      type: "enum std::option::Option",
-      metadataTypeId: 4,
-      components: [
-        {
-          name: "None",
-          typeId: 0,
-        },
-        {
-          name: "Some",
-          typeId: 6,
-        },
-      ],
-      typeParameters: [6],
+      "type": "raw untyped ptr",
+      "metadataTypeId": 11
     },
     {
-      type: "enum structs::SenderOrReceiver",
-      metadataTypeId: 5,
-      components: [
+      "type": "struct events::CancelStream",
+      "metadataTypeId": 12,
+      "components": [
         {
-          name: "Sender",
-          typeId: 0,
+          "name": "stream_id",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "Receiver",
-          typeId: 0,
+          "name": "sender_asset",
+          "typeId": 19
         },
-      ],
+        {
+          "name": "receiver_asset",
+          "typeId": 19
+        },
+        {
+          "name": "unvested_recipient",
+          "typeId": 7
+        },
+        {
+          "name": "unvested_balance",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "vested_balance",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
     },
     {
-      type: "generic T",
-      metadataTypeId: 6,
+      "type": "struct events::CreateStream",
+      "metadataTypeId": 13,
+      "components": [
+        {
+          "name": "stream_id",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "sender",
+          "typeId": 7
+        },
+        {
+          "name": "underlying_asset",
+          "typeId": 19
+        },
+        {
+          "name": "receiver",
+          "typeId": 7
+        },
+        {
+          "name": "receiver_asset",
+          "typeId": 19
+        },
+        {
+          "name": "sender_asset",
+          "typeId": 19
+        },
+        {
+          "name": "deposit",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "stream_size",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "start_time",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "stop_time",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "configuration",
+          "typeId": 25
+        },
+        {
+          "name": "vesting_curve_id",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
     },
     {
-      type: "raw untyped ptr",
-      metadataTypeId: 7,
+      "type": "struct libraries::structs::Breakpoint",
+      "metadataTypeId": 14,
+      "components": [
+        {
+          "name": "duration_percentage_e6",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "vested_percentage_e6",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
     },
     {
-      type: "struct events::CancelStream",
-      metadataTypeId: 8,
-      components: [
+      "type": "struct libraries::structs::PiecewiseLinearVestingCurve",
+      "metadataTypeId": 15,
+      "components": [
         {
-          name: "stream_id",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "breakpoint_count",
+          "typeId": "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b"
         },
         {
-          name: "sender_asset",
-          typeId: 13,
-        },
-        {
-          name: "receiver_asset",
-          typeId: 13,
-        },
-        {
-          name: "unvested_recipient",
-          typeId: 3,
-        },
-        {
-          name: "unvested_balance",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-        {
-          name: "vested_balance",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-      ],
+          "name": "breakpoints",
+          "typeId": 4
+        }
+      ]
     },
     {
-      type: "struct events::CreateStream",
-      metadataTypeId: 9,
-      components: [
+      "type": "struct standards::src6::Deposit",
+      "metadataTypeId": 16,
+      "components": [
         {
-          name: "stream_id",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "caller",
+          "typeId": 7
         },
         {
-          name: "sender",
-          typeId: 3,
+          "name": "receiver",
+          "typeId": 7
         },
         {
-          name: "underlying_asset",
-          typeId: 13,
+          "name": "underlying_asset",
+          "typeId": 19
         },
         {
-          name: "receiver",
-          typeId: 3,
+          "name": "vault_sub_id",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
         },
         {
-          name: "receiver_asset",
-          typeId: 13,
+          "name": "deposited_amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "sender_asset",
-          typeId: 13,
-        },
-        {
-          name: "deposit",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-        {
-          name: "stream_size",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-        {
-          name: "start_time",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-        {
-          name: "stop_time",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-      ],
+          "name": "minted_shares",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
     },
     {
-      type: "struct standards::src6::Deposit",
-      metadataTypeId: 10,
-      components: [
+      "type": "struct standards::src6::Withdraw",
+      "metadataTypeId": 17,
+      "components": [
         {
-          name: "caller",
-          typeId: 3,
+          "name": "caller",
+          "typeId": 7
         },
         {
-          name: "receiver",
-          typeId: 3,
+          "name": "receiver",
+          "typeId": 7
         },
         {
-          name: "underlying_asset",
-          typeId: 13,
+          "name": "underlying_asset",
+          "typeId": 19
         },
         {
-          name: "vault_sub_id",
-          typeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
+          "name": "vault_sub_id",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
         },
         {
-          name: "deposited_amount",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "withdrawn_amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "minted_shares",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-      ],
+          "name": "burned_shares",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
     },
     {
-      type: "struct standards::src6::Withdraw",
-      metadataTypeId: 11,
-      components: [
+      "type": "struct std::address::Address",
+      "metadataTypeId": 18,
+      "components": [
         {
-          name: "caller",
-          typeId: 3,
-        },
-        {
-          name: "receiver",
-          typeId: 3,
-        },
-        {
-          name: "underlying_asset",
-          typeId: 13,
-        },
-        {
-          name: "vault_sub_id",
-          typeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
-        {
-          name: "withdrawn_amount",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-        {
-          name: "burned_shares",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-      ],
+          "name": "bits",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
     },
     {
-      type: "struct std::address::Address",
-      metadataTypeId: 12,
-      components: [
+      "type": "struct std::asset_id::AssetId",
+      "metadataTypeId": 19,
+      "components": [
         {
-          name: "bits",
-          typeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
-      ],
+          "name": "bits",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
     },
     {
-      type: "struct std::asset_id::AssetId",
-      metadataTypeId: 13,
-      components: [
+      "type": "struct std::bytes::Bytes",
+      "metadataTypeId": 20,
+      "components": [
         {
-          name: "bits",
-          typeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
+          "name": "buf",
+          "typeId": 21
         },
-      ],
+        {
+          "name": "len",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
     },
     {
-      type: "struct std::bytes::Bytes",
-      metadataTypeId: 14,
-      components: [
+      "type": "struct std::bytes::RawBytes",
+      "metadataTypeId": 21,
+      "components": [
         {
-          name: "buf",
-          typeId: 15,
+          "name": "ptr",
+          "typeId": 11
         },
         {
-          name: "len",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-      ],
+          "name": "cap",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
     },
     {
-      type: "struct std::bytes::RawBytes",
-      metadataTypeId: 15,
-      components: [
+      "type": "struct std::contract_id::ContractId",
+      "metadataTypeId": 22,
+      "components": [
         {
-          name: "ptr",
-          typeId: 7,
-        },
-        {
-          name: "cap",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
-      ],
+          "name": "bits",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
     },
     {
-      type: "struct std::contract_id::ContractId",
-      metadataTypeId: 16,
-      components: [
+      "type": "struct std::string::String",
+      "metadataTypeId": 23,
+      "components": [
         {
-          name: "bits",
-          typeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
-      ],
+          "name": "bytes",
+          "typeId": 20
+        }
+      ]
     },
     {
-      type: "struct std::string::String",
-      metadataTypeId: 17,
-      components: [
+      "type": "struct structs::Stream",
+      "metadataTypeId": 24,
+      "components": [
         {
-          name: "bytes",
-          typeId: 14,
-        },
-      ],
-    },
-    {
-      type: "struct structs::Stream",
-      metadataTypeId: 18,
-      components: [
-        {
-          name: "deposit",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "deposit",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "rate_per_second_e_10",
-          typeId: 21,
+          "name": "stream_size",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "stream_size",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "vested_withdrawn_amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "vested_withdrawn_amount",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "start_time",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "start_time",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "stop_time",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "stop_time",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "underlying_asset",
+          "typeId": 19
         },
         {
-          name: "underlying_asset",
-          typeId: 13,
+          "name": "receiver_asset",
+          "typeId": 19
         },
         {
-          name: "receiver_asset",
-          typeId: 13,
+          "name": "sender_asset",
+          "typeId": 19
         },
         {
-          name: "sender_asset",
-          typeId: 13,
-        },
-        {
-          name: "cancellation_time",
-          typeId: 4,
-          typeArguments: [
+          "name": "cancellation_time",
+          "typeId": 8,
+          "typeArguments": [
             {
-              name: "",
-              typeId:
-                "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-            },
-          ],
+              "name": "",
+              "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+            }
+          ]
         },
         {
-          name: "configuration",
-          typeId: 19,
+          "name": "configuration",
+          "typeId": 25
         },
-      ],
+        {
+          "name": "vesting_curve_id",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
     },
     {
-      type: "struct structs::StreamConfiguration",
-      metadataTypeId: 19,
-      components: [
+      "type": "struct structs::StreamConfiguration",
+      "metadataTypeId": 25,
+      "components": [
         {
-          name: "is_cancellable",
-          typeId:
-            "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+          "name": "is_cancellable",
+          "typeId": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903"
         },
         {
-          name: "is_undercollateralized",
-          typeId:
-            "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+          "name": "is_undercollateralized",
+          "typeId": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903"
         },
-      ],
+        {
+          "name": "vesting_curve",
+          "typeId": 6
+        }
+      ]
     },
     {
-      type: "struct structs::VaultInfo",
-      metadataTypeId: 20,
-      components: [
+      "type": "struct structs::VaultInfo",
+      "metadataTypeId": 26,
+      "components": [
         {
-          name: "vault_sub_id",
-          typeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
+          "name": "vault_sub_id",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
         },
         {
-          name: "asset",
-          typeId: 13,
+          "name": "asset",
+          "typeId": 19
         },
         {
-          name: "stream_id",
-          typeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "stream_id",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "sender_or_receiver",
-          typeId: 5,
-        },
-      ],
-    },
-    {
-      type: "u256",
-      metadataTypeId: 21,
-    },
+          "name": "sender_or_receiver",
+          "typeId": 9
+        }
+      ]
+    }
   ],
-  functions: [
+  "functions": [
     {
-      inputs: [
+      "inputs": [
         {
-          name: "unvested_recipient",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-        },
+          "name": "unvested_recipient",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
+        }
       ],
-      name: "cancel_stream",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "cancel_stream",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Cancel a stream and return the unvested balance to the sender",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Cancel a stream and return the unvested balance to the sender"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" Only callable by providing one sender share asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " Only callable by providing one sender share asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the amount of shares that have be withdrawn from a given vault",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the amount of shares that have be withdrawn from a given vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `unvested_recipient` - The contract or account that will receive the unvested tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `unvested_recipient` - The contract or account that will receive the unvested tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Call Params"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `amount` - Must be one to verify ownership of the sender share asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - Must be one to verify ownership of the sender share asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset_id` - The sender share asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The sender share asset"
+          ]
         },
         {
-          name: "payable",
-          arguments: [],
+          "name": "payable",
+          "arguments": []
         },
         {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "sender_share_recipient",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+          "name": "sender_share_recipient",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         },
         {
-          name: "receiver_share_recipient",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+          "name": "receiver_share_recipient",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         },
         {
-          name: "start_time",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "start_time",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "stop_time",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "stop_time",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "stream_size",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+          "name": "stream_size",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         },
         {
-          name: "configuration",
-          concreteTypeId:
-            "58b4973c1857df712b201c13a08dbe4802f324272e0a25ddcde7ddae250c6eb3",
-        },
+          "name": "configuration",
+          "concreteTypeId": "58b4973c1857df712b201c13a08dbe4802f324272e0a25ddcde7ddae250c6eb3"
+        }
       ],
-      name: "create_stream",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "create_stream",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Create a new stream"],
+          "name": "doc-comment",
+          "arguments": [
+            " Create a new stream"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" Returns the id of the new stream"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the id of the new stream"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" The underlying asset is received"],
+          "name": "doc-comment",
+          "arguments": [
+            " The underlying asset is received"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" A new stream is created"],
+          "name": "doc-comment",
+          "arguments": [
+            " A new stream is created"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " Two new vaults are created, one for the sender and one for the receiver",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Two new vaults are created, one for the sender and one for the receiver"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " The sender and receiver share assets are minted and sent to the sender and receiver respectively",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " The sender and receiver share assets are minted and sent to the sender and receiver respectively"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `sender_share_recipient` - The contract or account that will receive the sender share tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `sender_share_recipient` - The contract or account that will receive the sender share tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `receiver_share_recipient` - The contract or account that will receive the receiver share tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver_share_recipient` - The contract or account that will receive the receiver share tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `start_time` - The time at which the stream will start",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `start_time` - The time at which the stream will start"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `stop_time` - The time at which the stream will stop",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `stop_time` - The time at which the stream will stop"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `stream_size` - The total amount of assets to be distributed over the period",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `stream_size` - The total amount of assets to be distributed over the period"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `configuration` - Variables determining if a stream is cancellable or not",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `configuration` - Variables determining if a stream is cancellable or not"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Call Params"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `amount` - The amount of the underlying asset to be deposited",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - The amount of the underlying asset to be deposited"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset_id` - The underlying asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The underlying asset"
+          ]
         },
         {
-          name: "payable",
-          arguments: [],
+          "name": "payable",
+          "arguments": []
         },
         {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "stream_id",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
+          "name": "stream_id",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
       ],
-      name: "get_stream",
-      output:
-        "2fc70be102f6a3116aa31f712ff405cc277d9fea84cd5ac04a293cf67726cf26",
-      attributes: [
+      "name": "get_stream",
+      "output": "2fc70be102f6a3116aa31f712ff405cc277d9fea84cd5ac04a293cf67726cf26",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Returns the details of a stream by it's id"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the details of a stream by it's id"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `stream_id` - The id of the stream"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `stream_id` - The id of the stream"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "vault_share_asset_id",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "vault_share_asset_id",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "get_stream_by_vault_share_id",
-      output:
-        "800caa6c99d66f54b0a15eab9fb6b734b32f32cb0cdffbb1ad7ea8918c67824b",
-      attributes: [
+      "name": "get_stream_by_vault_share_id",
+      "output": "800caa6c99d66f54b0a15eab9fb6b734b32f32cb0cdffbb1ad7ea8918c67824b",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the details of a stream by it's share asset id and the stream id",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the details of a stream by it's share asset id and the stream id"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `vault_share_asset_id` - The share asset id of the vault",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_share_asset_id` - The share asset id of the vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "share_asset_id",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "share_asset_id",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "get_vault_info",
-      output:
-        "1761fd6bd4bd729038b54ecb9f5ae556f5c7c4175e40e830cfda239a8099e8e1",
-      attributes: [
+      "name": "get_vault_info",
+      "output": "1761fd6bd4bd729038b54ecb9f5ae556f5c7c4175e40e830cfda239a8099e8e1",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Returns the details of a vault by it's share asset id"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the details of a vault by it's share asset id"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `vault_share_asset_id` - The share asset id of the vault",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_share_asset_id` - The share asset id of the vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "stream_id",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
+          "name": "stream_id",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
       ],
-      name: "is_solvent",
-      output:
-        "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
-      attributes: [
+      "name": "is_solvent",
+      "output": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+      "attributes": [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "receiver",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+          "name": "receiver",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         },
         {
-          name: "amount",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
+          "name": "amount",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
       ],
-      name: "partial_withdraw_from_stream",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "partial_withdraw_from_stream",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Withdraw a certain amount from a specific stream"],
+          "name": "doc-comment",
+          "arguments": [
+            " Withdraw a certain amount from a specific stream"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" Only callable by providing one receiver share asset "],
+          "name": "doc-comment",
+          "arguments": [
+            " Only callable by providing one receiver share asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the amount of shares that have be withdrawn from a given vault",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the amount of shares that have be withdrawn from a given vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `receiver` - The contract or account that will receive the withdrawn tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver` - The contract or account that will receive the withdrawn tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `amount` - The amount of shares to be withdrawn"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - The amount of shares to be withdrawn"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" "],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Call Params"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `amount` - Must be one to verify ownership of the receiver share asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - Must be one to verify ownership of the receiver share asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset_id` - The receiver share asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The receiver share asset"
+          ]
         },
         {
-          name: "payable",
-          arguments: [],
+          "name": "payable",
+          "arguments": []
         },
         {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "vault_share_asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "vault_share_asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "underlying_asset",
-      output:
-        "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      attributes: [
+      "name": "underlying_asset",
+      "output": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the underlying asset of a given vault by its share asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the underlying asset of a given vault by its share asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `vault_share_asset` - The share asset id of the vault",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_share_asset` - The share asset id of the vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "stream_id",
-          concreteTypeId:
-            "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-        },
+          "name": "stream_id",
+          "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
       ],
-      name: "vested_amount",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "vested_amount",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "_asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "_asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "decimals",
-      output:
-        "2da102c46c7263beeed95818cd7bee801716ba8303dddafdcd0f6c9efda4a0f1",
-      attributes: [
+      "name": "decimals",
+      "output": "2da102c46c7263beeed95818cd7bee801716ba8303dddafdcd0f6c9efda4a0f1",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns 0 for the number of decimals for any asset as they are all NFTs",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns 0 for the number of decimals for any asset as they are all NFTs"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset` - The asset id of the asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "name",
-      output:
-        "7c06d929390a9aeeb8ffccf8173ac0d101a9976d99dda01cce74541a81e75ac0",
-      attributes: [
+      "name": "name",
+      "output": "7c06d929390a9aeeb8ffccf8173ac0d101a9976d99dda01cce74541a81e75ac0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Returns the name of a given asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the name of a given asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset` - The asset id of the asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "symbol",
-      output:
-        "7c06d929390a9aeeb8ffccf8173ac0d101a9976d99dda01cce74541a81e75ac0",
-      attributes: [
+      "name": "symbol",
+      "output": "7c06d929390a9aeeb8ffccf8173ac0d101a9976d99dda01cce74541a81e75ac0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Returns the symbol of a given asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the symbol of a given asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset` - The asset id of the asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [],
-      name: "total_assets",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "inputs": [],
+      "name": "total_assets",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the total number of different assets minted by the contract",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the total number of different assets minted by the contract"
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-        },
+          "name": "asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+        }
       ],
-      name: "total_supply",
-      output:
-        "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
-      attributes: [
+      "name": "total_supply",
+      "output": "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Returns the total supply of a given asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the total supply of a given asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset` - The asset id of the asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset` - The asset id of the asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "receiver",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+          "name": "receiver",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         },
         {
-          name: "vault_sub_id",
-          concreteTypeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
+          "name": "vault_sub_id",
+          "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
       ],
-      name: "deposit",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "deposit",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Deposits are blocked in this contract"],
+          "name": "doc-comment",
+          "arguments": [
+            " Deposits are blocked in this contract"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " Thus this is a function defined to comply with SRC-6 but it will always throw an error",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Thus this is a function defined to comply with SRC-6 but it will always throw an error"
+          ]
         },
         {
-          name: "payable",
-          arguments: [],
+          "name": "payable",
+          "arguments": []
         },
         {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "_underlying_asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+          "name": "_underlying_asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
         },
         {
-          name: "vault_sub_id",
-          concreteTypeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
+          "name": "vault_sub_id",
+          "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
       ],
-      name: "managed_assets",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "managed_assets",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Returns the balance of a given vault"],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the balance of a given vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " If the vault is a sender, the balance is the remaining unvested balance that can be withdrawn on cancellation",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " If the vault is a sender, the balance is the remaining unvested balance that can be withdrawn on cancellation"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " If the vault is a receiver, the balance is the remaining vested balance that can be withdrawn",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " If the vault is a receiver, the balance is the remaining vested balance that can be withdrawn"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" "],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `underlying_asset` - The asset id of the underlying asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `vault_sub_id` - The sub id of the vault"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "_receiver",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+          "name": "_receiver",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         },
         {
-          name: "_underlying_asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+          "name": "_underlying_asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
         },
         {
-          name: "vault_sub_id",
-          concreteTypeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
+          "name": "vault_sub_id",
+          "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
       ],
-      name: "max_depositable",
-      output:
-        "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
-      attributes: [
+      "name": "max_depositable",
+      "output": "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the maximum depositable amount for a given vault and receiver of share assets",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the maximum depositable amount for a given vault and receiver of share assets"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " In V1 this deposits are disabled so this function will always return 0",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " In V1 this deposits are disabled so this function will always return 0"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" It is implemented to comply with the SRC-6 standard"],
+          "name": "doc-comment",
+          "arguments": [
+            " It is implemented to comply with the SRC-6 standard"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `receiver` - The contract or account that will receive the deposited tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver` - The contract or account that will receive the deposited tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `underlying_asset` - The asset id of the underlying asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `vault_sub_id` - The sub id of the vault"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "_underlying_asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+          "name": "_underlying_asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
         },
         {
-          name: "vault_sub_id",
-          concreteTypeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
+          "name": "vault_sub_id",
+          "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
       ],
-      name: "max_withdrawable",
-      output:
-        "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
-      attributes: [
+      "name": "max_withdrawable",
+      "output": "d852149004cc9ec0bbe7dc4e37bffea1d41469b759512b6136f2e865a4c06e7d",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [
-            " Returns the maximum withdrawable amount for a given vault",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Returns the maximum withdrawable amount for a given vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" This differs from the managed_assets"],
+          "name": "doc-comment",
+          "arguments": [
+            " This differs from the managed_assets"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `underlying_asset` - The asset id of the underlying asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `vault_sub_id` - The sub id of the vault"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
         },
         {
-          name: "storage",
-          arguments: ["read"],
-        },
-      ],
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
     },
     {
-      inputs: [
+      "inputs": [
         {
-          name: "receiver",
-          concreteTypeId:
-            "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
+          "name": "receiver",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         },
         {
-          name: "_underlying_asset",
-          concreteTypeId:
-            "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+          "name": "_underlying_asset",
+          "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
         },
         {
-          name: "_vault_sub_id",
-          concreteTypeId:
-            "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b",
-        },
+          "name": "_vault_sub_id",
+          "concreteTypeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
       ],
-      name: "withdraw",
-      output:
-        "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      attributes: [
+      "name": "withdraw",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
         {
-          name: "doc-comment",
-          arguments: [" Withdraw from the stream"],
+          "name": "doc-comment",
+          "arguments": [
+            " Withdraw from the stream"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " Calling this with a sender share asset will cancel the stream and return unvested tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Calling this with a sender share asset will cancel the stream and return unvested tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " Calling this with a receiver share asset will withdraw the full amount of vested tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " Calling this with a receiver share asset will withdraw the full amount of vested tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" "],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Arguments"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Arguments"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `receiver` - The contract or account that will receive the withdrawn tokens",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `receiver` - The contract or account that will receive the withdrawn tokens"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `underlying_asset` - The asset id of the underlying asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `underlying_asset` - The asset id of the underlying asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `vault_sub_id` - The sub id of the vault"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `vault_sub_id` - The sub id of the vault"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [""],
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" # Call Params"],
+          "name": "doc-comment",
+          "arguments": [
+            " # Call Params"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [
-            " * `amount` - Must be one to verify ownership of the receiver or sender share asset",
-          ],
+          "name": "doc-comment",
+          "arguments": [
+            " * `amount` - Must be one to verify ownership of the receiver or sender share asset"
+          ]
         },
         {
-          name: "doc-comment",
-          arguments: [" * `asset_id` - The receiver or sender share asset"],
+          "name": "doc-comment",
+          "arguments": [
+            " * `asset_id` - The receiver or sender share asset"
+          ]
         },
         {
-          name: "payable",
-          arguments: [],
+          "name": "payable",
+          "arguments": []
         },
         {
-          name: "storage",
-          arguments: ["read", "write"],
-        },
-      ],
-    },
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    }
   ],
-  loggedTypes: [
+  "loggedTypes": [
     {
-      logId: "5432468599230875534",
-      concreteTypeId:
-        "4b640168969ec78e1ff09a1a9ccc8234ffaf1b016e862a4251e06348e490b3d3",
+      "logId": "5432468599230875534",
+      "concreteTypeId": "4b640168969ec78e1ff09a1a9ccc8234ffaf1b016e862a4251e06348e490b3d3"
     },
     {
-      logId: "6674994989715820820",
-      concreteTypeId:
-        "5ca25893d78611148f75b9155f0b5354c2522be49e759c61ad1302c095156c4f",
+      "logId": "6674994989715820820",
+      "concreteTypeId": "5ca25893d78611148f75b9155f0b5354c2522be49e759c61ad1302c095156c4f"
     },
     {
-      logId: "7130535457264345996",
-      concreteTypeId:
-        "62f4c0381c91a38c86105e821a8ca8ac17a3ade26028b8a79505970cd1387e0f",
+      "logId": "7130535457264345996",
+      "concreteTypeId": "62f4c0381c91a38c86105e821a8ca8ac17a3ade26028b8a79505970cd1387e0f"
     },
     {
-      logId: "13151976532709238696",
-      concreteTypeId:
-        "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe",
+      "logId": "13151976532709238696",
+      "concreteTypeId": "b68534f96e6867a83555d5879812e25671f66073697772da95e7fb872a9605fe"
     },
     {
-      logId: "6901066102973855336",
-      concreteTypeId:
-        "5fc5830ea73ef668eb92ed0f7fb0796448cba480e0dc5f37eb8f140d0aa6ebd3",
-    },
+      "logId": "6901066102973855336",
+      "concreteTypeId": "5fc5830ea73ef668eb92ed0f7fb0796448cba480e0dc5f37eb8f140d0aa6ebd3"
+    }
   ],
-  messagesTypes: [],
-  configurables: [],
+  "messagesTypes": [],
+  "configurables": [
+    {
+      "name": "VESTING_CURVE_REGISTRY",
+      "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
+      "offset": 54968
+    }
+  ]
 };
 
 const storageSlots: StorageSlot[] = [
   {
-    key: "93b67ee4f0f76b71456fb4385c86aec15689e1ce5f6f6ac63b71716afa052998",
-    value: "0000000000000000000000000000000000000000000000000000000000000000",
-  },
+    "key": "93b67ee4f0f76b71456fb4385c86aec15689e1ce5f6f6ac63b71716afa052998",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
 ];
 
 export class TokenStreamingInterface extends Interface {
@@ -1915,69 +2006,24 @@ export class TokenStreaming extends Contract {
   declare interface: TokenStreamingInterface;
   declare functions: {
     cancel_stream: InvokeFunction<[unvested_recipient: IdentityInput], BN>;
-    create_stream: InvokeFunction<
-      [
-        sender_share_recipient: IdentityInput,
-        receiver_share_recipient: IdentityInput,
-        start_time: BigNumberish,
-        stop_time: BigNumberish,
-        stream_size: BigNumberish,
-        configuration: StreamConfigurationInput,
-      ],
-      BN
-    >;
+    create_stream: InvokeFunction<[sender_share_recipient: IdentityInput, receiver_share_recipient: IdentityInput, start_time: BigNumberish, stop_time: BigNumberish, stream_size: BigNumberish, configuration: StreamConfigurationInput], BN>;
     get_stream: InvokeFunction<[stream_id: BigNumberish], StreamOutput>;
-    get_stream_by_vault_share_id: InvokeFunction<
-      [vault_share_asset_id: AssetIdInput],
-      [StreamOutput, BN]
-    >;
-    get_vault_info: InvokeFunction<
-      [share_asset_id: AssetIdInput],
-      VaultInfoOutput
-    >;
+    get_stream_by_vault_share_id: InvokeFunction<[vault_share_asset_id: AssetIdInput], [StreamOutput, BN]>;
+    get_vault_info: InvokeFunction<[share_asset_id: AssetIdInput], VaultInfoOutput>;
     is_solvent: InvokeFunction<[stream_id: BigNumberish], boolean>;
-    partial_withdraw_from_stream: InvokeFunction<
-      [receiver: IdentityInput, amount: BigNumberish],
-      BN
-    >;
-    underlying_asset: InvokeFunction<
-      [vault_share_asset: AssetIdInput],
-      AssetIdOutput
-    >;
+    partial_withdraw_from_stream: InvokeFunction<[receiver: IdentityInput, amount: BigNumberish], BN>;
+    underlying_asset: InvokeFunction<[vault_share_asset: AssetIdInput], AssetIdOutput>;
     vested_amount: InvokeFunction<[stream_id: BigNumberish], BN>;
     decimals: InvokeFunction<[_asset: AssetIdInput], Option<number>>;
     name: InvokeFunction<[asset: AssetIdInput], Option<StdString>>;
     symbol: InvokeFunction<[asset: AssetIdInput], Option<StdString>>;
     total_assets: InvokeFunction<[], BN>;
     total_supply: InvokeFunction<[asset: AssetIdInput], Option<BN>>;
-    deposit: InvokeFunction<
-      [receiver: IdentityInput, vault_sub_id: string],
-      BN
-    >;
-    managed_assets: InvokeFunction<
-      [_underlying_asset: AssetIdInput, vault_sub_id: string],
-      BN
-    >;
-    max_depositable: InvokeFunction<
-      [
-        _receiver: IdentityInput,
-        _underlying_asset: AssetIdInput,
-        vault_sub_id: string,
-      ],
-      Option<BN>
-    >;
-    max_withdrawable: InvokeFunction<
-      [_underlying_asset: AssetIdInput, vault_sub_id: string],
-      Option<BN>
-    >;
-    withdraw: InvokeFunction<
-      [
-        receiver: IdentityInput,
-        _underlying_asset: AssetIdInput,
-        _vault_sub_id: string,
-      ],
-      BN
-    >;
+    deposit: InvokeFunction<[receiver: IdentityInput, vault_sub_id: string], BN>;
+    managed_assets: InvokeFunction<[_underlying_asset: AssetIdInput, vault_sub_id: string], BN>;
+    max_depositable: InvokeFunction<[_receiver: IdentityInput, _underlying_asset: AssetIdInput, vault_sub_id: string], Option<BN>>;
+    max_withdrawable: InvokeFunction<[_underlying_asset: AssetIdInput, vault_sub_id: string], Option<BN>>;
+    withdraw: InvokeFunction<[receiver: IdentityInput, _underlying_asset: AssetIdInput, _vault_sub_id: string], BN>;
   };
 
   constructor(
