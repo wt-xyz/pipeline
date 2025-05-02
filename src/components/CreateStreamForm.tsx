@@ -32,7 +32,8 @@ import { BASE_ASSET_ID } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { CoinQuantityWithId } from "@/redux/coinsSlice";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { IconClock } from "@tabler/icons-react";
 import CustomTimeInput from "./CustomTimeInput";
 
 type FormValues = {
@@ -79,7 +80,7 @@ export const CreateStreamForm = () => {
     setEndTime(time);
   };
 
-  const { createStream, loading, error } = useCreateStream();
+  const { createStream, loading, error, data } = useCreateStream();
   const { showNotification } = useNotificationHook(
     "Creating stream...",
     loading,
@@ -119,7 +120,42 @@ export const CreateStreamForm = () => {
 
   const router = useRouter();
 
-  const handleSubmit = (values: FormValues) => {
+  useEffect(() => {
+    if (error != undefined) {
+      return;
+    }
+
+    if (data !== undefined) {
+      refreshCoins();
+      router.push("/manage");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, error, refreshCoins]);
+
+  const startDateRef = useRef<HTMLInputElement>(null);
+  const endDateRef = useRef<HTMLInputElement>(null);
+
+  const startDatePickerControl = (
+    <ActionIcon
+      variant="subtle"
+      color="gray"
+      onClick={() => startDateRef.current?.showPicker()}
+    >
+      <IconClock size={16} stroke={1.5} />
+    </ActionIcon>
+  );
+
+  const endDatePickerControl = (
+    <ActionIcon
+      variant="subtle"
+      color="gray"
+      onClick={() => endDateRef.current?.showPicker()}
+    >
+      <IconClock size={16} stroke={1.5} />
+    </ActionIcon>
+  );
+
+  const handleSubmit = async (values: FormValues) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     if (isDateDefined(values) && wallet.wallet?.address) {
       const streamSizeBn = numberInputToDecimalBN(values.streamSize);
@@ -133,7 +169,7 @@ export const CreateStreamForm = () => {
       const newStartDate = combineDateAndTime(startDate, startTime);
       const newEndDate = combineDateAndTime(endDate, endTime);
 
-      createStream(
+      await createStream(
         values.token,
         depositBn,
         wallet.wallet.address.toB256(),
@@ -145,11 +181,7 @@ export const CreateStreamForm = () => {
           is_undercollateralized: values.undercollateralized,
           is_cancellable: values.cancellable,
         },
-      ).then(() => {
-        // update the fetched streams
-        refreshCoins();
-        router.push("/manage");
-      });
+      );
       showNotification();
     }
   };
