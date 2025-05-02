@@ -16,7 +16,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { DatePickerInput, DatesProvider, TimeInput } from "@mantine/dates";
+import { DatePickerInput, DatesProvider } from "@mantine/dates";
 import { useCreateStream } from "@/hooks/TokenStreamingAbi";
 import { useFetchCoins, useRefreshCoins } from "@/hooks/useCoins";
 import { convertUnixTimeMillisecondsToTaiTime } from "@/utils/dateTimeUtils";
@@ -32,8 +32,9 @@ import { BASE_ASSET_ID } from "@/constants/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { CoinQuantityWithId } from "@/redux/coinsSlice";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconClock } from "@tabler/icons-react";
+import CustomTimeInput from "./CustomTimeInput";
 
 type FormValues = {
   token: string;
@@ -44,25 +45,16 @@ type FormValues = {
   cancellable: boolean;
   startDate: Date | null;
   endDate: Date | null;
-  startTime: string | null;
-  endTime: string | null;
 };
 
-function isDateAndTimeDefined(values: FormValues): values is Omit<
+function isDateDefined(values: FormValues): values is Omit<
   FormValues,
-  "startDate" | "endDate" | "startTime" | "endTime"
+  "startDate" | "endDate"
 > & {
   startDate: Date;
   endDate: Date;
-  startTime: string;
-  endTime: string;
 } {
-  return (
-    values.startDate !== null &&
-    values.startTime !== null &&
-    values.endDate !== null &&
-    values.endTime !== null
-  );
+  return values.startDate !== null && values.endDate !== null;
 }
 
 function combineDateAndTime(date: Date | string, time: string): Date {
@@ -77,6 +69,16 @@ export const CreateStreamForm = () => {
   const coins = useFetchCoins();
   const { connect, isConnecting } = useConnectUI();
   const timezone = useSelector((state: RootState) => state.timezone.timezone);
+
+  const [startTime, setStartTime] = useState("00:00");
+  const [endTime, setEndTime] = useState("00:00");
+
+  const handleStartTimeChange = (time: string) => {
+    setStartTime(time);
+  };
+  const handleEndTimeChange = (time: string) => {
+    setEndTime(time);
+  };
 
   const { createStream, loading, error, data } = useCreateStream();
   const { showNotification } = useNotificationHook(
@@ -100,8 +102,6 @@ export const CreateStreamForm = () => {
       },
       startDate: (value) => (value ? null : "Start date is required"),
       endDate: (value) => (value ? null : "End date is required"),
-      startTime: (value) => (value ? null : "Start time is required"),
-      endTime: (value) => (value ? null : "End time is required"),
     },
     initialValues: {
       token: BASE_ASSET_ID,
@@ -112,8 +112,6 @@ export const CreateStreamForm = () => {
       cancellable: true,
       startDate: null,
       endDate: null,
-      startTime: null,
-      endTime: null,
     },
   });
 
@@ -159,17 +157,17 @@ export const CreateStreamForm = () => {
 
   const handleSubmit = async (values: FormValues) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    if (isDateAndTimeDefined(values) && wallet.wallet?.address) {
+    if (isDateDefined(values) && wallet.wallet?.address) {
       const streamSizeBn = numberInputToDecimalBN(values.streamSize);
 
       const depositBn = values.undercollateralized
         ? numberInputToDecimalBN(values.deposit)
         : streamSizeBn;
 
-      const { startDate, startTime, endDate, endTime } = values;
+      const { startDate, endDate } = values;
 
       const newStartDate = combineDateAndTime(startDate, startTime);
-      const mewEndDate = combineDateAndTime(endDate, endTime);
+      const newEndDate = combineDateAndTime(endDate, endTime);
 
       await createStream(
         values.token,
@@ -177,7 +175,7 @@ export const CreateStreamForm = () => {
         wallet.wallet.address.toB256(),
         values.recipient,
         convertUnixTimeMillisecondsToTaiTime(new BN(newStartDate.getTime())),
-        convertUnixTimeMillisecondsToTaiTime(new BN(mewEndDate.getTime())),
+        convertUnixTimeMillisecondsToTaiTime(new BN(newEndDate.getTime())),
         streamSizeBn,
         {
           is_undercollateralized: values.undercollateralized,
@@ -303,11 +301,7 @@ export const CreateStreamForm = () => {
                   </Box>
 
                   <Box>
-                    <TimeInput
-                      ref={startDateRef}
-                      rightSection={startDatePickerControl}
-                      {...form.getInputProps("startTime")}
-                    />
+                    <CustomTimeInput onTimeChange={handleStartTimeChange} />
                   </Box>
                 </Flex>
               </Box>
@@ -343,11 +337,7 @@ export const CreateStreamForm = () => {
                   </Box>
 
                   <Box>
-                    <TimeInput
-                      ref={endDateRef}
-                      rightSection={endDatePickerControl}
-                      {...form.getInputProps("endTime")}
-                    />
+                    <CustomTimeInput onTimeChange={handleEndTimeChange} />
                   </Box>
                 </Flex>
               </Box>
