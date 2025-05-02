@@ -1,7 +1,7 @@
 contract;
 
 mod events;
-mod structs;
+pub mod structs;
 mod errors;
 mod interface;
 
@@ -102,14 +102,14 @@ impl Pipeline for Contract {
 
 
     /// Withdraw a certain amount from a specific stream
-    /// Only callable by providing one receiver share asset 
+    /// Only callable by providing one receiver share asset
     /// Returns the amount of shares that have be withdrawn from a given vault
     ///
     /// # Arguments
     ///
     /// * `receiver` - The contract or account that will receive the withdrawn tokens
     /// * `amount` - The amount of shares to be withdrawn
-    /// 
+    ///
     /// # Call Params
     /// * `amount` - Must be one to verify ownership of the receiver share asset
     /// * `asset_id` - The receiver share asset
@@ -306,7 +306,7 @@ impl SRC6 for Contract {
     /// Withdraw from the stream
     /// Calling this with a sender share asset will cancel the stream and return unvested tokens
     /// Calling this with a receiver share asset will withdraw the full amount of vested tokens
-    /// 
+    ///
     /// # Arguments
     ///
     /// * `receiver` - The contract or account that will receive the withdrawn tokens
@@ -342,7 +342,7 @@ impl SRC6 for Contract {
     /// Returns the balance of a given vault
     /// If the vault is a sender, the balance is the remaining unvested balance that can be withdrawn on cancellation
     /// If the vault is a receiver, the balance is the remaining vested balance that can be withdrawn
-    /// 
+    ///
     ///
     /// # Arguments
     ///
@@ -562,7 +562,7 @@ pub fn burn(asset_id: AssetId, vault_sub_id: SubId, amount: u64) {
 
 // PURE FUNCTIONS
 /// Returns an AssetId for a vault from from it's associated sub id
-/// 
+///
 /// # Arguments
 ///
 /// * `vault_sub_id` - The sub id of the vault
@@ -712,7 +712,7 @@ fn vested_amount(stream: Stream) -> u64 {
 ///
 /// # Arguments
 ///
-/// * `stream_id` the id of the stream to check solvency 
+/// * `stream_id` the id of the stream to check solvency
 ///
 /// > Note If rate_per_second < 1 then this function will return true, even after the last valid token accrual for 1/rate_per_seconds,
 
@@ -728,14 +728,14 @@ fn is_solvent(stream_id: u64) -> bool {
 
 // MUTABLE FUNCTIONS
 /// Withdraw a certain amount from a specific stream
-/// Only callable by providing one receiver share asset 
+/// Only callable by providing one receiver share asset
 /// Returns the amount of shares that have be withdrawn from a given vault
 ///
 /// # Arguments
 ///
 /// * `receiver` - The contract or account that will receive the withdrawn tokens
 /// * `amount` - The amount of shares to be withdrawn
-/// 
+///
 /// # Call Params
 /// * `amount` - Must be one to verify ownership of the receiver share asset
 /// * `asset_id` - The receiver share asset
@@ -781,7 +781,7 @@ fn partial_withdraw_from_stream(receiver: Identity, amount: u64) -> u64 {
     // INTERACTIONS
     // transfer the amount to the receiver
     transfer(receiver, stream.underlying_asset, amount);
-    // transfer the share asset back to the 
+    // transfer the share asset back to the
     transfer(msg_sender().unwrap(), vault_share_asset, 1);
 
     log(Withdraw {
