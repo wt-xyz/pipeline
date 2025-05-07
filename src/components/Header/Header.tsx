@@ -4,6 +4,8 @@ import { Wallet } from "components/Wallet/Wallet";
 import { GroupWithDivider } from "components/GroupWithDivider/GroupWithDivider";
 import { NavLinkButton } from "../Buttons/NavLinkButton";
 import { useRouter } from "next/navigation";
+import { MobileMenu } from "./MobileMenu";
+import { NAVIGATION_LINKS } from "@/constants/NavigationConfig";
 
 export const Header = () => {
   const router = useRouter();
@@ -23,6 +25,9 @@ export const Header = () => {
       {/* Mobile View */}
       <Flex hiddenFrom="sm">
         <Wallet />
+        <Flex ml="xs">
+          <MobileMenu />
+        </Flex>
       </Flex>
       {/* Desktop View */}
       <GroupWithDivider
@@ -42,10 +47,7 @@ export const Header = () => {
           />
         }
       >
-        {[
-          { label: "Create Stream", path: "/create" },
-          { label: "Manage Streams", path: "/manage" },
-        ].map((button) => (
+        {NAVIGATION_LINKS.map((button) => (
           <NavLinkButton {...button} key={button.path} />
         ))}
         <Wallet />
